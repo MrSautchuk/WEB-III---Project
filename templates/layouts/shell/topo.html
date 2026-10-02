@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="{{ tema.bs_theme|default:'light' }}" data-tema="{{ tema.slug|default:'profissional' }}"
+      data-raio="{{ tema.raio|default:'suave' }}" data-sombra="{{ tema.sombra|default:'suave' }}"
+      data-densidade="{{ tema.densidade|default:'confortavel' }}" data-movimento="{{ tema.movimento|default:'discreto' }}"
+      data-tipografia="{{ tema.tipografia|default:'sans' }}" data-icones="{{ tema.icones|default:'contorno' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Hub Central de Marketplaces{% endblock %}</title>
+    {% block meta %}{% endblock %}
+    {% include "layouts/_assets.html" %}
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <a class="visually-hidden-focusable" href="#conteudo">Ir para o conteúdo</a>
+
+    <!-- NAVBAR SUPERIOR (Variante Topo) -->
+    <nav class="navbar navbar-expand-lg app-navbar sticky-top shadow-sm" data-bs-theme="{{ tema.navbar_bs|default:'dark' }}">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white" href="/">
+                <i class="bi bi-layers-fill"></i> Hub Central Marketplaces
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Alternar navegação">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navMenu">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    {% if user.is_authenticated %}
+                        {# menu_grupos filtrados ativamente por RBAC no context processor #}
+                        {% for grupo in menu_grupos %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-1" href="#" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi {{ grupo.icone }}"></i> {{ grupo.titulo }}
+                            </a>
+                            <ul class="dropdown-menu shadow">
+                                {% for item in grupo.itens %}
+                                <li><a class="dropdown-item" href="{{ item.url }}">{{ item.titulo }}</a></li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        {% endfor %}
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if user.is_authenticated %}
+                        {% block navbar_notifications %}{% endblock %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2"
+                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle fs-5"></i>
+                                <span>{{ user.get_full_name|default:user.username }}</span>
+                                {% if user.perfil.loja %}
+                                    <span class="badge bg-light text-dark small ms-1">{{ user.perfil.loja.nome }}</span>
+                                {% elif user.perfil.is_dev or user.is_superuser %}
+                                    <span class="badge bg-warning text-dark small ms-1">DEV</span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow">
+                                <li>
+                                    <h6 class="dropdown-header">
+                                        <i class="bi bi-shield-lock me-1"></i>
+                                        Papel: {{ user.perfil.get_papel_display|default:'Usuário' }}
+                                    </h6>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form method="post" action="{% url 'logout' %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2">
+                                            <i class="bi bi-box-arrow-right"></i> Sair do Sistema
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="btn btn-sm btn-login fw-semibold" href="{% url 'login' %}">
+                                <i class="bi bi-box-arrow-in-right"></i> Entrar
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- TOOLBAR DA PÁGINA -->
+    <header class="app-toolbar">
+        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h4 mb-0 fw-bold">{% block page_title %}Visão Geral{% endblock %}</h1>
+                <small class="text-muted">{% block page_subtitle %}{% endblock %}</small>
+            </div>
+            <div class="d-flex gap-2">{% block toolbar_actions %}{% endblock %}</div>
+        </div>
+    </header>
+
+    <!-- MENSAGENS FLASH -->
+    <div class="container-fluid px-4">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main id="conteudo" class="container-fluid px-4 mb-5">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- RODAPÉ INSTITUCIONAL -->
+    <footer class="py-3 text-center text-muted small">
+        <div class="container-fluid">
+            &copy; 2026 Hub Central de Marketplaces &bull; Plataforma Multicanal &bull; Fonte Única da Verdade
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3.3 JS com SRI oficial -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            crossorigin="anonymous" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"></script>
+    <script src="{% static 'js/app.js' %}" defer></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
