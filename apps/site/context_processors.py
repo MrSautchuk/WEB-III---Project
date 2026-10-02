@@ -47,8 +47,8 @@ def _construir_menus_rbac(user) -> List[Dict[str, Any]]:
     # Grupo 1: Catálogo e Produtos
     itens_catalogo = []
     try:
-        itens_catalogo.append({'titulo': 'Produtos', 'url': reverse('catalogo:produto_list')})
-        itens_catalogo.append({'titulo': 'Categorias', 'url': reverse('catalogo:categoria_list')})
+        itens_catalogo.append({'titulo': 'Produtos', 'url': reverse('produto_list')})
+        itens_catalogo.append({'titulo': 'Categorias', 'url': reverse('categoria_list')})
     except Exception:
         pass
 
@@ -62,14 +62,15 @@ def _construir_menus_rbac(user) -> List[Dict[str, Any]]:
     # Grupo 2: Integrações Marketplaces
     itens_mkt = []
     try:
-        itens_mkt.append({'titulo': 'Contas Conectadas', 'url': reverse('marketplaces:conta_list')})
-        itens_mkt.append({'titulo': 'Anúncios', 'url': reverse('anuncios:anuncio_list')})
+        itens_mkt.append({'titulo': 'Canais de Venda', 'url': reverse('canal_list')})
+        itens_mkt.append({'titulo': 'Anúncios', 'url': reverse('anuncio_list')})
+        itens_mkt.append({'titulo': 'Logs de Sincronização', 'url': reverse('log_sincronizacao_list')})
     except Exception:
         pass
 
     if itens_mkt:
         grupos.append({
-            'titulo': 'Canais de Venda',
+            'titulo': 'Marketplaces',
             'icone': 'bi-diagram-3',
             'itens': itens_mkt,
         })
@@ -77,7 +78,7 @@ def _construir_menus_rbac(user) -> List[Dict[str, Any]]:
     # Grupo 3: Vendas e Pedidos
     itens_pedidos = []
     try:
-        itens_pedidos.append({'titulo': 'Painel de Pedidos', 'url': reverse('pedidos:pedido_list')})
+        itens_pedidos.append({'titulo': 'Painel de Pedidos', 'url': reverse('pedido_list')})
     except Exception:
         pass
 
@@ -91,7 +92,7 @@ def _construir_menus_rbac(user) -> List[Dict[str, Any]]:
     # Grupo 4: Financeiro
     itens_fin = []
     try:
-        itens_fin.append({'titulo': 'Visão Financeira', 'url': reverse('financeiro:dashboard')})
+        itens_fin.append({'titulo': 'Simulador Promocional', 'url': reverse('simulador_promocional')})
     except Exception:
         pass
 

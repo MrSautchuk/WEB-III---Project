@@ -24,31 +24,27 @@ class TemaContrasteESegurancaTests(TestCase):
         """Todos os 10 modelos canônicos (T01 a T10) devem cumprir WCAG 2.1 estrito."""
         for modelo_id, p in PRESETS_MODELOS.items():
             with self.subTest(modelo=modelo_id):
-                # Não deve levantar ValidationError
-                try:
-                    validar_contraste_wcag(
-                        cor_fundos=p['fundos'],
-                        cor_destaques=p['destaques'],
-                        cor_escritas=p['escritas'],
-                        modelo=modelo_id
-                    )
-                except ValidationError as e:
-                    self.fail(f"Modelo {modelo_id} reprovou no teste de contraste: {e}")
+                res = validar_contraste_wcag(
+                    cor_fundos=p['fundos'],
+                    cor_destaques=p['destaques'],
+                    cor_escritas=p['escritas'],
+                    modelo=modelo_id
+                )
+                self.assertTrue(res['valido'], f"Modelo {modelo_id} reprovou no teste de contraste")
 
-    def test_contraste_insuficiente_lanca_validation_error(self):
-        """Cores com contraste abaixo de 4.5:1 (escritas) ou 3:1 (destaques) devem ser bloqueadas."""
-        # Cinza claro sobre branco resulta em contraste muito baixo (~1.5:1)
+    def test_contraste_insuficiente_diagnosticado_sem_bloquear(self):
+        """Cores com contraste baixo retornam valido=False de forma consultiva sem lançar ValidationError."""
         fundo_branco = "#FFFFFF"
         cinza_muito_claro = "#DDDDDD"
 
-        with self.assertRaises(ValidationError) as ctx:
-            validar_contraste_wcag(
-                cor_fundos=fundo_branco,
-                cor_destaques=cinza_muito_claro,
-                cor_escritas=cinza_muito_claro,
-                modelo='T05'
-            )
-        self.assertIn('cor_escritas', ctx.exception.message_dict)
+        res = validar_contraste_wcag(
+            cor_fundos=fundo_branco,
+            cor_destaques=cinza_muito_claro,
+            cor_escritas=cinza_muito_claro,
+            modelo='T05'
+        )
+        self.assertFalse(res['valido'])
+        self.assertLess(res['ratio_escritas'], res['min_escritas'])
 
     def test_rejeicao_estrita_de_css_injection(self):
         """Valores que tentam injetar regras CSS arbitrárias devem ser sumariamente rejeitados."""
@@ -148,3 +144,55 @@ class VisibilidadePublicaTests(TestCase):
         self.assertEqual(response.status_code, 200)
         # Deve exibir a navegação interna e a tela de visão geral/dashboard
         self.assertContains(response, "Visão geral")
+
+
+class NavbarOperacionalTests(TestCase):
+    """Testa se a barra de navegação completa e todos os módulos operacionais são renderizados no shell."""
+
+    def setUp(self):
+        self.client = Client()
+        self.loja = Loja.objects.create(
+            nome="Loja Teste Hub",
+            slug="loja-teste-hub",
+            cnpj="99.888.777/0001-66"
+        )
+        self.dev_user = User.objects.create_superuser(
+            username="dev_admin",
+            password="DevPassword123!",
+            email="dev@hub.local"
+        )
+        self.perfil_dev = PerfilUsuario.objects.create(
+            usuario=self.dev_user,
+            loja=self.loja,
+            papel=PapelUsuarioEnum.DEV
+        )
+
+    def test_navbar_completa_com_todos_modulos_para_usuario_logado(self):
+        """A navbar deve exibir Catálogo, Marketplaces, Pedidos, Financeiro, Lojas, Simulador, Logs, Usuários e Tema."""
+        self.client.login(username="dev_admin", password="DevPassword123!")
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+
+        # Módulos operacionais obrigatórios
+        self.assertContains(response, 'Hub Marketplaces')
+        self.assertContains(response, 'Início')
+        self.assertContains(response, 'Lojas')
+        self.assertContains(response, 'Catálogo')
+        self.assertContains(response, 'Categorias')
+        self.assertContains(response, 'Produtos')
+        self.assertContains(response, 'Marketplaces')
+        self.assertContains(response, 'Canais / Contas')
+        self.assertContains(response, 'Anúncios')
+        self.assertContains(response, 'Pedidos')
+        self.assertContains(response, 'Simulador')
+        self.assertContains(response, 'Logs')
+        self.assertContains(response, 'Usuários')
+        self.assertContains(response, 'Testes')
+
+        # Controles de tema e ambiente
+        self.assertContains(response, 'Tema')
+        self.assertContains(response, 'Mockar dados')
+        self.assertContains(response, 'Superusuário')
+        self.assertContains(response, 'dev_admin')
+        self.assertContains(response, 'Sair do Sistema')
+

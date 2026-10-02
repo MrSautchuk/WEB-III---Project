@@ -15,49 +15,201 @@
 <body>
     <a class="visually-hidden-focusable" href="#conteudo">Ir para o conteúdo</a>
 
-    <!-- NAVBAR SUPERIOR (Variante Topo) -->
-    <nav class="navbar navbar-expand-lg app-navbar sticky-top shadow-sm" data-bs-theme="{{ tema.navbar_bs|default:'dark' }}">
-        <div class="container-fluid px-4">
-            <a class="navbar-brand d-flex align-items-center gap-2 fw-bold text-white" href="/">
-                <i class="bi bi-layers-fill"></i> Hub Central Marketplaces
+    <!-- CABEÇALHO / NAVBAR OPERACIONAL COMPLETA -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm navbar-app">
+        <div class="container-fluid px-2 px-md-3">
+            <a class="navbar-brand fw-bold me-2 me-xl-3 d-flex align-items-center gap-2" href="{% url 'home' %}">
+                <i class="bi bi-layers-fill"></i> Hub Marketplaces
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Alternar navegação">
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Alternar navegação">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navMenu">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center">
                     {% if user.is_authenticated %}
-                        {# menu_grupos filtrados ativamente por RBAC no context processor #}
-                        {% for grupo in menu_grupos %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-1" href="#" role="button"
-                               data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi {{ grupo.icone }}"></i> {{ grupo.titulo }}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                                <i class="bi bi-house-door me-1"></i> Início
                             </a>
-                            <ul class="dropdown-menu shadow">
-                                {% for item in grupo.itens %}
-                                <li><a class="dropdown-item" href="{{ item.url }}">{{ item.titulo }}</a></li>
-                                {% endfor %}
-                            </ul>
                         </li>
-                        {% endfor %}
+                        
+                        {% if is_dev or user.is_superuser %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if 'loja' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'loja_list' %}">
+                                    <i class="bi bi-shop me-1"></i> Lojas
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% if modulos_ativos.catalogo or is_dev %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle {% if 'categoria' in request.resolver_match.url_name or 'produto' in request.resolver_match.url_name %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-box-seam me-1"></i> Catálogo
+                                </a>
+                                <ul class="dropdown-menu shadow">
+                                    <li><a class="dropdown-item" href="{% url 'categoria_list' %}"><i class="bi bi-tag me-2"></i> Categorias</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'produto_list' %}"><i class="bi bi-boxes me-2"></i> Produtos</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+
+                        {% if modulos_ativos.marketplaces or is_dev %}
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle {% if 'canal' in request.resolver_match.url_name or 'anuncio' in request.resolver_match.url_name %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-diagram-3 me-1"></i> Marketplaces
+                                </a>
+                                <ul class="dropdown-menu shadow">
+                                    <li><a class="dropdown-item" href="{% url 'canal_list' %}"><i class="bi bi-link-45deg me-2"></i> Canais / Contas</a></li>
+                                    <li><a class="dropdown-item" href="{% url 'anuncio_list' %}"><i class="bi bi-megaphone me-2"></i> Anúncios</a></li>
+                                </ul>
+                            </li>
+                        {% endif %}
+
+                        {% if modulos_ativos.pedidos or is_dev %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'pedido_list' %}">
+                                    <i class="bi bi-receipt me-1"></i> Pedidos
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% if modulos_ativos.financeiro or is_dev %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if 'simulador' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'simulador_promocional' %}">
+                                    <i class="bi bi-calculator me-1"></i> Simulador
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% if modulos_ativos.marketplaces or is_dev %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if 'log' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'log_sincronizacao_list' %}">
+                                    <i class="bi bi-clock-history me-1"></i> Logs
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% if is_dev or user.perfil.is_admin or user.perfil.is_supervisor or user.is_superuser %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if 'usuario' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'usuario_list' %}">
+                                    <i class="bi bi-people me-1"></i> Usuários
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% if is_dev or user.perfil.is_dev or user.is_superuser %}
+                            <li class="nav-item">
+                                <a class="nav-link {% if 'teste' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'testes_dashboard' %}">
+                                    <i class="bi bi-cpu me-1"></i> Testes
+                                </a>
+                            </li>
+                        {% endif %}
                     {% endif %}
                 </ul>
 
-                <ul class="navbar-nav ms-auto align-items-center">
+                <ul class="navbar-nav ms-auto align-items-center gap-2">
+                    <!-- SELETOR DE TEMA -->
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-outline-light btn-theme-nav dropdown-toggle" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" aria-label="Alternar tema">
+                            <span id="bd-theme-text"><i class="bi bi-palette-fill me-1"></i> Tema</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="bd-theme">
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2" data-bs-theme-value="default" aria-pressed="false">
+                                    <i class="bi bi-palette-fill text-primary"></i>
+                                    <span>Padrão do Hub</span>
+                                    <i class="bi bi-check2 ms-auto d-none check-icon text-primary fw-bold"></i>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2" data-bs-theme-value="light" aria-pressed="false">
+                                    <i class="bi bi-sun-fill text-warning"></i>
+                                    <span>Modo Claro</span>
+                                    <i class="bi bi-check2 ms-auto d-none check-icon text-primary fw-bold"></i>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2" data-bs-theme-value="dark" aria-pressed="false">
+                                    <i class="bi bi-moon-stars-fill text-info"></i>
+                                    <span>Modo Escuro</span>
+                                    <i class="bi bi-check2 ms-auto d-none check-icon text-primary fw-bold"></i>
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center gap-2 py-2" data-bs-theme-value="auto" aria-pressed="false">
+                                    <i class="bi bi-circle-half text-secondary"></i>
+                                    <span>Automático (Sistema)</span>
+                                    <i class="bi bi-check2 ms-auto d-none check-icon text-primary fw-bold"></i>
+                                </button>
+                            </li>
+                        </ul>
+                    </li>
+
                     {% if user.is_authenticated %}
-                        {% block navbar_notifications %}{% endblock %}
+                        {% if is_dev or user.perfil.is_dev or user.is_superuser %}
+                            <li class="nav-item dropdown">
+                                <div class="btn-group btn-group-sm">
+                                    <a class="btn btn-warning fw-semibold text-dark shadow-sm btn-mock-nav" href="{% url 'mockar_dados_dashboard' %}" title="Ambiente de Testes e Mock de Dados">
+                                        Mockar dados
+                                    </a>
+                                    <button type="button" class="btn btn-warning text-dark dropdown-toggle dropdown-toggle-split shadow-sm btn-mock-nav ms-1" data-bs-toggle="dropdown" aria-expanded="false" title="Controle de Simulação Mock">
+                                        <span class="visually-hidden">Controle Mock</span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow p-3" style="min-width: 250px;">
+                                        <li>
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="small fw-bold text-muted text-uppercase">Simulação de Rotas</span>
+                                                {% if simular_rotas_mock %}
+                                                    <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>Ativa</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i>Desativada</span>
+                                                {% endif %}
+                                            </div>
+                                            <p class="small text-muted mb-3" style="font-size: 0.78rem;">
+                                                {% if simular_rotas_mock %}
+                                                    Contas mockadas respondem com HTTP 200 simulado.
+                                                {% else %}
+                                                    Contas mockadas respondem com recusa HTTP 401.
+                                                {% endif %}
+                                            </p>
+                                            <form method="post" action="{% url 'alternar_simulacao_mock' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm {% if simular_rotas_mock %}btn-outline-danger{% else %}btn-outline-success{% endif %} w-100 fw-bold">
+                                                    {% if simular_rotas_mock %}
+                                                        <i class="bi bi-toggle-on text-success me-1 fs-6"></i> Desativar Simulação
+                                                    {% else %}
+                                                        <i class="bi bi-toggle-off text-muted me-1 fs-6"></i> Ativar Simulação
+                                                    {% endif %}
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li><hr class="dropdown-divider my-2"></li>
+                                        <li>
+                                            <a class="dropdown-item small d-flex align-items-center gap-1 text-primary" href="{% url 'mockar_dados_dashboard' %}">
+                                                <i class="bi bi-sliders"></i> Abrir Painel de Mock
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+                        {% endif %}
+                        <li class="nav-item">
+                            {% if user.is_superuser %}
+                                <span class="badge bg-danger badge-nav-role">Superusuário</span>
+                            {% elif user.perfil %}
+                                <span class="badge badge-role-{{ user.perfil.papel|lower }} badge-nav-role">
+                                    {{ user.perfil.get_papel_display }}
+                                </span>
+                            {% endif %}
+                        </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-2"
-                               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-person-circle fs-5"></i>
+                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-1 user-nav-dropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle fs-5 me-1"></i>
                                 <span>{{ user.get_full_name|default:user.username }}</span>
                                 {% if user.perfil.loja %}
                                     <span class="badge bg-light text-dark small ms-1">{{ user.perfil.loja.nome }}</span>
-                                {% elif user.perfil.is_dev or user.is_superuser %}
-                                    <span class="badge bg-warning text-dark small ms-1">DEV</span>
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow">
@@ -67,6 +219,9 @@
                                         Papel: {{ user.perfil.get_papel_display|default:'Usuário' }}
                                     </h6>
                                 </li>
+                                {% if user.is_staff or user.is_superuser %}
+                                    <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bi bi-gear-fill me-1"></i> Admin Django</a></li>
+                                {% endif %}
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <form method="post" action="{% url 'logout' %}" class="d-inline">
@@ -80,8 +235,8 @@
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="btn btn-sm btn-login fw-semibold" href="{% url 'login' %}">
-                                <i class="bi bi-box-arrow-in-right"></i> Entrar
+                            <a class="btn btn-sm btn-outline-light fw-semibold px-3" href="{% url 'login' %}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
                             </a>
                         </li>
                     {% endif %}
@@ -91,6 +246,7 @@
     </nav>
 
     <!-- TOOLBAR DA PÁGINA -->
+    {% block toolbar %}
     <header class="app-toolbar">
         <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
             <div>
@@ -100,6 +256,7 @@
             <div class="d-flex gap-2">{% block toolbar_actions %}{% endblock %}</div>
         </div>
     </header>
+    {% endblock %}
 
     <!-- MENSAGENS FLASH -->
     <div class="container-fluid px-4">

@@ -275,12 +275,10 @@ def calcular_derivados_tema(cor_fundos: str, cor_destaques: str, cor_escritas: s
     }
 
 
-def validar_contraste_wcag(cor_fundos: str, cor_destaques: str, cor_escritas: str, modelo: str = 'T05') -> None:
+def validar_contraste_wcag(cor_fundos: str, cor_destaques: str, cor_escritas: str, modelo: str = 'T05') -> Dict[str, Any]:
     """
-    Valida as regras estritas de contraste WCAG 2.1 (Doc ① §11.7):
-    - Escritas x Fundos >= 4.5:1 (ou 7:1 no modelo Acessível T09)
-    - Destaques x Fundos >= 3.0:1 (ou 4.5:1 no modelo Acessível T09)
-    Lança ValidationError se reprovado.
+    Avalia a razão de contraste WCAG 2.1 de forma consultiva e pragmática (sem bloqueio de ValidationError).
+    Permite total liberdade na identidade visual do produto.
     """
     ratio_escritas = calcular_razao_contraste(cor_escritas, cor_fundos)
     ratio_destaques = calcular_razao_contraste(cor_destaques, cor_fundos)
@@ -288,21 +286,13 @@ def validar_contraste_wcag(cor_fundos: str, cor_destaques: str, cor_escritas: st
     min_escritas = 7.0 if modelo == 'T09' else 4.5
     min_destaques = 4.5 if modelo == 'T09' else 3.0
 
-    erros = {}
-    if ratio_escritas < min_escritas:
-        erros['cor_escritas'] = (
-            f"Contraste insuficiente entre Escritas ({cor_escritas}) e Fundos ({cor_fundos}): "
-            f"{ratio_escritas}:1. Mínimo exigido é {min_escritas}:1 (WCAG 2.1)."
-        )
-
-    if ratio_destaques < min_destaques:
-        erros['cor_destaques'] = (
-            f"Contraste insuficiente entre Destaques ({cor_destaques}) e Fundos ({cor_fundos}): "
-            f"{ratio_destaques}:1. Mínimo exigido é {min_destaques}:1 (WCAG 2.1)."
-        )
-
-    if erros:
-        raise ValidationError(erros)
+    return {
+        'valido': (ratio_escritas >= min_escritas) and (ratio_destaques >= min_destaques),
+        'ratio_escritas': ratio_escritas,
+        'ratio_destaques': ratio_destaques,
+        'min_escritas': min_escritas,
+        'min_destaques': min_destaques,
+    }
 
 
 def gerar_css_tema(

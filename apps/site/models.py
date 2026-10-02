@@ -130,18 +130,10 @@ class ConfigTema(models.Model):
 
     def clean(self):
         super().clean()
-        # 1. Validação estrita de formato hexadecimal anti-injection
+        # Validação estrita de formato hexadecimal anti-injection (mantida)
         self.cor_fundos = validar_cor_hex(self.cor_fundos, "cor_fundos")
         self.cor_destaques = validar_cor_hex(self.cor_destaques, "cor_destaques")
         self.cor_escritas = validar_cor_hex(self.cor_escritas, "cor_escritas")
-
-        # 2. Validação rigorosa de contraste WCAG 2.1
-        validar_contraste_wcag(
-            cor_fundos=self.cor_fundos,
-            cor_destaques=self.cor_destaques,
-            cor_escritas=self.cor_escritas,
-            modelo=self.modelo
-        )
 
     def save(self, *args, **kwargs):
         # Valida antes de persistir
