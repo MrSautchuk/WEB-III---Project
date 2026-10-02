@@ -181,7 +181,10 @@ def tema(request) -> Dict[str, Any]:
             'tema_versao': config_tema.versao or 'v1',
             'shell_template': shell_template,
             'menu_grupos': menus,
+            'presets_modelos': PRESETS_MODELOS,
         }
     except Exception:
         # Fallback seguro para T05 Profissional em caso de qualquer exceção
-        return _get_fallback_context()
+        ctx = _get_fallback_context()
+        ctx['presets_modelos'] = PRESETS_MODELOS
+        return ctx

@@ -196,3 +196,80 @@ class NavbarOperacionalTests(TestCase):
         self.assertContains(response, 'dev_admin')
         self.assertContains(response, 'Sair do Sistema')
 
+    def test_navbar_contem_10_modelos_de_tema_e_modal_t10(self):
+        """A navbar deve apresentar as opções T01 a T10 e o modal de 3 cores."""
+        self.client.login(username="dev_admin", password="DevPassword123!")
+        response = self.client.get('/')
+        self.assertEqual(response.status_code, 200)
+
+        # 10 modelos canônicos
+        self.assertContains(response, 'T01 — Alegre')
+        self.assertContains(response, 'T02 — Sofisticado')
+        self.assertContains(response, 'T03 — Sóbrio')
+        self.assertContains(response, 'T04 — Animado')
+        self.assertContains(response, 'T05 — Profissional')
+        self.assertContains(response, 'T06 — Luxuoso')
+        self.assertContains(response, 'T07 — SoftClean')
+        self.assertContains(response, 'T08 — Noturno')
+        self.assertContains(response, 'T09 — Acessível')
+        self.assertContains(response, 'T10 — Personalizado (3 Cores)')
+
+        # Modal T10
+        self.assertContains(response, 'modalTemaPersonalizado')
+        self.assertContains(response, 'name="cor_fundos"')
+        self.assertContains(response, 'name="cor_destaques"')
+        self.assertContains(response, 'name="cor_escritas"')
+
+    def test_alternar_tema_presets_canonicos(self):
+        """Alternar para T08 Noturno deve persistir no banco e refletir no endpoint /tema.css."""
+        self.client.login(username="dev_admin", password="DevPassword123!")
+        response = self.client.post(reverse('site:tema_alternar'), {'modelo': 'T08'}, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        config = ConfigTema.get_tema_ativo(loja=self.loja)
+        self.assertEqual(config.modelo, 'T08')
+        self.assertEqual(config.cor_fundos, '#12141A')
+        self.assertEqual(config.cor_destaques, '#4FA3FF')
+
+        # O CSS dinâmico deve incorporar as novas cores do T08
+        resp_css = self.client.get(reverse('site:tema_css'))
+        self.assertContains(resp_css, '#4FA3FF')
+        self.assertContains(resp_css, '.navbar-app')
+
+    def test_alternar_tema_t10_personalizado_3_cores(self):
+        """O modelo T10 deve permitir salvar 3 cores personalizadas com validação estrita."""
+        self.client.login(username="dev_admin", password="DevPassword123!")
+        dados_t10 = {
+            'modelo': 'T10',
+            'cor_fundos': '#0A0A0F',
+            'cor_destaques': '#00F0FF',
+            'cor_escritas': '#F0F0FF',
+            'raio': 'arredondado',
+            'sombra': 'marcada'
+        }
+        response = self.client.post(reverse('site:tema_alternar'), dados_t10, follow=True)
+        self.assertEqual(response.status_code, 200)
+
+        config = ConfigTema.get_tema_ativo(loja=self.loja)
+        self.assertEqual(config.modelo, 'T10')
+        self.assertEqual(config.cor_fundos, '#0A0A0F')
+        self.assertEqual(config.cor_destaques, '#00F0FF')
+        self.assertEqual(config.cor_escritas, '#F0F0FF')
+        self.assertEqual(config.raio, 'arredondado')
+
+        resp_css = self.client.get(reverse('site:tema_css'))
+        self.assertContains(resp_css, '#00F0FF')
+
+    def test_arquivos_estaticos_admin_e_hub_respondem_200(self):
+        """Verifica se os arquivos estáticos nativos do Django Admin e do Hub retornam 200."""
+        self.client.login(username="dev_admin", password="DevPassword123!")
+        resp_admin_css = self.client.get('/static/admin/css/base.css')
+        self.assertEqual(resp_admin_css.status_code, 200)
+
+        resp_base_css = self.client.get('/static/css/base.css')
+        self.assertEqual(resp_base_css.status_code, 200)
+
+        resp_app_js = self.client.get('/static/js/app.js')
+        self.assertEqual(resp_app_js.status_code, 200)
+
+

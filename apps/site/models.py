@@ -162,6 +162,10 @@ class ConfigTema(models.Model):
         if tema_global:
             return tema_global
 
+        tema_qualquer = cls.objects.first()
+        if tema_qualquer:
+            return tema_qualquer
+
         # Fallback padrão T05 Profissional
         preset = PRESETS_MODELOS['T05']
         instancia = cls(

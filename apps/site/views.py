@@ -1,20 +1,22 @@
 # Os códigos foram gerados com auxilio de I.A.
 """
-O QUE FAZ: Views do módulo de Site, Apresentação e Endpoint /tema.css.
+O QUE FAZ: Views do módulo de Site, Apresentação, Endpoint /tema.css e Alternância de Temas (T01 a T10).
 POR QUE FAZ:
   - Serve o CSS dinâmico /tema.css sanitizado contra CSS injection.
   - Na rota raiz '/', entrega a experiência operacional direta: Dashboard para logados e chaveamento Landing/Login para anônimos.
   - Oferece a página de apresentação em /apresentacao/ respeitando a política anti-enumeração (§17.2).
+  - Permite aos usuários alternar entre os 10 modelos de catálogo (T01 a T09) e personalizar as 3 cores (T10).
 """
 
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.views import View
 from django.views.decorators.http import require_GET
+from django.contrib import messages
 from django.conf import settings
 
 from .models import ConfigTema, ConfigSite
-from .utils_tema import gerar_css_tema
+from .utils_tema import gerar_css_tema, PRESETS_MODELOS, validar_cor_hex
 from apps.core.tenancy import get_tenant
 
 
@@ -72,3 +74,94 @@ class LandingPageView(View):
         return render(request, 'site/landing.html', {
             'visibilidade_ativa': True
         })
+
+
+class AlternarTemaView(View):
+    """
+    Controla a alternância dos 10 Modelos Canônicos de Design (T01 a T10):
+      - T01 a T09: aplica os tokens do catálogo canônico (Doc ① §11.6).
+      - T10 (Personalizado): recebe e aplica as 3 cores (Fundos, Destaques, Escritas) e eixos de estilo.
+    Persiste a escolha no modelo ConfigTema escopado pelo tenant do usuário ou global.
+    """
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({'error': 'Não autenticado'}, status=403)
+
+        modelo = request.POST.get('modelo', '').strip().upper()
+        tenant = get_tenant(request)
+
+        # Localiza ou inicializa o ConfigTema para o escopo
+        config = None
+        if tenant:
+            config = ConfigTema.objects.filter(loja=tenant).first()
+        if not config:
+            config = ConfigTema.objects.filter(loja__isnull=True).first()
+        if not config:
+            config = ConfigTema(loja=tenant)
+
+        sucesso = False
+        mensagem = ""
+
+        if modelo in PRESETS_MODELOS and modelo != 'T10':
+            preset = PRESETS_MODELOS[modelo]
+            config.modelo = modelo
+            config.cor_fundos = preset['fundos']
+            config.cor_destaques = preset['destaques']
+            config.cor_escritas = preset['escritas']
+            config.raio = preset['raio']
+            config.sombra = preset['sombra']
+            config.densidade = preset['densidade']
+            config.movimento = preset['movimento']
+            config.tipografia = preset['tipografia']
+            config.icones = preset['icones']
+            config.save()
+            sucesso = True
+            mensagem = f"Tema alternado com sucesso para {preset['nome']} ({modelo})!"
+            messages.success(request, mensagem)
+
+        elif modelo == 'T10':
+            # Personalizado: 3 cores
+            cor_fundos = request.POST.get('cor_fundos', '').strip()
+            cor_destaques = request.POST.get('cor_destaques', '').strip()
+            cor_escritas = request.POST.get('cor_escritas', '').strip()
+
+            try:
+                config.modelo = 'T10'
+                config.cor_fundos = validar_cor_hex(cor_fundos, "cor_fundos")
+                config.cor_destaques = validar_cor_hex(cor_destaques, "cor_destaques")
+                config.cor_escritas = validar_cor_hex(cor_escritas, "cor_escritas")
+
+                if 'raio' in request.POST and request.POST['raio']:
+                    config.raio = request.POST['raio']
+                if 'sombra' in request.POST and request.POST['sombra']:
+                    config.sombra = request.POST['sombra']
+                if 'densidade' in request.POST and request.POST['densidade']:
+                    config.densidade = request.POST['densidade']
+
+                config.save()
+                sucesso = True
+                mensagem = "Tema personalizado T10 (3 cores) salvo com sucesso!"
+                messages.success(request, mensagem)
+            except Exception as e:
+                sucesso = False
+                mensagem = f"Erro na validação das cores: {e}"
+                messages.error(request, mensagem)
+                if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': str(e)}, status=400)
+        else:
+            messages.error(request, f"Modelo de tema '{modelo}' não reconhecido.")
+
+        referer = request.META.get('HTTP_REFERER') or '/'
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': sucesso,
+                'message': mensagem,
+                'modelo': config.modelo,
+                'versao': config.versao,
+                'cor_fundos': config.cor_fundos,
+                'cor_destaques': config.cor_destaques,
+                'cor_escritas': config.cor_escritas,
+                'redirect_url': referer
+            })
+
+        return HttpResponseRedirect(referer)

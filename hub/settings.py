@@ -259,7 +259,16 @@ USE_TZ = True
 # Comentário de referência para o gerenciamento de arquivos estáticos
 
 # Define o prefixo de rota pública HTTP por onde os assets estáticos são requisitados
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+
+# Diretório para onde o comando 'collectstatic' reunirá todos os estáticos em produção
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Diretórios adicionais contendo arquivos estáticos do projeto
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
 
 
 # Autenticação e Redirecionamentos

@@ -345,8 +345,27 @@ def gerar_css_tema(
   --bs-btn-disabled-border-color: {d};
 }}
 
-.app-navbar {{
+.app-navbar,
+.navbar-app {{
   background-color: {d} !important;
+  opacity: 1 !important;
+}}
+
+.app-navbar .navbar-brand,
+.navbar-app .navbar-brand,
+.app-navbar .nav-link,
+.navbar-app .nav-link {{
+  color: {derivados['sobre_destaque']} !important;
+}}
+
+.app-navbar .nav-link:hover,
+.navbar-app .nav-link:hover,
+.app-navbar .nav-link:focus,
+.navbar-app .nav-link:focus,
+.app-navbar .nav-link.active,
+.navbar-app .nav-link.active {{
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.18) !important;
 }}
 
 .btn-login {{

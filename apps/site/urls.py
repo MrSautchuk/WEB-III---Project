@@ -14,4 +14,7 @@ urlpatterns = [
 
     # Rota pública institucional / landing page (Doc ① §11.1)
     path('apresentacao/', views.LandingPageView.as_view(), name='landing'),
+
+    # Rota autenticada para alternância entre os 10 modelos canônicos e personalização (Doc ① §11.6 a §11.9)
+    path('tema/alternar/', views.AlternarTemaView.as_view(), name='tema_alternar'),
 ]

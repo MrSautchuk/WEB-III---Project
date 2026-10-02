@@ -51,7 +51,7 @@
             tooltipTriggerList.forEach(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
         }
 
-        // Configuração do seletor de tema
+        // Configuração do seletor rápido de tema claro/escuro
         updateActiveButton(initialTheme || 'default');
 
         document.querySelectorAll('[data-bs-theme-value]').forEach(btn => {
@@ -60,6 +60,48 @@
                 setStoredTheme(selected);
                 applyTheme(selected);
                 updateActiveButton(selected);
+            });
+        });
+
+        // Sincronização dos seletores de cor do Modal T10
+        const setupColorSync = (pickerId, textId) => {
+            const picker = document.getElementById(pickerId);
+            const text = document.getElementById(textId);
+            if (!picker || !text) return;
+
+            picker.addEventListener('input', () => {
+                text.value = picker.value.toUpperCase();
+            });
+
+            text.addEventListener('input', () => {
+                const val = text.value.trim();
+                if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                    picker.value = val.toUpperCase();
+                }
+            });
+        };
+
+        setupColorSync('picker_fundos', 'cor_fundos');
+        setupColorSync('picker_destaques', 'cor_destaques');
+        setupColorSync('picker_escritas', 'cor_escritas');
+
+        // Paletas Rápidas de 1 Clique no Modal T10
+        document.querySelectorAll('.btn-paleta-rapida').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const f = btn.getAttribute('data-fundo');
+                const d = btn.getAttribute('data-destaque');
+                const e = btn.getAttribute('data-escrita');
+
+                const pF = document.getElementById('picker_fundos');
+                const tF = document.getElementById('cor_fundos');
+                const pD = document.getElementById('picker_destaques');
+                const tD = document.getElementById('cor_destaques');
+                const pE = document.getElementById('picker_escritas');
+                const tE = document.getElementById('cor_escritas');
+
+                if (pF && tF) { pF.value = f; tF.value = f; }
+                if (pD && tD) { pD.value = d; tD.value = d; }
+                if (pE && tE) { pE.value = e; tE.value = e; }
             });
         });
     });
