@@ -87,6 +87,15 @@ class AlternarTemaView(View):
         if not request.user.is_authenticated:
             return JsonResponse({'error': 'Não autenticado'}, status=403)
 
+        # 1. Trata alternância direta de modo de iluminação (Claro / Escuro / Auto)
+        iluminacao = request.POST.get('iluminacao', '').strip().lower()
+        if iluminacao in ('light', 'dark', 'auto'):
+            request.session['hub_iluminacao'] = iluminacao
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest' or not request.POST.get('modelo'):
+                response = JsonResponse({'success': True, 'iluminacao': iluminacao})
+                response.set_cookie('hub_iluminacao', iluminacao, max_age=31536000, samesite='Lax')
+                return response
+
         modelo = request.POST.get('modelo', '').strip().upper()
         tenant = get_tenant(request)
 
@@ -120,10 +129,10 @@ class AlternarTemaView(View):
             messages.success(request, mensagem)
 
         elif modelo == 'T10':
-            # Personalizado: 3 cores
-            cor_fundos = request.POST.get('cor_fundos', '').strip()
-            cor_destaques = request.POST.get('cor_destaques', '').strip()
-            cor_escritas = request.POST.get('cor_escritas', '').strip()
+            # Personalizado: 3 cores (com suporte a inputs de texto e fallback para color pickers)
+            cor_fundos = request.POST.get('cor_fundos', '').strip() or request.POST.get('picker_fundos', '').strip()
+            cor_destaques = request.POST.get('cor_destaques', '').strip() or request.POST.get('picker_destaques', '').strip()
+            cor_escritas = request.POST.get('cor_escritas', '').strip() or request.POST.get('picker_escritas', '').strip()
 
             try:
                 config.modelo = 'T10'
@@ -153,7 +162,7 @@ class AlternarTemaView(View):
 
         referer = request.META.get('HTTP_REFERER') or '/'
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-            return JsonResponse({
+            resp = JsonResponse({
                 'success': sucesso,
                 'message': mensagem,
                 'modelo': config.modelo,
@@ -163,5 +172,9 @@ class AlternarTemaView(View):
                 'cor_escritas': config.cor_escritas,
                 'redirect_url': referer
             })
+        else:
+            resp = HttpResponseRedirect(referer)
 
-        return HttpResponseRedirect(referer)
+        if 'hub_iluminacao' in request.session:
+            resp.set_cookie('hub_iluminacao', request.session['hub_iluminacao'], max_age=31536000, samesite='Lax')
+        return resp

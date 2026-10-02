@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-br" data-bs-theme="{{ tema.bs_theme|default:'light' }}" data-tema="{{ tema.slug|default:'profissional' }}"
+<html lang="pt-br" data-bs-theme="{{ html_theme|default:'light' }}" data-tema="{{ tema.slug|default:'profissional' }}"
       data-raio="{{ tema.raio|default:'suave' }}" data-sombra="{{ tema.sombra|default:'suave' }}"
       data-densidade="{{ tema.densidade|default:'confortavel' }}" data-movimento="{{ tema.movimento|default:'discreto' }}"
       data-tipografia="{{ tema.tipografia|default:'sans' }}" data-icones="{{ tema.icones|default:'contorno' }}">
@@ -474,7 +474,7 @@
                                 <label class="form-label fw-bold small">1. Cor de Fundos</label>
                                 <div class="input-group">
                                     <input type="color" class="form-control form-control-color" id="picker_fundos"
-                                           value="{{ tema.fundos|default:'#F8FAFC' }}" title="Escolha a cor de fundo">
+                                           name="picker_fundos" value="{{ tema.fundos|default:'#F8FAFC' }}" title="Escolha a cor de fundo">
                                     <input type="text" class="form-control font-monospace text-uppercase" id="cor_fundos"
                                            name="cor_fundos" value="{{ tema.fundos|default:'#F8FAFC' }}" maxlength="7" required>
                                 </div>
@@ -486,7 +486,7 @@
                                 <label class="form-label fw-bold small">2. Cor de Destaques</label>
                                 <div class="input-group">
                                     <input type="color" class="form-control form-control-color" id="picker_destaques"
-                                           value="{{ tema.destaques|default:'#1E3A8A' }}" title="Escolha a cor de destaque">
+                                           name="picker_destaques" value="{{ tema.destaques|default:'#1E3A8A' }}" title="Escolha a cor de destaque">
                                     <input type="text" class="form-control font-monospace text-uppercase" id="cor_destaques"
                                            name="cor_destaques" value="{{ tema.destaques|default:'#1E3A8A' }}" maxlength="7" required>
                                 </div>
@@ -498,7 +498,7 @@
                                 <label class="form-label fw-bold small">3. Cor de Escritas</label>
                                 <div class="input-group">
                                     <input type="color" class="form-control form-control-color" id="picker_escritas"
-                                           value="{{ tema.escritas|default:'#0F172A' }}" title="Escolha a cor dos textos">
+                                           name="picker_escritas" value="{{ tema.escritas|default:'#0F172A' }}" title="Escolha a cor dos textos">
                                     <input type="text" class="form-control font-monospace text-uppercase" id="cor_escritas"
                                            name="cor_escritas" value="{{ tema.escritas|default:'#0F172A' }}" maxlength="7" required>
                                 </div>
@@ -550,7 +550,7 @@
     <!-- Bootstrap 5.3.3 JS com SRI oficial -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             crossorigin="anonymous" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"></script>
-    <script src="{% static 'js/app.js' %}" defer></script>
+    <script src="{% static 'js/app.js' %}?v={{ tema_versao }}" defer></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

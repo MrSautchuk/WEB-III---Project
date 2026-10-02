@@ -217,18 +217,26 @@ footer {
   background-color: rgba(255, 255, 255, 0.18) !important;
 }
 
-.btn-theme-nav {
+.btn-theme-nav,
+.btn-theme-nav:hover,
+.btn-theme-nav:focus,
+.btn-theme-nav:active,
+.show > .btn-theme-nav.dropdown-toggle {
   font-size: 0.82rem;
   font-weight: 500;
   padding: 0.35rem 0.95rem !important;
   border-radius: 50rem !important;
   white-space: nowrap;
-  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
   color: #ffffff !important;
-  background: transparent;
+  background-color: rgba(255, 255, 255, 0.12) !important;
 }
-.btn-theme-nav:hover {
-  background-color: rgba(255, 255, 255, 0.15) !important;
+
+.btn-theme-nav:hover,
+.btn-theme-nav:focus,
+.show > .btn-theme-nav.dropdown-toggle {
+  background-color: rgba(255, 255, 255, 0.22) !important;
+  border-color: rgba(255, 255, 255, 0.7) !important;
   color: #ffffff !important;
 }
 
@@ -322,5 +330,118 @@ footer {
 }
 [data-bs-theme="dark"] .text-hub-solid {
   color: #5c93c4 !important;
+}
+
+/* ==============================================================================
+   ESTRUTURA E ADAPTAÇÃO PARA MODO ESCURO (data-bs-theme="dark")
+   ============================================================================== */
+[data-bs-theme="dark"] .card {
+  background-color: var(--tema-superficie) !important;
+  color: var(--tema-escrita) !important;
+  border-color: var(--tema-borda) !important;
+}
+
+[data-bs-theme="dark"] .bg-white,
+[data-bs-theme="dark"] .card.bg-white,
+[data-bs-theme="dark"] .module-access-card.bg-white,
+[data-bs-theme="dark"] .journey-step-card.bg-white {
+  background-color: var(--tema-superficie) !important;
+  color: var(--tema-escrita) !important;
+}
+
+[data-bs-theme="dark"] .module-access-card,
+[data-bs-theme="dark"] .journey-step-card {
+  background-color: var(--tema-superficie) !important;
+  border-color: var(--tema-borda) !important;
+}
+
+[data-bs-theme="dark"] .module-access-card:hover,
+[data-bs-theme="dark"] .journey-step-card:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--tema-borda) !important;
+}
+
+[data-bs-theme="dark"] .app-toolbar {
+  background-color: var(--tema-superficie) !important;
+  border-bottom-color: var(--tema-borda) !important;
+}
+
+[data-bs-theme="dark"] footer {
+  background-color: var(--tema-superficie) !important;
+  border-top-color: var(--tema-borda) !important;
+  color: var(--tema-escrita-suave) !important;
+}
+
+[data-bs-theme="dark"] .text-dark {
+  color: var(--tema-escrita) !important;
+}
+
+[data-bs-theme="dark"] .text-muted,
+[data-bs-theme="dark"] .text-secondary {
+  color: var(--tema-escrita-suave) !important;
+}
+
+[data-bs-theme="dark"] .table {
+  --bs-table-color: var(--tema-escrita);
+  --bs-table-bg: transparent;
+  --bs-table-border-color: var(--tema-borda);
+}
+
+[data-bs-theme="dark"] .dropdown-menu {
+  background-color: var(--tema-superficie) !important;
+  border-color: var(--tema-borda) !important;
+  color: var(--tema-escrita) !important;
+}
+
+[data-bs-theme="dark"] .dropdown-item {
+  color: var(--tema-escrita) !important;
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover,
+[data-bs-theme="dark"] .dropdown-item:focus {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .dropdown-header {
+  color: var(--tema-escrita-suave) !important;
+}
+
+[data-bs-theme="dark"] .modal-content {
+  background-color: var(--tema-superficie) !important;
+  color: var(--tema-escrita) !important;
+  border-color: var(--tema-borda) !important;
+}
+
+[data-bs-theme="dark"] .modal-header,
+[data-bs-theme="dark"] .modal-footer {
+  border-color: var(--tema-borda) !important;
+}
+
+[data-bs-theme="dark"] .modal-footer.bg-light {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+  background-color: var(--tema-fundo) !important;
+  color: var(--tema-escrita) !important;
+  border-color: var(--tema-borda) !important;
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+  background-color: var(--tema-fundo) !important;
+  color: var(--tema-escrita) !important;
+  border-color: var(--tema-destaque) !important;
+}
+
+[data-bs-theme="dark"] .bg-light {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: var(--tema-escrita) !important;
+}
+
+[data-bs-theme="dark"] .border {
+  border-color: var(--tema-borda) !important;
 }
 

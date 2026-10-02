@@ -162,6 +162,17 @@ def tema(request) -> Dict[str, Any]:
         # Resolução do slug amigável do modelo
         slug_modelo = PRESETS_MODELOS.get(config_tema.modelo, {}).get('slug', 'profissional')
 
+        # Iluminação persistida (Claro / Escuro / Auto)
+        iluminacao = None
+        if hasattr(request, 'session'):
+            iluminacao = request.session.get('hub_iluminacao')
+        if not iluminacao and hasattr(request, 'COOKIES'):
+            iluminacao = request.COOKIES.get('hub_iluminacao')
+        if not iluminacao or iluminacao not in ('light', 'dark', 'auto'):
+            iluminacao = derivados['bs_theme']  # default nativo do modelo (dark para T06/T08, light para os demais)
+
+        html_theme = 'dark' if iluminacao == 'dark' else 'light'
+
         return {
             'tema': {
                 'slug': slug_modelo,
@@ -182,6 +193,8 @@ def tema(request) -> Dict[str, Any]:
             'shell_template': shell_template,
             'menu_grupos': menus,
             'presets_modelos': PRESETS_MODELOS,
+            'iluminacao': iluminacao,
+            'html_theme': html_theme,
         }
     except Exception:
         # Fallback seguro para T05 Profissional em caso de qualquer exceção

@@ -272,4 +272,43 @@ class NavbarOperacionalTests(TestCase):
         resp_app_js = self.client.get('/static/js/app.js')
         self.assertEqual(resp_app_js.status_code, 200)
 
+    def test_gerar_css_tema_inclui_inversao_para_modo_escuro(self):
+        """A rota /tema.css deve emitir regras separadas para [data-bs-theme='dark'] com inversão."""
+        css = gerar_css_tema(cor_fundos='#F8FAFC', cor_destaques='#1E3A8A', cor_escritas='#0F172A')
+        self.assertIn('[data-bs-theme="light"]', css)
+        self.assertIn('[data-bs-theme="dark"]', css)
+        self.assertIn('#12141A', css)  # Fundo invertido escuro
+        self.assertIn('#FFFFFF', css)  # Escrita invertida clara
+
+    def test_alternar_iluminacao_persiste_em_sessao_e_cookies(self):
+        """Alternar a iluminação para 'dark' deve gravar na sessão e nos cookies."""
+        self.client.login(username="dev_admin", password="DevPassword123!")
+        resp = self.client.post(
+            reverse('site:tema_alternar'),
+            {'iluminacao': 'dark'},
+            HTTP_X_REQUESTED_WITH='XMLHttpRequest'
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(self.client.session.get('hub_iluminacao'), 'dark')
+        self.assertIn('hub_iluminacao', resp.cookies)
+        self.assertEqual(resp.cookies['hub_iluminacao'].value, 'dark')
+
+    def test_alternar_tema_t10_com_fallback_de_pickers(self):
+        """Se cor_fundos vier vazio, deve utilizar o valor de picker_fundos."""
+        self.client.login(username="dev_admin", password="DevPassword123!")
+        dados_pickers = {
+            'modelo': 'T10',
+            'picker_fundos': '#FFFBEB',
+            'picker_destaques': '#D97706',
+            'picker_escritas': '#78350F',
+        }
+        resp = self.client.post(reverse('site:tema_alternar'), dados_pickers, follow=True)
+        self.assertEqual(resp.status_code, 200)
+
+        config = ConfigTema.get_tema_ativo(loja=self.loja)
+        self.assertEqual(config.modelo, 'T10')
+        self.assertEqual(config.cor_fundos, '#FFFBEB')
+        self.assertEqual(config.cor_destaques, '#D97706')
+        self.assertEqual(config.cor_escritas, '#78350F')
+
 

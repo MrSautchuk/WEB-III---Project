@@ -303,38 +303,120 @@ def gerar_css_tema(
     """
     Gera o CSS público determinístico para a rota /tema.css (Doc ① §11.12 item 6).
     Apenas interpola valores validados e sanitizados.
+    Garante inversão de cores para Modo Claro e Modo Escuro (data-bs-theme).
     """
     f = validar_cor_hex(cor_fundos, "cor_fundos")
     d = validar_cor_hex(cor_destaques, "cor_destaques")
     e = validar_cor_hex(cor_escritas, "cor_escritas")
 
     derivados = calcular_derivados_tema(f, d, e)
+    lum_f = calcular_luminancia_relativa(f)
+
+    # Modo Claro
+    if lum_f < 0.2:
+        claro_fundo = '#F8FAFC'
+        claro_superficie = '#FFFFFF'
+        claro_borda = '#E2E8F0'
+        claro_escrita = '#0F172A'
+        claro_escrita_suave = '#475569'
+    else:
+        claro_fundo = f
+        claro_superficie = derivados['superficie']
+        claro_borda = derivados['borda']
+        claro_escrita = e
+        claro_escrita_suave = derivados['escrita_suave']
+
+    # Modo Escuro: Inversão estrutural
+    if lum_f < 0.2:
+        escuro_fundo = f
+        escuro_superficie = derivados['superficie']
+        escuro_borda = derivados['borda']
+        escuro_escrita = e
+        escuro_escrita_suave = derivados['escrita_suave']
+    else:
+        escuro_fundo = '#12141A'
+        escuro_superficie = '#1E222B'
+        escuro_borda = '#2D323F'
+        escuro_escrita = '#FFFFFF'
+        escuro_escrita_suave = '#94A3B8'
+
+    r_d, g_d, b_d = hex_to_rgb(d)
+    destaque_rgb = f"{r_d}, {g_d}, {b_d}"
+    texto_sobre_destaque, _, _ = calcular_texto_sobre_destaque(d)
 
     css = f"""/* Tema Dinâmico do Hub Central de Marketplaces (Doc ① §11.5) */
-:root {{
-  --tema-fundo: {f};
+:root,
+[data-bs-theme="light"] {{
+  --tema-fundo: {claro_fundo};
   --tema-destaque: {d};
-  --tema-escrita: {e};
-  --tema-destaque-rgb: {derivados['destaque_rgb']};
-  --tema-superficie: {derivados['superficie']};
-  --tema-borda: {derivados['borda']};
-  --tema-escrita-suave: {derivados['escrita_suave']};
+  --tema-escrita: {claro_escrita};
+  --tema-destaque-rgb: {destaque_rgb};
+  --tema-superficie: {claro_superficie};
+  --tema-borda: {claro_borda};
+  --tema-escrita-suave: {claro_escrita_suave};
   --tema-destaque-hover: {derivados['destaque_hover']};
-  --tema-sobre-destaque: {derivados['sobre_destaque']};
+  --tema-sobre-destaque: {texto_sobre_destaque};
 
-  /* Mapeamento Bootstrap */
+  /* Mapeamento Bootstrap 5.3 (Claro) */
   --bs-primary: {d};
-  --bs-primary-rgb: {derivados['destaque_rgb']};
-  --bs-body-bg: {f};
-  --bs-body-color: {e};
-  --bs-border-color: {derivados['borda']};
+  --bs-primary-rgb: {destaque_rgb};
+  --bs-body-bg: {claro_fundo};
+  --bs-body-color: {claro_escrita};
+  --bs-border-color: {claro_borda};
+  --bs-card-bg: {claro_superficie};
+  --bs-card-color: {claro_escrita};
+  --bs-card-border-color: {claro_borda};
   --bs-link-color: {d};
-  --bs-link-color-rgb: {derivados['destaque_rgb']};
+  --bs-link-color-rgb: {destaque_rgb};
+}}
+
+/* Modo Escuro Estrutural Invertido */
+[data-bs-theme="dark"] {{
+  --tema-fundo: {escuro_fundo};
+  --tema-destaque: {d};
+  --tema-escrita: {escuro_escrita};
+  --tema-destaque-rgb: {destaque_rgb};
+  --tema-superficie: {escuro_superficie};
+  --tema-borda: {escuro_borda};
+  --tema-escrita-suave: {escuro_escrita_suave};
+  --tema-destaque-hover: {derivados['destaque_hover']};
+  --tema-sobre-destaque: {texto_sobre_destaque};
+
+  /* Mapeamento Bootstrap 5.3 (Escuro) */
+  --bs-primary: {d};
+  --bs-primary-rgb: {destaque_rgb};
+  --bs-body-bg: {escuro_fundo};
+  --bs-body-color: {escuro_escrita};
+  --bs-border-color: {escuro_borda};
+  --bs-card-bg: {escuro_superficie};
+  --bs-card-color: {escuro_escrita};
+  --bs-card-border-color: {escuro_borda};
+  --bs-link-color: {d};
+  --bs-link-color-rgb: {destaque_rgb};
+  --bs-tertiary-bg: #161922;
+  --bs-secondary-bg: #1A1D24;
+}}
+
+@media (prefers-color-scheme: dark) {{
+  :root:not([data-bs-theme="light"]) {{
+    --tema-fundo: {escuro_fundo};
+    --tema-destaque: {d};
+    --tema-escrita: {escuro_escrita};
+    --tema-superficie: {escuro_superficie};
+    --tema-borda: {escuro_borda};
+    --tema-escrita-suave: {escuro_escrita_suave};
+    --bs-body-bg: {escuro_fundo};
+    --bs-body-color: {escuro_escrita};
+    --bs-border-color: {escuro_borda};
+    --bs-card-bg: {escuro_superficie};
+    --bs-card-color: {escuro_escrita};
+    --bs-card-border-color: {escuro_borda};
+  }}
 }}
 
 .btn-primary {{
-  --bs-btn-color: {derivados['sobre_destaque']};
-  --bs-btn-hover-color: {derivados['sobre_destaque']};
+  --bs-btn-color: {texto_sobre_destaque};
+  --bs-btn-hover-color: {texto_sobre_destaque};
   --bs-btn-bg: {d};
   --bs-btn-border-color: {d};
   --bs-btn-hover-bg: {derivados['destaque_hover']};
@@ -355,7 +437,7 @@ def gerar_css_tema(
 .navbar-app .navbar-brand,
 .app-navbar .nav-link,
 .navbar-app .nav-link {{
-  color: {derivados['sobre_destaque']} !important;
+  color: {texto_sobre_destaque} !important;
 }}
 
 .app-navbar .nav-link:hover,
@@ -369,9 +451,9 @@ def gerar_css_tema(
 }}
 
 .btn-login {{
-  background-color: {derivados['sobre_destaque']} !important;
+  background-color: {texto_sobre_destaque} !important;
   color: {d} !important;
-  border-color: {derivados['sobre_destaque']} !important;
+  border-color: {texto_sobre_destaque} !important;
 }}
 """
     return css
