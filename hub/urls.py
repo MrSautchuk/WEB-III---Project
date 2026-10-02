@@ -44,7 +44,10 @@ urlpatterns = [
     
     # Mapeia as rotas padrão de autenticação do Django (login, logout, recuperação e reset de senha)
     path('auth/', include('django.contrib.auth.urls')),
-    
+
+    # Conecta o app site (rota raiz '/', '/tema.css' e apresentação/landing)
+    path('', include('apps.site.urls')),
+
     # Conecta as rotas do módulo tenancy diretamente na raiz (contexto de lojistas, onboarding, seleção de empresa)
     path('', include('apps.tenancy.urls')),
     
