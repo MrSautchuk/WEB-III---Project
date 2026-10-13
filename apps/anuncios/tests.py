@@ -443,12 +443,12 @@ class AnunciosMarketplaceTestCase(TestCase):
         self.assertEqual(anuncio.itens_composicao.first().quantidade, 2)
 
 
-# Classe de testes para rotinas de sincronização, Circuit Breaker e integridade de eventos
+# Classe de testes para rotinas de sincronização, Trava de Limite (Guardrail / ADR-007) e integridade de eventos
 class SincronizacaoEstoquePrecoTestCase(TestCase):
     # Docstring explicativa das validações defensivas e de concorrência cobertas na Fase 2
     """
     Suíte de testes para a Fase 2: Sincronização segura de estoque e preço no Mercado Livre,
-    lógica defensiva, Circuit Breaker e disparo por Django Signals.
+    lógica defensiva, Trava de Limite (Guardrail / ADR-007) e disparo por Django Signals.
     """
 
     # Prepara o estado inicial compartilhado para os testes de sincronização
@@ -701,9 +701,13 @@ class SincronizacaoEstoquePrecoTestCase(TestCase):
             # Confirma os argumentos passados ao conector
             mock_att.assert_called_with("MLB2001", 0, usuario=None)
 
-    # Teste de acionamento do Circuit Breaker em variações atípicas de preço
+    # Teste de acionamento da Trava de Limite (Guardrail / Price Collar - ADR-007) em variações atípicas de preço
     def test_circuit_breaker_variacao_anomala_preco(self):
-        """Valida bloqueio de variações de preço > 50% para baixo ou > 100% para cima sem override."""
+        """
+        Valida bloqueio de variações de preço > 50% para baixo ou > 100% para cima sem override.
+        Conforme ADR-007, este mecanismo opera como Trava de Limite (Guardrail de validação de limites com fail-fast),
+        e não como Circuit Breaker clássico com controle de estados [fechado, aberto, meio-aberto].
+        """
         # Preço atual: R$ 100.00. Tentativa de baixar para R$ 40.00 (queda de 60%)
         # Dispara redução de 60% no preço sem permissão forçada
         res_queda = AnuncioSincronizacaoService.sincronizar_preco_anuncio(
@@ -711,7 +715,7 @@ class SincronizacaoEstoquePrecoTestCase(TestCase):
         )
         # Valida que a operação foi rejeitada
         self.assertFalse(res_queda['sucesso'])
-        # Confirma que a flag de bloqueio por Circuit Breaker veio ativada
+        # Confirma que a flag de bloqueio preventivo (Trava de Limite / ADR-007) veio ativada
         self.assertTrue(res_queda.get('bloqueado_circuit_breaker'))
         # Confirma o alerta de queda anômala na mensagem
         self.assertIn("Circuit Breaker acionado: Queda anômala", res_queda['mensagem'])
@@ -721,7 +725,7 @@ class SincronizacaoEstoquePrecoTestCase(TestCase):
         self.assertEqual(self.anuncio_unitario.preco_venda, Decimal('100.00'))
 
         # Confirma registro no LogAuditoria
-        # Valida se o bloqueio do Circuit Breaker foi registrado na auditoria
+        # Valida se o bloqueio da Trava de Limite (ADR-007) foi registrado na auditoria
         self.assertTrue(LogAuditoria.objects.filter(
             loja=self.loja,
             evento=EventoAuditoriaEnum.SYNC_PRECO,
@@ -754,9 +758,12 @@ class SincronizacaoEstoquePrecoTestCase(TestCase):
             # Valida que o preço de venda foi devidamente atualizado no banco
             self.assertEqual(self.anuncio_unitario.preco_venda, Decimal('40.00'))
 
-    # Validação do bloqueio do Circuit Breaker para zeramento massivo de estoque em lote
+    # Validação do bloqueio da Trava de Limite (Bulk-Operation Safeguard / ADR-007) para zeramento massivo de estoque em lote
     def test_circuit_breaker_zeramento_lote(self):
-        """Valida o bloqueio preventivo de operações massivas com risco de zeramento acidental."""
+        """
+        Valida o bloqueio preventivo de operações massivas com risco de zeramento acidental (ADR-007).
+        Opera como barreira de segurança em lote (guardrail) com bypass controlado via forcar=True.
+        """
         # 6 de 10 anúncios zerando (> 5 e > 50%)
         # Submete cenário com 6 itens zerando em lote de 10 sem override forçado
         ok, msg = AnuncioSincronizacaoService.validar_zeramento_em_lote(10, 6, forcar=False)
