@@ -28,12 +28,15 @@ class CanalMarketplaceEnum(models.TextChoices):
     AMAZON = 'amazon', 'Amazon'
 
 
-# Declaração da enumeração textual representativa dos estados da fila e disparos de sincronização com canais externos
+# Declaração da enumeração textual dos estados para o ciclo de sincronização (ADR-011: Estado Derivado)
 class StatusSincronizacaoEnum(models.TextChoices):
     # Início do bloco de docstring que detalha o papel da enumeração no monitoramento visual e auditoria
     """
-    O QUE FAZ: Enumeração de status de sincronização de dados (preço/estoque) com os marketplaces.
-    POR QUE FAZ: Informa na interface o estado da comunicação com a API externa.
+    O QUE FAZ: Enumeração formal de estados de sincronização de dados (preço/estoque) com marketplaces (ADR-011).
+    POR QUE FAZ: Define os estados discretos (NAO_SINCRONIZADO, PENDENTE, SINCRONIZADO, ERRO) consumidos
+                 pelo padrão de Estado Derivado (Derived State) e agregação de status no catálogo mestre.
+                 Observação (ADR-011): os valores são constantes enumeradas de estado operacional,
+                 não constituindo padrão comportamental State (GoF) polimórfico nem FSM com tabela de transições.
     PERMISSÕES RBAC: Consulta em listas de produtos e auditoria.
     MULTI-TENANCY: Status isolado por produto/anúncio da loja.
     """

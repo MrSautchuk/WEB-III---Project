@@ -59,7 +59,10 @@ class Anuncio(models.Model):
         ('inactive', 'Inativo'),
     ]
 
-    # Opções para a máquina de estados do ciclo de sincronização entre o hub e o canal
+    # Opções do enum de estados para o ciclo de sincronização do anúncio (ADR-011: Estado Derivado)
+    # Nota arquitetural (ADR-011): os estados representam valores enumerados de status operacional do anúncio,
+    # consumidos pelo cálculo dinâmico de Estado Derivado (Derived State) e agregação de status no Produto mestre,
+    # e não pelo padrão comportamental State (GoF) ou máquina de estados finita formal com tabela de transições.
     STATUS_SINCRONIZACAO_CHOICES = [
         ('PENDENTE', 'Pendente'),
         ('ENVIADO', 'Enviado'),
@@ -298,10 +301,12 @@ class Anuncio(models.Model):
         # Redireciona para o método de cálculo de cota disponível
         return self.calcular_cota_disponivel()
 
-    # Avalia se os dados locais do anúncio divergiram do catálogo físico ou das regras comerciais
+    # Avalia dinamicamente divergências entre anúncio e catálogo mestre (ADR-011: Detecção Dinâmica de Divergência)
     def esta_pendente(self, preco_catalogo: Optional[Decimal] = None) -> bool:
         """
-        O QUE FAZ: Verifica se o anúncio possui divergência física de cota ou preço em relação ao catálogo.
+        O QUE FAZ: Verifica em tempo de execução se o anúncio possui divergência física de cota ou preço em relação ao catálogo mestre.
+        POR QUE FAZ: Componente do padrão de Estado Derivado (ADR-011) que detecta divergências em tempo real,
+                     evitando estados defasados em cache ou inconsistências de inventário/preço.
         """
         # Se a sincronização já estiver explicitamente marcada como PENDENTE na base
         if self.status_sincronizacao == 'PENDENTE':
@@ -405,13 +410,13 @@ class AnuncioComposicao(models.Model):
                 raise ValidationError("O Produto físico e o Anúncio devem pertencer à mesma Loja (Tenant).")
 
 
-# Modelo para auditoria e rastreabilidade histórica de alterações de preço e estoque nos anúncios
+# Modelo para auditoria e rastreabilidade histórica do ciclo e estados de sincronização (ADR-011)
 class HistoricoSincronizacaoAnuncio(models.Model):
     # Docstring descrevendo a finalidade de conformidade, auditoria e rastreabilidade operacional
     """
-    O QUE FAZ: Registra a trilha de auditoria do ciclo de sincronização do anúncio.
-    POR QUE FAZ: Rastreabilidade de transição de estados [PENDENTE, ENVIADO, CANCELADO],
-                 preço/cota propostos vs anteriores e identificação do responsável.
+    O QUE FAZ: Registra a trilha de auditoria do ciclo de sincronização do anúncio com snapshots antes/depois.
+    POR QUE FAZ: Rastreabilidade e auditoria do histórico de estados [PENDENTE, ENVIADO, CANCELADO] (ADR-011),
+                 registrando preço/cota propostos vs anteriores e identificação do responsável (snapshots).
     PERMISSÕES RBAC: DEV, ADMIN e SUPERVISOR (leitura); gravação automática.
     """
 
