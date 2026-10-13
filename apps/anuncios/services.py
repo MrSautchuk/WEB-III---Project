@@ -197,24 +197,28 @@ class AnuncioImportacaoService:
 
 # Classe de serviço para controle de sincronização de dados de estoque e preço
 class AnuncioSincronizacaoService:
-    # Documentação detalhando o propósito, regras defensivas, Circuit Breaker e multi-tenancy da classe
+    # Documentação detalhando o propósito, regras defensivas, Trava de Limite (Guardrail / ADR-007) e multi-tenancy da classe
     """
     O QUE FAZ: Orquestra a sincronização segura de estoque e preço entre os produtos físicos (catálogo)
                  e os anúncios dos marketplaces (Mercado Livre, etc.).
     POR QUE FAZ: Aplica cálculo de cotas para kits, idempotência para evitar chamadas de rede redundantes,
-                 clamping defensivo e Circuit Breaker contra variações de preço anômalas ou zeramento em lote acidental.
+                 clamping defensivo e Trava de Limite (Guardrail / ADR-007) contra variações de preço
+                 anômalas (price collar / fat-finger check) ou zeramento em lote acidental (bulk-operation safeguard).
+                 Observação arquitetural (ADR-007): a nomenclatura histórica de Circuit Breaker foi revisada
+                 pois o mecanismo não possui memória entre chamadas nem estados clássicos [fechado, aberto, meio-aberto],
+                 operando como validação de pré-condição com fail-fast e override controlado (forcar=True).
     PERMISSÕES RBAC: DEV, ADMIN, SUPERVISOR; Sistema (disparado via Signals / Tarefas).
     MULTI-TENANCY: Todos os cálculos e sincronizações respeitam estritamente a Loja/Conta do anúncio.
     """
 
-    # Limites de segurança do Circuit Breaker
-    # Percentual máximo de desconto permitido sem aprovação forçada manual (50%)
+    # Limites de segurança da Trava de Limite (Guardrail / ADR-007)
+    # Percentual máximo de desconto permitido sem aprovação forçada manual (50% - price collar / fat-finger check)
     MAX_QUEDA_PRECO_PERCENTUAL = Decimal('0.50')   # 50% de queda máxima permitida sem override
-    # Percentual máximo de acréscimo permitido sem aprovação forçada manual (100%)
+    # Percentual máximo de acréscimo permitido sem aprovação forçada manual (100% - price collar)
     MAX_ALTA_PRECO_PERCENTUAL = Decimal('1.00')    # 100% de alta máxima permitida sem override
-    # Quantidade máxima de anúncios permitida zerar simultaneamente em uma execução em lote
+    # Quantidade máxima de anúncios permitida zerar simultaneamente em uma execução em lote (bulk safeguard)
     LIMITE_ZERAMENTO_LOTE_ITENS = 5                # Mais de 5 itens zerando ao mesmo tempo
-    # Proporção máxima do catálogo que pode zerar simultaneamente em um mesmo lote
+    # Proporção máxima do catálogo que pode zerar simultaneamente em um mesmo lote (bulk safeguard)
     LIMITE_ZERAMENTO_LOTE_PERCENTUAL = 0.50        # Mais de 50% dos itens ativos zerando ao mesmo tempo
 
     # Método estático de utilidade para recalcular a cota vendável do anúncio pelo ID
@@ -226,13 +230,14 @@ class AnuncioSincronizacaoService:
         # Calcula a cota disponível garantindo que o número não seja negativo (clamping)
         return max(0, anuncio.calcular_cota_disponivel())
 
-    # Método que implementa as regras do Circuit Breaker para oscilações bruscas de preço
+    # Método que implementa a Trava de Limite de Variação de Preço (Guardrail / Price Collar / Fat-Finger Check - ADR-007)
     @classmethod
     def validar_variacao_preco(cls, anuncio: Anuncio, novo_preco: Decimal, forcar: bool = False) -> Tuple[bool, str]:
-        # Documentação detalhando a regra de proteção contra prejuízos operacionais
+        # Documentação detalhando a regra de proteção contra prejuízos operacionais via Trava de Limite (ADR-007)
         """
-        O QUE FAZ: Valida se o novo preço não apresenta oscilação anômala que indique erro operacional.
-        POR QUE FAZ: Circuit breaker para evitar prejuízos por precificação incorreta (queda > 50% ou alta > 100%).
+        O QUE FAZ: Valida se o novo preço não apresenta oscilação anômala que indique erro operacional (fat-finger error).
+        POR QUE FAZ: Trava de Limite (Guardrail / ADR-007) para evitar prejuízos por precificação incorreta
+                     (queda > 50% ou alta > 100%). Validação de pré-condição com fail-fast e override por operador.
         """
         # Converte a entrada para Decimal tipado de forma segura
         novo_preco = Decimal(str(novo_preco))
@@ -254,7 +259,7 @@ class AnuncioSincronizacaoService:
         if novo_preco < preco_atual:
             # Calcula o percentual da queda em relação ao preço anterior
             queda = (preco_atual - novo_preco) / preco_atual
-            # Se a redução for superior a 50%, dispara o bloqueio do Circuit Breaker
+            # Se a redução for superior a 50%, dispara o bloqueio preventivo da Trava de Limite (ADR-007)
             if queda > cls.MAX_QUEDA_PRECO_PERCENTUAL:
                 return False, (
                     f"Circuit Breaker acionado: Queda anômala de preço de {queda * 100:.1f}% "
@@ -265,7 +270,7 @@ class AnuncioSincronizacaoService:
         elif novo_preco > preco_atual:
             # Calcula a proporção do aumento em relação ao preço anterior
             alta = (novo_preco - preco_atual) / preco_atual
-            # Se o aumento superar 100%, aciona a proteção de segurança
+            # Se o aumento superar 100%, aciona o bloqueio de segurança da Trava de Limite (ADR-007)
             if alta > cls.MAX_ALTA_PRECO_PERCENTUAL:
                 return False, (
                     f"Circuit Breaker acionado: Aumento anômalo de preço de {alta * 100:.1f}% "
@@ -273,16 +278,17 @@ class AnuncioSincronizacaoService:
                     f"Variação permitida sem confirmação explícita é de até 100%."
                 )
 
-        # Se as variações estiverem dentro das margens permitidas, aprova a modificação
+        # Se as variações estiverem dentro dos limiares de segurança da Trava de Limite, aprova a modificação
         return True, "Preço aprovado pelo Circuit Breaker."
 
-    # Validador para proteção contra falhas em lote que zerem o estoque de múltiplos anúncios simultaneamente
+    # Método que implementa a Trava de Limite de Zeramento em Lote (Bulk-Operation Safeguard - ADR-007)
     @classmethod
     def validar_zeramento_em_lote(cls, total_itens_lote: int, total_zerando: int, forcar: bool = False) -> Tuple[bool, str]:
-        # Documenta a proteção contra paralisia acidental de estoque
+        # Documenta a proteção contra paralisia acidental de estoque via Trava de Limite em lote (ADR-007)
         """
         O QUE FAZ: Avalia se uma operação em lote resultará em zeramento simultâneo massivo de inventário.
-        POR QUE FAZ: Previne paralisia acidental de vendas por inconsistências de rede ou integrações externas.
+        POR QUE FAZ: Trava de Limite em lote (Guardrail / ADR-007) que previne paralisia acidental de vendas
+                     (mass out-of-stock storm) por inconsistências de rede ou integrações externas.
         """
         # Se for override explícito por operador autorizado, libera a operação
         if forcar:
@@ -298,7 +304,7 @@ class AnuncioSincronizacaoService:
                 f"em um lote de {total_itens_lote} itens bloqueada para proteção de vendas."
             )
 
-        # Autoriza a continuidade caso esteja abaixo dos gatilhos do Circuit Breaker
+        # Autoriza a continuidade caso esteja abaixo dos gatilhos da Trava de Limite (ADR-007)
         return True, "Zeramento em lote aprovado."
 
     # Método que sincroniza o saldo de estoque físico calculado com o canal de venda
@@ -364,10 +370,10 @@ class AnuncioSincronizacaoService:
         usuario=None,
         forcar: bool = False
     ) -> Dict[str, Any]:
-        # Documentação descrevendo as etapas de validação de Circuit Breaker e propagação de preço
+        # Documentação descrevendo as etapas de validação via Trava de Limite (Guardrail / ADR-007) e propagação de preço
         """
         O QUE FAZ: Valida regras de segurança e sincroniza o preço de venda no marketplace externo.
-        POR QUE FAZ: Previne precificação errônea via Circuit Breaker e propaga novos valores aprovados.
+        POR QUE FAZ: Previne precificação errônea via Trava de Limite (Guardrail / ADR-007) e propaga novos valores aprovados.
         """
         # Checagem de segurança da integridade do anúncio
         if not anuncio or not anuncio.pk:
@@ -376,19 +382,19 @@ class AnuncioSincronizacaoService:
         # Converte o novo preço para instância de Decimal
         novo_preco = Decimal(str(novo_preco))
 
-        # 1. Validação de segurança via Circuit Breaker
-        # Executa a validação de oscilação brusca de preço
+        # 1. Validação de segurança via Trava de Limite (Guardrail / ADR-007)
+        # Executa a validação de oscilação brusca de preço (fat-finger check)
         ok_cb, msg_cb = cls.validar_variacao_preco(anuncio, novo_preco, forcar=forcar)
-        # Se a validação for reprovada pelo Circuit Breaker
+        # Se a validação for reprovada pela Trava de Limite (disparo de bloqueio preventivo)
         if not ok_cb:
-            # Registra log de auditoria formalizando o bloqueio de segurança
+            # Registra log de auditoria formalizando o bloqueio preventivo de segurança (ADR-007)
             LogAuditoria.objects.create(
                 loja=anuncio.conta.loja,
                 autor=usuario,
                 evento=EventoAuditoriaEnum.SYNC_PRECO,
                 detalhes=f"Bloqueio de Circuit Breaker no anúncio [{anuncio.item_id_externo}]: {msg_cb}"
             )
-            # Retorna estrutura informando o bloqueio preventivo da operação
+            # Retorna estrutura informando o bloqueio preventivo da operação (mantém chave de compatibilidade bloqueado_circuit_breaker)
             return {
                 "sucesso": False,
                 "mensagem": msg_cb,
