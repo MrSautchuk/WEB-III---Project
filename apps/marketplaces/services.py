@@ -17,6 +17,7 @@ from django.db import transaction, IntegrityError
 
 # Importa timezone para manipulação de carimbos temporais cientes de fuso horário
 from django.utils import timezone
+from django.conf import settings
 
 # Importa o modelo Loja para contextualização e vinculação multi-tenant
 from apps.tenancy.models import Loja
@@ -211,9 +212,13 @@ class MercadoLivreWebhookService:
                     "message": msg_erro
                 }
 
-            # Obtém os detalhes do pedido
-            order_data = payload.get('order_data')
-            # Caso os detalhes não tenham vindo no payload, consome via conector da API remota
+            # Obtém os detalhes do pedido garantindo integridade contra injeção arbitrária (US #13 / CWE-20)
+            from apps.mockar_dados.services import is_simular_rotas_mock_ativo
+            order_data = None
+            if is_simular_rotas_mock_ativo() and (getattr(settings, 'DEBUG', False) or getattr(conta, 'is_mock', False)):
+                order_data = payload.get('order_data')
+
+            # Caso não esteja em modo mock local ou payload não tenha mock, consome obrigatoriamente da API oficial
             if not order_data:
                 connector = conta.get_connector()
                 sucesso, msg_ped, order_data = connector.obter_detalhes_pedido(resource)

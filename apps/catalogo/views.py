@@ -51,6 +51,9 @@ from apps.marketplaces.connectors.factory import get_connector_for_conta
 # Importa os modelos de dados centrais do domínio de catálogo
 from .models import Categoria, Produto, AnuncioMarketplace, HistoricoPreco
 
+# Importa as funções de serviço desacopladas da camada de apresentação (elimina Fat View e IDOR)
+from .services import executar_baixa_avaria_estoque, executar_ajuste_geral_estoque
+
 # Importa as enumerações de status de comercialização e motivos de movimentação física de estoque
 from .enums import StatusProdutoEnum, TipoAjusteEstoqueEnum
 
@@ -615,9 +618,13 @@ class ProdutoBaixaEstoqueView(LoginRequiredMixin, ModuloRequeridoMixin, CatalogO
     template_name = 'catalogo/produto_baixa_estoque.html'
     form_class = ProdutoBaixaAvariaForm
 
-    # Recupera a instância do produto informado na rota
+    # Recupera a instância do produto informado na rota garantindo isolamento multi-tenant (elimina IDOR)
     def dispatch(self, request, *args, **kwargs):
-        self.produto = get_object_or_404(Produto, pk=self.kwargs['pk'])
+        loja = getattr(request.user.perfil, 'loja', None) if not usuario_is_dev(request.user) else None
+        if loja:
+            self.produto = get_object_or_404(Produto, pk=self.kwargs['pk'], loja=loja)
+        else:
+            self.produto = get_object_or_404(Produto, pk=self.kwargs['pk'])
         return super().dispatch(request, *args, **kwargs)
 
     # Retorna o produto para validações internas de mixin
@@ -630,46 +637,21 @@ class ProdutoBaixaEstoqueView(LoginRequiredMixin, ModuloRequeridoMixin, CatalogO
         kwargs['produto'] = self.produto
         return kwargs
 
-    # Executa a baixa de saldo com bloqueio de concorrência (select_for_update) e emite avisos contextuais
+    # Delega a execução da baixa para a camada de serviços (elimina Fat View e race conditions)
     def form_valid(self, form):
         qtd = form.cleaned_data['quantidade']
         tipo_baixa = form.cleaned_data['tipo_baixa']
         justificativa = form.cleaned_data['justificativa']
 
-        with transaction.atomic():
-            # Bloqueia a linha no banco para evitar race conditions em baixas concorrentes
-            prod_locked = Produto.objects.select_for_update().get(pk=self.produto.pk)
-            saldo_anterior = prod_locked.estoque
-            novo_saldo = saldo_anterior - qtd
-            prod_locked.estoque = novo_saldo
-            # Identifica o usuário para o sinal
-            prod_locked._usuario_operacao = self.request.user
-            prod_locked.save(update_fields=['estoque', 'atualizado_em'])
-
-            # Registra no histórico de preço/estoque
-            HistoricoPreco.objects.create(
-                produto=prod_locked,
-                loja=prod_locked.loja,
-                preco_anterior=prod_locked.preco,
-                preco_novo=prod_locked.preco,
-                estoque_anterior=saldo_anterior,
-                estoque_novo=novo_saldo,
-                usuario=self.request.user,
-                motivo=f"Baixa por Avaria ({tipo_baixa}): {justificativa}"
-            )
-
-            # Registra na auditoria
-            LogAuditoria.objects.create(
-                loja=prod_locked.loja,
-                autor=self.request.user,
-                evento=EventoAuditoriaEnum.BAIXA_AVARIA,
-                detalhes=(
-                    f"Baixa de {qtd} un. do produto '{prod_locked.sku}' por motivo '{tipo_baixa}'. "
-                    f"Saldo anterior: {saldo_anterior} -> Novo saldo: {novo_saldo}. "
-                    f"Justificativa: {justificativa}"
-                ),
-                ip_origem=self.request.META.get('REMOTE_ADDR')
-            )
+        prod_locked, saldo_anterior, novo_saldo = executar_baixa_avaria_estoque(
+            produto_id=self.produto.pk,
+            loja=self.produto.loja,
+            quantidade=qtd,
+            tipo_baixa=tipo_baixa,
+            justificativa=justificativa,
+            usuario=self.request.user,
+            ip_origem=self.request.META.get('REMOTE_ADDR')
+        )
 
         # Emite alerta de nível WARNING caso o item não possua anúncios vinculados a sincronizar
         if prod_locked.anuncios_publicados.count() == 0:
@@ -705,52 +687,36 @@ class ProdutoAjusteEstoqueView(LoginRequiredMixin, ModuloRequeridoMixin, Catalog
     template_name = 'catalogo/produto_ajuste_estoque.html'
     form_class = ProdutoAjusteEstoqueForm
 
-    # Intercepta a requisição verificando se o usuário tem permissão para ajuste geral
+    # Intercepta a requisição verificando se o usuário tem permissão para ajuste geral e isolamento de tenant
     def dispatch(self, request, *args, **kwargs):
         if not pode_ajustar_estoque_geral(request.user):
             raise PermissionDenied("Acesso negado: seu perfil não pode realizar ajuste geral de estoque (RN-09).")
-        self.produto = get_object_or_404(Produto, pk=self.kwargs['pk'])
+        loja = getattr(request.user.perfil, 'loja', None) if not usuario_is_dev(request.user) else None
+        if loja:
+            self.produto = get_object_or_404(Produto, pk=self.kwargs['pk'], loja=loja)
+        else:
+            self.produto = get_object_or_404(Produto, pk=self.kwargs['pk'])
         return super().dispatch(request, *args, **kwargs)
 
     # Retorna o produto para os mixins
     def get_object(self, queryset=None):
         return self.produto
 
-    # Grava o novo saldo apurado no balanço com bloqueio de linha e registra na auditoria
+    # Delega o ajuste geral de saldo para a camada de serviços
     def form_valid(self, form):
         novo_saldo = form.cleaned_data['novo_estoque']
         tipo_ajuste = form.cleaned_data['tipo_ajuste']
         justificativa = form.cleaned_data['justificativa']
 
-        with transaction.atomic():
-            prod_locked = Produto.objects.select_for_update().get(pk=self.produto.pk)
-            saldo_anterior = prod_locked.estoque
-            prod_locked.estoque = novo_saldo
-            prod_locked._usuario_operacao = self.request.user
-            prod_locked.save(update_fields=['estoque', 'atualizado_em'])
-
-            HistoricoPreco.objects.create(
-                produto=prod_locked,
-                loja=prod_locked.loja,
-                preco_anterior=prod_locked.preco,
-                preco_novo=prod_locked.preco,
-                estoque_anterior=saldo_anterior,
-                estoque_novo=novo_saldo,
-                usuario=self.request.user,
-                motivo=f"Ajuste Geral ({tipo_ajuste}): {justificativa}"
-            )
-
-            LogAuditoria.objects.create(
-                loja=prod_locked.loja,
-                autor=self.request.user,
-                evento=EventoAuditoriaEnum.AJUSTE_ESTOQUE,
-                detalhes=(
-                    f"Ajuste geral de estoque do SKU '{prod_locked.sku}' ({tipo_ajuste}). "
-                    f"Saldo anterior: {saldo_anterior} -> Novo saldo: {novo_saldo}. "
-                    f"Justificativa: {justificativa}"
-                ),
-                ip_origem=self.request.META.get('REMOTE_ADDR')
-            )
+        prod_locked, saldo_anterior, novo_saldo = executar_ajuste_geral_estoque(
+            produto_id=self.produto.pk,
+            loja=self.produto.loja,
+            novo_saldo=novo_saldo,
+            tipo_ajuste=tipo_ajuste,
+            justificativa=justificativa,
+            usuario=self.request.user,
+            ip_origem=self.request.META.get('REMOTE_ADDR')
+        )
 
         # Emite aviso caso não haja canais dependentes deste estoque
         if prod_locked.anuncios_publicados.count() == 0:

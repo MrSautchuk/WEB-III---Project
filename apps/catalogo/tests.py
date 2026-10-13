@@ -624,3 +624,96 @@ class CatalogoAndRBACPermissionsTestCase(TestCase):
         self.assertIn("Estoque atualizado para 45 un. com sucesso", msg_warning.message)
 
 
+class ProdutoCrossTenantSecurityTest(TestCase):
+    """
+    Testes de Segurança Defensiva contra IDOR (CWE-639 / SEC-01 / US #11 Taiga).
+    Garante que usuários de uma loja não possam baixar ou ajustar estoque de produtos de outra loja.
+    """
+    def setUp(self):
+        self.client = Client()
+        # Loja A e usuário A
+        self.loja_a = Loja.objects.create(nome="Loja A", slug="loja-a", cnpj="11.111.111/0001-11")
+        self.loja_a.garantir_modulos_padrao()
+        self.user_a = User.objects.create_user(username="user_a", password="password123")
+        PerfilUsuario.objects.create(usuario=self.user_a, papel=PapelUsuarioEnum.ADMIN, loja=self.loja_a)
+
+        # Loja B e usuário B
+        self.loja_b = Loja.objects.create(nome="Loja B", slug="loja-b", cnpj="22.222.222/0001-22")
+        self.loja_b.garantir_modulos_padrao()
+        self.user_b = User.objects.create_user(username="user_b", password="password123")
+        PerfilUsuario.objects.create(usuario=self.user_b, papel=PapelUsuarioEnum.ADMIN, loja=self.loja_b)
+
+        # Categoria e Produto da Loja A
+        self.cat_a = Categoria.objects.create(loja=self.loja_a, nome="Cat A", slug="cat-a")
+        self.prod_a = Produto.objects.create(
+            loja=self.loja_a, categoria=self.cat_a, sku="SKU-A", nome="Produto A",
+            preco=Decimal('100.00'), estoque=50
+        )
+
+    def test_bloqueio_cross_tenant_baixa_avaria_idor(self):
+        """Usuário da Loja B não pode realizar baixa de avaria em produto da Loja A."""
+        self.client.login(username="user_b", password="password123")
+        url = reverse('produto_baixa_estoque', kwargs={'pk': self.prod_a.pk})
+        
+        # GET deve retornar 404
+        resp_get = self.client.get(url)
+        self.assertEqual(resp_get.status_code, 404)
+
+        # POST não deve alterar estoque
+        resp_post = self.client.post(url, {
+            'quantidade': 10,
+            'tipo_baixa': TipoAjusteEstoqueEnum.SAIDA_AVARIA,
+            'justificativa': 'Tentativa maliciosa cross-tenant'
+        })
+        self.assertEqual(resp_post.status_code, 404)
+
+        self.prod_a.refresh_from_db()
+        self.assertEqual(self.prod_a.estoque, 50)
+
+    def test_bloqueio_cross_tenant_ajuste_geral_idor(self):
+        """Usuário da Loja B não pode realizar ajuste geral em produto da Loja A."""
+        self.client.login(username="user_b", password="password123")
+        url = reverse('produto_ajuste_estoque', kwargs={'pk': self.prod_a.pk})
+
+        resp_get = self.client.get(url)
+        self.assertEqual(resp_get.status_code, 404)
+
+        resp_post = self.client.post(url, {
+            'novo_estoque': 0,
+            'tipo_ajuste': TipoAjusteEstoqueEnum.CORRECAO_BALANCO,
+            'justificativa': 'Zerar estoque alheio'
+        })
+        self.assertEqual(resp_post.status_code, 404)
+
+        self.prod_a.refresh_from_db()
+        self.assertEqual(self.prod_a.estoque, 50)
+
+    def test_anuncio_marketplace_delete_view_success_and_cross_tenant(self):
+        """Valida exclusão de vínculo de AnuncioMarketplace e bloqueio cross-tenant (RTM / Task #62)."""
+        conta_a = ContaMarketplace.objects.create(
+            loja=self.loja_a, canal=CanalMarketplaceEnum.MERCADOLIVRE, apelido_conta="ML A", seller_id_externo="111222"
+        )
+        anuncio = AnuncioMarketplace.objects.create(
+            produto=self.prod_a,
+            conta_marketplace=conta_a,
+            item_id_externo="MLB_DELETE_TEST",
+            preco_sincronizado=Decimal('100.00')
+        )
+
+        url = reverse('anuncio_marketplace_delete', kwargs={'pk': anuncio.pk})
+
+        # 1. Usuário B tenta excluir anúncio da Loja A e recebe 403
+        self.client.login(username="user_b", password="password123")
+        res_cross = self.client.post(url)
+        self.assertEqual(res_cross.status_code, 403)
+        self.assertTrue(AnuncioMarketplace.objects.filter(pk=anuncio.pk).exists())
+
+        # 2. Usuário da Loja A exclui com sucesso
+        user_a = User.objects.create_user(username="user_a_owner", password="password123")
+        PerfilUsuario.objects.create(usuario=user_a, papel=PapelUsuarioEnum.ADMIN, loja=self.loja_a)
+        self.client.login(username="user_a_owner", password="password123")
+        res_ok = self.client.post(url)
+        self.assertEqual(res_ok.status_code, 302)
+        self.assertFalse(AnuncioMarketplace.objects.filter(pk=anuncio.pk).exists())
+
+

@@ -57,9 +57,8 @@ SECRET_KEY = env('SECRET_KEY')
 # Converte a variável DEBUG para tipo booleano nativo, mantendo False como fallback seguro
 DEBUG = env.bool('DEBUG', default=False)
 
-# Lê LOGIN_DEBUG do .env para injeção automática de credenciais em desenvolvimento
-# Carrega a flag que habilita o preenchimento ou login automático rápido em ambientes de desenvolvimento
-LOGIN_DEBUG = env.bool('LOGIN_DEBUG', default=False)
+# Lê LOGIN_DEBUG do .env estritamente condicionado a DEBUG=True (US #16 / CWE-200)
+LOGIN_DEBUG = env.bool('LOGIN_DEBUG', default=False) and DEBUG
 
 # Obtém a string com o nome de usuário padrão usado para autenticação no modo de desenvolvimento
 LOGIN_DEBUG_USERNAME = env.str('LOGIN_DEBUG_USERNAME', default='devmaster')

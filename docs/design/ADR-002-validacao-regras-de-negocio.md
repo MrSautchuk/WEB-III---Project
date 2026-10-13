@@ -7,7 +7,7 @@
 No ecossistema do **Hub Inteligente de Marketplaces**, o catálogo mestre atua como a **Fonte Única da Verdade (*Single Source of Truth*)** para precificação e controle de saldo físico de inventário (`Produto.preco` e `Produto.estoque`). 
 
 Grandezas comerciais e financeiras não podem, sob hipótese alguma, violar invariantes fundamentais de negócio:
-- O preço de venda de um produto nunca pode ser negativo ou nulo (`preco >= Decimal('0.00')`), pois propagar um preço negativo ou zerado para Mercado Livre, Shopee ou Amazon acarretaria prejuízos financeiros imediatos por vendas com preço incorreto (*dumping* acidental).
+- O preço de venda de um produto nunca pode ser negativo (`preco >= Decimal('0.00')`), sendo admitido o valor zero (ex.: itens promocionais/bonificações), enquanto valores negativos acarretariam prejuízos financeiros imediatos por vendas com distorção de precificação (*dumping* acidental).
 - O saldo físico de inventário não pode ser persistido como negativo em cadastros e ajustes manuais (`estoque >= 0`).
 - Entidades relacionadas, como `Categoria`, devem obrigatoriamente pertencer à mesma loja (`loja_id`) do produto para evitar corrupção de catálogo multi-tenant.
 
@@ -15,19 +15,20 @@ O dilema arquitetural enfrentado pela equipe de engenharia era: **onde deve resi
 
 ## 2. Decisão
 
-A equipe de engenharia decidiu centralizar a integridade e validação de invariantes **diretamente no Model (`apps/catalogo/models.py`)**, combinando três mecanismos complementares de defesa em profundidade:
-1. **Validadores nativos no Schema do Model**: declaração explícita de `validators=[MinValueValidator(Decimal('0.00'))]` na definição dos campos `preco` e `custo_aquisicao`.
-2. **Método de validação semântica `clean()` no Model**: implementação da lógica de validação composta no método `clean()` da classe `Produto`:
+A equipe de engenharia decidiu centralizar a integridade e validação de invariantes **diretamente no Model (`apps/catalogo/models.py`)**, aplicando o princípio de responsabilidade única e eliminando o code smell de validação duplicada (*DRY*):
+
+1. **Validadores Nativos no Schema do Model (Validações Univariadas)**: declaração explícita de `validators=[MinValueValidator(Decimal('0.00'))]` na definição dos campos `preco` e `custo_aquisicao`. O Django ORM executa validadores de campo nativamente na validação de formulários e na chamada de `full_clean()`.
+2. **Método Semântico `clean()` no Model (Validações Multivariadas de Domínio)**: o método `clean()` foi refatorado para eliminar checagens univariadas redundantes de preço, concentrando-se exclusivamente em invariantes relacionais complexas (garantia de consistência multi-tenant entre Produto e Categoria):
    ```python
    def clean(self):
        super().clean()
-       if self.preco is not None and self.preco < Decimal('0.00'):
-           raise ValidationError({'preco': 'O preço de venda não pode ser negativo (RN-06).'})
+       # Validação cruzada multi-tenant: categoria e produto devem pertencer ao mesmo tenant
        if self.categoria_id and self.loja_id:
            if self.categoria.loja_id != self.loja_id:
                raise ValidationError({'categoria': 'A categoria selecionada deve pertencer à mesma loja do produto.'})
    ```
-3. **Restrições de integridade no banco de dados (`CheckConstraint`)**: garantia de que mesmo mutações diretas via SQL rejeitem dados inconsistentes.
+3. **Resolução de Code Smell (Duplicated Validation Logic)**: a remoção da checagem `if self.preco < Decimal('0.00')` do método `clean()` elimina a duplicação em relação ao `MinValueValidator(Decimal('0.00'))`, evitando divergências conceituais e simplificando a manutenção do código.
+4. **Restrições de integridade no banco de dados (`CheckConstraint`)**: garantia de que mesmo mutações diretas via SQL rejeitem dados inconsistentes.
 
 ## 3. Alternativa Descartada
 

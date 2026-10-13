@@ -481,3 +481,59 @@ class PedidosAndAtomicStockTestCase(TestCase):
         self.assertEqual(hist_b.estoque_anterior, 15)
         self.assertEqual(hist_b.estoque_novo, 9)
 
+    # --------------------------------------------------------------------------
+    # TESTES DE ROTAS RTM (US #17 / Tasks #62, #64)
+    # --------------------------------------------------------------------------
+    def test_pedido_venda_detail_view_success_and_cross_tenant(self):
+        """Valida que PedidoVendaDetailView exibe pedido da própria loja e bloqueia outra loja."""
+        pedido = PedidoVenda.objects.create(
+            loja=self.loja,
+            canal_origem=CanalMarketplaceEnum.MERCADOLIVRE,
+            pedido_id_externo="PED-DETAIL-001",
+            valor_total=Decimal('250.00'),
+            comprador_nome="Cliente Teste Detail"
+        )
+        ItemPedidoVenda.objects.create(
+            pedido=pedido,
+            produto=self.produto,
+            quantidade=1,
+            preco_unitario=Decimal('250.00')
+        )
+
+        # 1. ADMIN da própria loja acessa com sucesso
+        self.client.login(username='admin_pedidos', password='password123')
+        res = self.client.get(reverse('pedido_detail', kwargs={'pk': pedido.pk}))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "PED-DETAIL-001")
+        self.assertContains(res, "Cliente Teste Detail")
+
+        # 2. Usuário de outra loja tenta acessar e recebe 403 Forbidden
+        loja_outra = Loja.objects.create(nome="Outra Loja", slug="outra-loja", cnpj="88.888.888/0001-88")
+        loja_outra.garantir_modulos_padrao()
+        user_outro = User.objects.create_user(username='outro_admin', password='password123')
+        PerfilUsuario.objects.create(usuario=user_outro, papel=PapelUsuarioEnum.ADMIN, loja=loja_outra)
+
+        self.client.login(username='outro_admin', password='password123')
+        res_cross = self.client.get(reverse('pedido_detail', kwargs={'pk': pedido.pk}))
+        self.assertEqual(res_cross.status_code, 403)
+
+    def test_webhook_mercadolivre_view_with_valid_and_invalid_slug(self):
+        """Valida WebhookMercadoLivreView com slug de loja (Task #64 / US #17 & US #14)."""
+        url_valid_slug = reverse('webhook_mercadolivre_slug', kwargs={'slug': self.loja.slug})
+        payload = {
+            'topic': 'orders_v2',
+            'resource': '/orders/20000099990001',
+            'user_id': '999888',
+            'id': '20000099990001',
+            'items': [
+                {'item': {'id': 'MLB776655'}, 'quantity': 1, 'unit_price': 250.00}
+            ]
+        }
+        res_ok = self.client.post(url_valid_slug, data=json.dumps(payload), content_type='application/json')
+        self.assertEqual(res_ok.status_code, 200)
+
+        # Rota com slug inexistente retorna 404 (Fail-Closed)
+        url_invalid = reverse('webhook_mercadolivre_slug', kwargs={'slug': 'slug-inexistente-xyz'})
+        res_invalid = self.client.post(url_invalid, data=json.dumps(payload), content_type='application/json')
+        self.assertEqual(res_invalid.status_code, 404)
+

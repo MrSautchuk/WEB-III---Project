@@ -98,6 +98,10 @@ class SimuladorPromocionalTestCase(TestCase):
         self.user_admin = User.objects.create_user(username='admin_fin', password='password123')
         PerfilUsuario.objects.create(usuario=self.user_admin, papel=PapelUsuarioEnum.ADMIN, loja=self.loja)
 
+        # Cria usuário supervisor
+        self.user_super = User.objects.create_user(username='super_fin', password='password123')
+        PerfilUsuario.objects.create(usuario=self.user_super, papel=PapelUsuarioEnum.SUPERVISOR, loja=self.loja)
+
         # Cria usuário operacional padrão sujeito a bloqueios de governança em relatórios financeiros
         self.user_padrao = User.objects.create_user(username='user_fin', password='password123')
         PerfilUsuario.objects.create(usuario=self.user_padrao, papel=PapelUsuarioEnum.USUARIO, loja=self.loja)
@@ -221,3 +225,100 @@ class SimuladorPromocionalTestCase(TestCase):
         # Confirma que a resposta traz as estruturas detalhadas de ambos os cenários
         self.assertIn('cenario_original', data)
         self.assertIn('cenario_promocional', data)
+
+    # --------------------------------------------------------------------------
+    # TESTES DE CONFIGURAÇÃO DE PARÂMETROS FINANCEIROS (US #18 / Tasks #65-#67)
+    # --------------------------------------------------------------------------
+    def test_configuracao_taxas_view_rbac_and_get(self):
+        """Valida que ADMIN e SUPERVISOR acessam a tela de configuração e USUARIO recebe 403."""
+        # 1. USUARIO é bloqueado com 403
+        self.client.login(username='user_fin', password='password123')
+        res_user = self.client.get(reverse('configuracao_taxas'))
+        self.assertEqual(res_user.status_code, 403)
+
+        # 2. ADMIN acessa com sucesso
+        self.client.login(username='admin_fin', password='password123')
+        res_admin = self.client.get(reverse('configuracao_taxas'))
+        self.assertEqual(res_admin.status_code, 200)
+        self.assertContains(res_admin, "Alíquota de Imposto")
+        self.assertContains(res_admin, "Loja Finanças")
+
+        # 3. SUPERVISOR acessa para leitura
+        self.client.login(username='super_fin', password='password123')
+        res_super = self.client.get(reverse('configuracao_taxas'))
+        self.assertEqual(res_super.status_code, 200)
+
+    def test_configuracao_taxas_post_save_by_admin(self):
+        """Valida persistência de parâmetros fiscais e taxas de canais por ADMIN."""
+        self.client.login(username='admin_fin', password='password123')
+        post_data = {
+            'aliquota_imposto': '0.0650',
+            'custo_embalagem_padrao': '3.20',
+            'margem_minima_seguranca': '0.2000',
+            'custos_fixos_mensais': '7500.00',
+            'canal_mercadolivre_classico_comissao': '0.1300',
+            'canal_mercadolivre_classico_frete_piso': '85.00',
+            'canal_mercadolivre_classico_frete_acima': '19.50',
+            'canal_mercadolivre_classico_taxa_fixa': '6.50',
+        }
+        res = self.client.post(reverse('configuracao_taxas'), data=post_data)
+        self.assertEqual(res.status_code, 302)
+
+        # Confirma gravação no banco de dados
+        config = ConfiguracaoTaxasLoja.objects.get(loja=self.loja)
+        self.assertEqual(config.aliquota_imposto, Decimal('0.0650'))
+        self.assertEqual(config.custo_embalagem_padrao, Decimal('3.20'))
+        self.assertEqual(config.margem_minima_seguranca, Decimal('0.2000'))
+        self.assertEqual(config.custos_fixos_mensais, Decimal('7500.00'))
+
+        param_canal = ParametroCanalMarketplace.objects.get(loja=self.loja, marketplace='mercadolivre_classico')
+        self.assertEqual(param_canal.comissao_padrao, Decimal('0.1300'))
+        self.assertEqual(param_canal.frete_gratis_piso, Decimal('85.00'))
+
+    def test_configuracao_taxas_post_denied_for_supervisor(self):
+        """Valida que SUPERVISOR é impedido de modificar parâmetros (403 Forbidden)."""
+        self.client.login(username='super_fin', password='password123')
+        post_data = {
+            'aliquota_imposto': '0.0800',
+            'custo_embalagem_padrao': '5.00',
+            'margem_minima_seguranca': '0.2500',
+            'custos_fixos_mensais': '10000.00',
+        }
+        res = self.client.post(reverse('configuracao_taxas'), data=post_data)
+        self.assertEqual(res.status_code, 403)
+
+    # --------------------------------------------------------------------------
+    # TESTES DE CALCULAR MARGEM VIEW (RTM / US #17 / Task #63)
+    # --------------------------------------------------------------------------
+    def test_calcular_margem_view_success_and_cross_tenant_block(self):
+        """Valida endpoint /financeiro/margem/calcular/ e bloqueio de produto de outra loja."""
+        self.client.login(username='admin_fin', password='password123')
+
+        # Cria produto com margem confortável para simulação de viabilidade
+        prod_viavel = Produto.objects.create(
+            loja=self.loja,
+            categoria=self.categoria,
+            sku="PROD-VIAVEL",
+            nome="Produto Saudável",
+            preco=Decimal('150.00'),
+            custo_aquisicao=Decimal('30.00'),
+            custo_embalagem=Decimal('2.00'),
+            estoque=20
+        )
+        res = self.client.post(
+            reverse('calcular_margem'),
+            data={'produto_id': prod_viavel.pk, 'canal': 'mercadolivre_classico', 'desconto_pct': '5.0'}
+        )
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.json().get('status_viabilidade'), 'VIAVEL')
+
+        # Bloqueio cross-tenant para produto de outra loja
+        loja_b = Loja.objects.create(nome="Outra Loja", slug="outra-loja", cnpj="77.777.777/0001-77")
+        cat_b = Categoria.objects.create(loja=loja_b, nome="Outra", slug="outra")
+        prod_b = Produto.objects.create(loja=loja_b, categoria=cat_b, sku="PROD-B", nome="Prod B", preco=Decimal('50.00'), estoque=10)
+
+        res_cross = self.client.post(
+            reverse('calcular_margem'),
+            data={'produto_id': prod_b.pk, 'canal': 'mercadolivre_classico'}
+        )
+        self.assertEqual(res_cross.status_code, 403)

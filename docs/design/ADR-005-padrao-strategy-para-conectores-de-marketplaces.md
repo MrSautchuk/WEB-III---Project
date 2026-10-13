@@ -30,15 +30,23 @@ A equipe decidiu implementar o padrão de projeto comportamental **Strategy** (G
      - `MagaluConnector` (`apps/marketplaces/connectors/magalu.py`)
      - `AmazonConnector` (`apps/marketplaces/connectors/amazon.py`)
 
-3. **Resolução Dinâmica via Factory Pattern (`get_connector_for_conta`)**:
+3. **Resolução Dinâmica via Factory Pattern com Princípio Fail-Fast (`get_connector_for_conta`)**:
    - Localização: `apps/marketplaces/connectors/factory.py`.
-   - Utilização de um dicionário de mapeamento centralizado (`CONNECTOR_REGISTRY`), onde o conector adequado é instanciado em tempo de execução com base no enum `CanalMarketplaceEnum` da conta do lojista:
+   - Utilização de um dicionário de mapeamento centralizado (`CONNECTOR_REGISTRY`), onde o conector adequado é instanciado em tempo de execução com base no enum `CanalMarketplaceEnum` da conta do lojista.
+   - **Resolução do Code Smell (Fallback Silencioso / Anti-Padrão Fail-Silent)**: A versão inicial do código utilizava um conector padrão do Mercado Livre como fallback caso o canal não fosse encontrado (`CONNECTOR_REGISTRY.get(conta.canal, MercadoLivreConnector)`). Conforme apontado na avaliação técnica, esse comportamento é um *code smell* crítico: mascarar canais desconhecidos ou corrompidos enviando chamadas silenciosamente para a API do Mercado Livre gera risco direto de corrupção de dados e dificulta diagnósticos. A fábrica foi refatorada para adotar **Fail-Fast** estrito:
      ```python
      def get_connector_for_conta(conta: ContaMarketplace) -> BaseMarketplaceConnector:
-         connector_cls = CONNECTOR_REGISTRY.get(conta.canal, MercadoLivreConnector)
+         if not conta or not getattr(conta, 'canal', None):
+             raise ValueError("ContaMarketplace inválida ou canal não especificado.")
+         
+         connector_cls = CONNECTOR_REGISTRY.get(conta.canal)
+         if not connector_cls:
+             raise ValueError(
+                 f"Canal de marketplace '{conta.canal}' não é suportado pelo Hub ou conector não registrado."
+             )
          return connector_cls(conta=conta)
      ```
-   - O restante do sistema (views de sincronização, webhooks e comandos de terminal) consome exclusivamente a interface polimórfica `BaseMarketplaceConnector`, desconhecendo completamente a implementação interna específica de cada canal.
+   - O restante do sistema (views de sincronização, webhooks e comandos de terminal) consome exclusivamente a interface polimórfica `BaseMarketplaceConnector`, desconhecendo a implementação interna de cada canal e garantindo que falhas de configuração de canal sejam interrompidas imediatamente na origem.
 
 ## 3. Alternativa Descartada
 
