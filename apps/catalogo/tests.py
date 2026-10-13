@@ -319,9 +319,13 @@ class CatalogoAndRBACPermissionsTestCase(TestCase):
         # Garante que nenhum anúncio indevido foi persistido no banco
         self.assertFalse(AnuncioMarketplace.objects.filter(produto=self.produto, conta_marketplace=conta_alheia).exists())
 
-    # Teste da propriedade consolidada de status e da respectiva estilização visual do badge
+    # Teste da propriedade consolidada de status via Estado Derivado (Derived State / ADR-011) e badge visual
     def test_produto_status_sincronizacao_consolidado(self):
-        """Valida cálculo dinâmico da propriedade status_sincronizacao_consolidado e respectivo badge."""
+        """
+        Valida cálculo dinâmico da propriedade status_sincronizacao_consolidado e respectivo badge.
+        Conforme ADR-011, este mecanismo opera como Estado Derivado (Derived State com agregação de status),
+        calculando o estado em tempo de execução a partir dos anúncios vinculados, e não como State GoF polimórfico.
+        """
         # Importa os modelos de anúncio e composição
         from apps.anuncios.models import Anuncio, AnuncioComposicao
 

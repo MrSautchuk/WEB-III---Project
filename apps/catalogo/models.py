@@ -240,12 +240,15 @@ class Produto(models.Model):
         # Retorna a consulta filtrando pelas composições com eliminação de redundâncias
         return Anuncio.objects.filter(composicoes__produto=self).distinct()
 
-    # Propriedade que consolida o status dinâmico de sincronização com base nas ofertas vinculadas
+    # Propriedade de Estado Derivado (Derived State) com agregação (roll-up) de status (ADR-011)
     @property
     def status_sincronizacao_consolidado(self) -> str:
         """
-        O QUE FAZ: Calcula dinamicamente o estado de sincronização com base em todos os anúncios vinculados ao produto.
-        POR QUE FAZ: Elimina divergências entre o card de informações principais e a tabela de anúncios.
+        O QUE FAZ: Calcula dinamicamente (computed property) o estado de sincronização com base na agregação (roll-up)
+                  de todos os anúncios vinculados ao produto mestre.
+        POR QUE FAZ: Implementa o padrão de Estado Derivado (ADR-011), eliminando divergências visuais e
+                     operacionais entre o resumo do produto e a coleção de anúncios no marketplace.
+                     Não utiliza o padrão comportamental State (GoF) polimórfico, mas agregação funcional em tempo de execução.
         """
         # Carrega a coleção de anúncios vinculados para avaliação em memória
         anuncios = list(self.anuncios_publicados)
@@ -279,10 +282,10 @@ class Produto(models.Model):
         # Fallback defensivo: assume estado de pendência caso haja qualquer inconsistência
         return "Pendente de Sincronização"
 
-    # Mapeia o estado consolidado para a respectiva classe visual de cores do Bootstrap
+    # Mapeia o Estado Derivado consolidado para a respectiva classe visual de cores do Bootstrap (ADR-011)
     @property
     def status_sincronizacao_consolidado_badge(self) -> str:
-        """Retorna a classe CSS Bootstrap correspondente ao estado consolidado."""
+        """Retorna a classe CSS Bootstrap correspondente ao estado consolidado derivado (ADR-011)."""
         st = self.status_sincronizacao_consolidado
         if st == "Sincronizado com Sucesso":
             return "bg-success text-white"
