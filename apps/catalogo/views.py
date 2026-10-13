@@ -467,7 +467,7 @@ class ProdutoDetailView(LoginRequiredMixin, ModuloRequeridoMixin, CatalogOwnersh
         context['anuncios'] = anuncios
         # Filtra os anúncios cuja sincronização não está descartada/cancelada
         context['anuncios_ativos_sync'] = [a for a in anuncios if a.status_sincronizacao != 'CANCELADO']
-        # Identifica os anúncios que demandam confirmação ou possuem desvios de saldo físico/preço
+        # Identifica os anúncios que demandam confirmação ou possuem desvios de saldo físico/preço (Detecção Dinâmica de Divergência - ADR-011)
         context['anuncios_pendentes_sync'] = [
             a for a in anuncios
             if a.status_sincronizacao == 'PENDENTE' or (

@@ -780,9 +780,9 @@ class AnuncioToggleIgnorarView(LoginRequiredMixin, ModuloRequeridoMixin, View):
         cota_ant = anuncio.estoque_publicado
         cota_atual = anuncio.calcular_cota_disponivel()
 
-        # Se o anúncio já estiver como CANCELADO, reativa a sincronização
+        # Se o anúncio já estiver como CANCELADO, reativa a sincronização (ciclo de sincronização - ADR-011)
         if anuncio.status_sincronizacao == 'CANCELADO':
-            # Se houver divergência entre o estoque anunciado e a cota atual, define como PENDENTE
+            # Se houver divergência entre o estoque anunciado e a cota atual, define como PENDENTE (detecção dinâmica de divergência - ADR-011)
             if anuncio.estoque_publicado != cota_atual:
                 anuncio.status_sincronizacao = 'PENDENTE'
             # Se os números forem idênticos, define diretamente como ENVIADO
@@ -799,7 +799,7 @@ class AnuncioToggleIgnorarView(LoginRequiredMixin, ModuloRequeridoMixin, View):
         # Salva o novo status da sincronização
         anuncio.save(update_fields=['status_sincronizacao', 'atualizado_em'])
 
-        # Registra a decisão do operador no histórico do ciclo
+        # Registra a decisão do operador no histórico do ciclo (auditoria com snapshots antes/depois - ADR-011)
         HistoricoSincronizacaoAnuncio.objects.create(
             anuncio=anuncio,
             status_resultante=anuncio.status_sincronizacao,
