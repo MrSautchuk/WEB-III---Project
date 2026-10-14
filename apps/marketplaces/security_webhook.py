@@ -30,19 +30,17 @@ def validar_assinatura_e_anti_replay(request, secret: str, canal: str = 'mercado
     """
     # Fim da docstring explicativa da função
 
-    # Se a conta não tiver um segredo compartilhado configurado, libera a requisição com aviso
+    # Comportamento Fail-Closed (US #12 / CWE-347): Rejeita sumariamente se secret não configurado
     if not secret:
-        return True, 200, "Sem secret configurado."
+        return False, 401, "Webhook secret não configurado para este canal."
 
     # 1. Extração do timestamp dos cabeçalhos
-    # Tenta recuperar o timestamp da requisição a partir dos cabeçalhos HTTP mais comuns utilizados pelas plataformas
     raw_ts = (
         request.META.get('HTTP_X_TIMESTAMP')
         or request.META.get('HTTP_TIMESTAMP')
         or request.META.get('HTTP_X_REQUEST_TIMESTAMP')
     )
 
-    # Tenta recuperar o cabeçalho que trafega a assinatura criptográfica sob diferentes nomenclaturas de mercado
     sig_header = (
         request.META.get('HTTP_X_SIGNATURE')
         or request.META.get('HTTP_AUTHORIZATION')
@@ -51,26 +49,30 @@ def validar_assinatura_e_anti_replay(request, secret: str, canal: str = 'mercado
         or ''
     )
 
-    # Inicializa variável de controle do timestamp normalizado
-    ts_val = None
-
     # Se o cabeçalho x-signature contiver ts=123...,v1=abc... (padrão oficial Mercado Livre)
-    # Verifica se a assinatura está encapsulada no padrão composto do Mercado Livre (ex.: ts=1672531199,v1=abcdef...)
     if 'ts=' in sig_header:
-        # Divide as chaves do cabeçalho separadas por vírgula
         parts = sig_header.split(',')
-        # Itera por cada componente do cabeçalho para separar timestamp e hash
         for part in parts:
             part = part.strip()
-            # Extrai o valor do timestamp se o componente iniciar por 'ts='
             if part.startswith('ts='):
                 raw_ts = part.split('=', 1)[1]
-            # Extrai a assinatura real se o componente iniciar por 'v1='
             elif part.startswith('v1='):
                 sig_header = part.split('=', 1)[1]
 
+    # Validação da Janela Anti-Replay Temporal (US #15 / CWE-294)
+    if raw_ts:
+        try:
+            ts_int = int(raw_ts)
+            # Se for milissegundos (13 dígitos), converte para segundos
+            if ts_int > 1e11:
+                ts_int = ts_int // 1000
+            agora = int(time.time())
+            if abs(agora - ts_int) > max_age_seconds:
+                return False, 401, f"Timestamp do webhook expirado (tolerância de {max_age_seconds}s excedida)."
+        except (ValueError, TypeError):
+            return False, 401, "Timestamp inválido no cabeçalho do webhook."
+
     # 2. Validação da Assinatura HMAC
-    # Se nenhum cabeçalho de assinatura foi localizado, rejeita a requisição com HTTP 401 Unauthorized
     if not sig_header:
         return False, 401, "Cabeçalho de assinatura HMAC ausente."
 

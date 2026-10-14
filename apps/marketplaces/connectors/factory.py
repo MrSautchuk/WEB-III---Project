@@ -49,8 +49,15 @@ def get_connector_for_conta(conta: ContaMarketplace) -> BaseMarketplaceConnector
     """
     # Fim do bloco de documentação estrutural da função
 
-    # Obtém a classe do conector registrada para o canal da conta ou adota MercadoLivreConnector como fallback padrão
-    connector_cls = CONNECTOR_REGISTRY.get(conta.canal, MercadoLivreConnector)
+    # Busca a classe do conector registrada para o canal da conta
+    if not conta or not getattr(conta, 'canal', None):
+        raise ValueError("ContaMarketplace inválida ou canal não especificado.")
+
+    connector_cls = CONNECTOR_REGISTRY.get(conta.canal)
+    if not connector_cls:
+        raise ValueError(
+            f"Canal de marketplace '{conta.canal}' não é suportado pelo Hub ou conector não registrado."
+        )
 
     # Instancia a classe do conector passando a conta de integração vinculada e retorna o objeto configurado
     return connector_cls(conta=conta)
@@ -62,10 +69,16 @@ def get_connector_for_canal(canal: str, conta: Optional[ContaMarketplace] = None
     """
     O QUE FAZ: Instancia e retorna o conector com base na chave do canal.
     """
-    # Fim da docstring explicativa
 
-    # Busca a classe do conector pela chave textual do canal ou assume MercadoLivreConnector como padrão
-    connector_cls = CONNECTOR_REGISTRY.get(canal, MercadoLivreConnector)
+    if not canal:
+        raise ValueError("Identificador do canal de marketplace não pode ser nulo ou vazio.")
+
+    # Busca a classe do conector pela chave textual do canal
+    connector_cls = CONNECTOR_REGISTRY.get(canal)
+    if not connector_cls:
+        raise ValueError(
+            f"Canal de marketplace '{canal}' não é suportado pelo Hub ou conector não registrado."
+        )
 
     # Instancia e retorna o conector correspondente associando a conta informada (caso fornecida)
     return connector_cls(conta=conta)

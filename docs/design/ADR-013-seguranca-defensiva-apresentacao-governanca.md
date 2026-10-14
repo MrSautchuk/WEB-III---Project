@@ -7,7 +7,7 @@
 A segurança e a maturidade de um sistema corporativo de integração de e-commerce não se limitam à criptografia de banco e ao controle de acesso transacional; elas devem estender-se à camada de apresentação e à governança do código-fonte:
 1. **Vazamento de Informações Sensíveis (*Information Leakage / Fingerprinting*)**: No Django, quando rotas inexistentes são acessadas ou erros inesperados acontecem, as telas padrão de depuração revelam a lista completa de URLs do sistema (`urls.py`), versões exatas do framework e de bibliotecas, caminhos físicos do sistema operacional e configurações internas. Em ambientes de produção, atacantes utilizam essas páginas de erro para mapear vetores de invasão e descobrir endpoints administrativos restritos.
 2. **Diretrizes de Governança de IA da FATEC (Uso Nível 2)**: Conforme os critérios éticos e pedagógicos do Prof. José Ceron Neto para a disciplina ILP-037, o auxílio de ferramentas de IA generativa é categorizado como Nível 2 (permitido mediante declaração e rastreabilidade explícita). A equipe precisava instituir um padrão compulsório de governança no código-fonte para garantir conformidade acadêmica e transparência profissional.
-3. **Ergonomia Operacional e Acessibilidade**: Operadores de armazém e gestores de e-commerce trabalham em ambientes variados (telas industriais de baixa luminosidade, dispositivos móveis em estoque e desktops de escritório), demandando interface com suporte a temas visuais ergonômicos e responsividade estrita sem quebra de layout.
+
 
 ## 2. Decisão
 
@@ -25,9 +25,6 @@ A equipe adotou um conjunto de medidas de **Hardening Defensivo de Apresentaçã
      ```
    - Esse padrão assegura total conformidade com a declaração de autoria híbrida e ética da FATEC, garantindo que a equipe mantenha a responsabilidade de domínio e saiba defender oralmente cada linha de código implementada.
 
-3. **Arquitetura de Apresentação com Suporte a Temas e Grid Responsivo**:
-   - Criação de layout em grid ordenado e intuitivo na página inicial (`grid 4x2`) e barra de navegação sequencial sem *overflow* horizontal.
-   - Mecanismo de persistência local (`localStorage`) suportando 4 modos visuais: Padrão, Claro (*Light*), Escuro (*Dark*) e Automático (*Sistema*), garantindo conforto visual a operadores de expedição.
 
 ## 3. Alternativa Descartada
 

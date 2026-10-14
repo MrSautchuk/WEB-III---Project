@@ -444,3 +444,150 @@ class ParametroCanalUpdateView(LoginRequiredMixin, ModuloRequeridoMixin, UpdateV
         messages.success(self.request, f"Parâmetros do marketplace '{self.object.get_marketplace_display()}' atualizados com sucesso.")
         return response
 
+
+# View para visualização e edição de parâmetros fiscais e taxas de canais da Loja
+class ConfiguracaoTaxasLojaUpdateView(LoginRequiredMixin, ModuloRequeridoMixin, FinancialAccessMixin, View):
+    """
+    O QUE FAZ: Interface web responsiva para consulta e edição das alíquotas fiscais e taxas de canais por loja.
+    POR QUE FAZ: Permite que administradores configurem taxas, alíquota de imposto, embalagem e margem mínima diretamente pelo sistema (US #18).
+    PERMISSÕES RBAC: DEV, ADMIN e SUPERVISOR (SUPERVISOR apenas leitura; ADMIN e DEV podem salvar).
+    MULTI-TENANCY: Cada operador acessa estritamente os parâmetros do seu próprio tenant.
+    """
+    modulo_requerido = 'financeiro'
+    template_name = 'financeiro/configuracao_taxas.html'
+
+    def get_loja(self, request):
+        if usuario_is_dev(request.user):
+            loja_id = request.GET.get('loja')
+            if loja_id:
+                return get_object_or_404(Loja, pk=loja_id, ativo=True)
+            perfil = getattr(request.user, 'perfil', None)
+            if perfil and perfil.loja:
+                return perfil.loja
+            return Loja.objects.filter(ativo=True).first()
+        perfil = getattr(request.user, 'perfil', None)
+        if not perfil or not perfil.loja:
+            raise PermissionDenied("Acesso negado: usuário não vinculado a uma loja.")
+        return perfil.loja
+
+    def get(self, request, *args, **kwargs):
+        from .forms import ConfiguracaoTaxasLojaForm
+        loja = self.get_loja(request)
+        config, _ = ConfiguracaoTaxasLoja.objects.get_or_create(
+            loja=loja,
+            defaults={
+                'aliquota_imposto': Decimal('0.0400'),
+                'custo_embalagem_padrao': Decimal('2.50'),
+                'margem_minima_seguranca': Decimal('0.1500'),
+                'custos_fixos_mensais': Decimal('0.00'),
+            }
+        )
+        form = ConfiguracaoTaxasLojaForm(instance=config)
+
+        # Garante canais provisionados para a loja
+        from .models import ParametroCanalMarketplace
+        canais_loja = []
+        for c_val, c_lbl in MARKETPLACE_CHOICES:
+            p_canal = SimuladorPromocionalService.obter_parametros_canal(loja, c_val)
+            canais_loja.append(p_canal)
+
+        todas_lojas = Loja.objects.filter(ativo=True).order_by('nome') if usuario_is_dev(request.user) else []
+
+        context = {
+            'form': form,
+            'config': config,
+            'loja': loja,
+            'canais_loja': canais_loja,
+            'is_dev': usuario_is_dev(request.user),
+            'todas_lojas': todas_lojas,
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+        from django.contrib import messages
+        from django.shortcuts import redirect
+        from .forms import ConfiguracaoTaxasLojaForm
+        from .models import ParametroCanalMarketplace
+
+        loja = self.get_loja(request)
+        perfil = getattr(request.user, 'perfil', None)
+        # Se for usuário com perfil SUPERVISOR ou sem permissão de escrita, bloqueia mutações
+        if not usuario_is_dev(request.user):
+            if perfil and perfil.papel == 'SUPERVISOR':
+                raise PermissionDenied("Acesso negado: seu perfil possui apenas permissão de leitura.")
+
+        config, _ = ConfiguracaoTaxasLoja.objects.get_or_create(loja=loja)
+        form = ConfiguracaoTaxasLojaForm(request.POST, instance=config)
+        if form.is_valid():
+            form.save()
+
+            # Processa eventuais atualizações de taxas dos canais
+            for c_val, _ in MARKETPLACE_CHOICES:
+                comissao_key = f"canal_{c_val}_comissao"
+                frete_piso_key = f"canal_{c_val}_frete_piso"
+                frete_acima_key = f"canal_{c_val}_frete_acima"
+                taxa_fixa_key = f"canal_{c_val}_taxa_fixa"
+
+                if comissao_key in request.POST:
+                    param = SimuladorPromocionalService.obter_parametros_canal(loja, c_val)
+                    try:
+                        param.comissao_padrao = Decimal(str(request.POST[comissao_key]))
+                        param.frete_gratis_piso = Decimal(str(request.POST[frete_piso_key]))
+                        param.taxa_frete_acima_limite = Decimal(str(request.POST[frete_acima_key]))
+                        param.taxa_fixa_abaixo_limite = Decimal(str(request.POST[taxa_fixa_key]))
+                        param.save()
+                    except (ValueError, TypeError):
+                        pass
+
+            messages.success(request, f"Parâmetros financeiros da loja '{loja.nome}' atualizados com sucesso!")
+            return redirect('configuracao_taxas')
+        else:
+            messages.error(request, "Por favor, corrija os erros no formulário.")
+            canais_loja = [SimuladorPromocionalService.obter_parametros_canal(loja, c[0]) for c in MARKETPLACE_CHOICES]
+            todas_lojas = Loja.objects.filter(ativo=True).order_by('nome') if usuario_is_dev(request.user) else []
+            return render(request, self.template_name, {
+                'form': form,
+                'config': config,
+                'loja': loja,
+                'canais_loja': canais_loja,
+                'is_dev': usuario_is_dev(request.user),
+                'todas_lojas': todas_lojas,
+            })
+
+
+# Rota/View para cálculo de margem e precificação via endpoint (RTM / US #17)
+class CalcularMargemView(LoginRequiredMixin, ModuloRequeridoMixin, FinancialAccessMixin, View):
+    """
+    O QUE FAZ: Endpoint AJAX/REST para cálculo de margem, frete e markup de um produto.
+    POR QUE FAZ: Atende à rota identificada na RTM (/financeiro/margem/calcular/).
+    """
+    modulo_requerido = 'financeiro'
+
+    def post(self, request, *args, **kwargs):
+        try:
+            if request.content_type == 'application/json':
+                data = json.loads(request.body.decode('utf-8'))
+            else:
+                data = request.POST
+        except Exception:
+            data = request.POST
+
+        produto_id = data.get('produto_id')
+        if not produto_id:
+            return JsonResponse({'erro': 'Informe o produto_id'}, status=400)
+
+        produto = get_object_or_404(Produto, pk=produto_id)
+        if not usuario_is_dev(request.user):
+            perfil = getattr(request.user, 'perfil', None)
+            if not perfil or not perfil.loja or produto.loja_id != perfil.loja_id:
+                raise PermissionDenied("Acesso negado: produto pertence a outra loja.")
+
+        canal_nome = data.get('canal', 'mercadolivre_classico')
+        desconto = Decimal(str(data.get('desconto_pct', '0.0')))
+        resultado = SimuladorPromocionalService.simular_impacto_promocional(
+            produto=produto,
+            canal_nome=canal_nome,
+            percentual_desconto=desconto,
+            volume_estimado_mensal=int(data.get('volume_mensal', 100))
+        )
+        return JsonResponse(resultado)

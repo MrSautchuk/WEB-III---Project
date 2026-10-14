@@ -20,4 +20,10 @@ urlpatterns = [
     path('parametros-canais/', views.ParametroCanalListView.as_view(), name='parametro_canal_list'),
     path('parametros-canais/novo/', views.ParametroCanalCreateView.as_view(), name='parametro_canal_create'),
     path('parametros-canais/<uuid:public_id>/editar/', views.ParametroCanalUpdateView.as_view(), name='parametro_canal_update'),
+
+    # Interface web para parametrização fiscal e taxas de canais por loja (US #18)
+    path('configuracoes/', views.ConfiguracaoTaxasLojaUpdateView.as_view(), name='configuracao_taxas'),
+
+    # Endpoint de cálculo de margem e telemetria financeira (RTM / US #17)
+    path('margem/calcular/', views.CalcularMargemView.as_view(), name='calcular_margem'),
 ]

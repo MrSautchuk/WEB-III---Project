@@ -17,6 +17,7 @@ from django.utils.text import slugify
 
 # Importa a exceção nativa para lançamento de erros de integridade e validações de modelo
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 
 # Importa o modelo Loja que representa a segregação multi-inquilino (tenant)
 from apps.tenancy.models import Loja
@@ -151,7 +152,11 @@ class Produto(models.Model):
 
     # Preço base de venda do produto físico cadastrado no ERP/Hub
     preco = models.DecimalField(
-        max_digits=10, decimal_places=2, default=Decimal('0.00'), verbose_name="Preço de Venda (R$)"
+        max_digits=10,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        validators=[MinValueValidator(Decimal('0.00'), message="O preço de venda não pode ser negativo (RN-06).")],
+        verbose_name="Preço de Venda (R$)"
     )
 
     # Saldo físico real apurado em armazém
@@ -215,9 +220,6 @@ class Produto(models.Model):
     # Validação de integridade de regras de negócio antes de persistir o modelo
     def clean(self):
         super().clean()
-        # Regra RN-06: Impede que o preço mestre seja registrado com valor negativo
-        if self.preco is not None and self.preco < Decimal('0.00'):
-            raise ValidationError({'preco': 'O preço de venda não pode ser negativo (RN-06).'})
         # Garante o isolamento multi-tenant: o produto e sua categoria devem pertencer ao mesmo tenant
         if self.categoria_id and self.loja_id:
             if self.categoria.loja_id != self.loja_id:
