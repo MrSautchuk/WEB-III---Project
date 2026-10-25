@@ -31,8 +31,8 @@ Se você identificou uma vulnerabilidade de segurança neste projeto:
 
 1. **NÃO abra uma issue pública** — vulnerabilidades reportadas em issues públicas ficam visíveis para todos, expondo potenciais riscos antes da correção.
 2. **Comunique confidencialmente aos responsáveis:**
-   - **Professor da Disciplina:** `[E-MAIL INSTITUCIONAL DO PROFESSOR]`
-   - **Responsável de Segurança / Equipe do Projeto:** `[E-MAIL OU CONTATO DA EQUIPE]`
+   - **Professor da Disciplina:** `jose.ceron@cps.sp.gov.br`
+   - **Responsável de Segurança / Equipe do Projeto:** `allan.sautchuk@aluno.cps.sp.gov.br | oscar.neris@aluno.cps.sp.gov.br | guilherme.vilela@aluno.cps.sp.gov.br | rafael.neves@aluno.cps.sp.gov.br | davidson.willis@aluno.cps.sp.gov.br | vando.souza@aluno.cps.sp.gov.br`
 3. Se preferir, utilize o recurso de divulgação privada do GitHub: na aba **Security → Report a vulnerability**.
 4. **SLA de Resposta:** Nossa equipe acusará o recebimento e iniciará a triagem do relatório em até **48 horas úteis**, mantendo o relator informado sobre a remediação e o lançamento do patch corretivo (disclosure responsável).
 
