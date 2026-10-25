@@ -138,6 +138,9 @@ INSTALLED_APPS = [
     # bibliotecas de terceiros
     # Registra conjunto de ferramentas extras para desenvolvimento (shell estendido, comandos adicionais)
     'django_extensions',
+    'rest_framework',
+    'corsheaders',
+    'django_filters',
 ]
 
 # Lista sequencial de middlewares que interceptam e processam cada requisição e resposta HTTP
@@ -146,6 +149,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     # Camada que recupera ou instancia o objeto de sessão vinculado ao cookie da requisição
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # Middleware de CORS (Cross-Origin Resource Sharing)
+    'corsheaders.middleware.CorsMiddleware',
     # Camada que aplica regras genéricas de URL, compressão e validações básicas de cabeçalho
     'django.middleware.common.CommonMiddleware',
     # Camada de segurança contra ataques de falsificação de solicitação entre sites (CSRF)
@@ -327,4 +332,44 @@ FIELD_ENCRYPTION_KEY = os.getenv("FIELD_ENCRYPTION_KEY", "")
 
 # Converte o valor da variável de ambiente para booleano, definindo se as requisições chamarão mocks ou APIs reais
 SIMULAR_ROTAS_MOCK = os.getenv("SIMULAR_ROTAS_MOCK", "True").lower() in ("true", "1", "yes")
+
+# ==============================================================================
+# DJANGO REST FRAMEWORK & SIMPLE JWT (US-28)
+# ==============================================================================
+from datetime import timedelta
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('JWT_ACCESS_TOKEN_LIFETIME_MINUTES', 60))),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=int(os.getenv('JWT_REFRESH_TOKEN_LIFETIME_DAYS', 7))),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'SIGNING_KEY': os.getenv('JWT_SECRET_KEY', SECRET_KEY),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# Configuração de CORS (Cross-Origin Resource Sharing)
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
+    'http://localhost:3000',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+])
 

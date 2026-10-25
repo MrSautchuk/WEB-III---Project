@@ -14,3 +14,9 @@ requests==2.34.2
 sqlparse==0.6.0
 urllib3==2.7.0
 Werkzeug==3.1.8
+
+# Django REST Framework & APIs (US-28)
+djangorestframework>=3.15.0
+djangorestframework-simplejwt>=5.3.0
+django-cors-headers>=4.3.0
+django-filter>=24.0
