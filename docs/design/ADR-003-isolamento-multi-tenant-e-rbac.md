@@ -15,6 +15,12 @@ A equipe decidiu implementar uma **arquitetura de isolamento multi-tenant lógic
 2. **Unicidade Composta por Tenant**: Criação de índices e restrições de unicidade a nível de banco de dados (`unique_together = [['loja', 'sku']]` e `[['loja', 'slug']]`), garantindo que o mesmo SKU possa existir legitimamente em lojas diferentes sem conflito ou sobreposição.
 3. **RBAC com Roles e Decorators Customizados**: Definição de perfis hierárquicos de acesso (`DEV`, `ADMIN`, `SUPERVISOR`, `USUARIO`) validados centralizadamente através de decorators de view (`@role_required`, `@tenant_required`) e checagem de permissões na camada de formulários e templates.
 4. **Validação Cruzada de Integridade no `clean()`**: Os modelos validam programaticamente se entidades relacionadas pertencem estritamente à mesma loja (ex.: um `Produto` não pode ser associado a uma `Categoria` de outra loja).
+5. **Resolução de Code Smell (Fat View / Feature Envy) e Blindagem contra IDOR (CWE-639)**:
+   - Identificou-se que as views de baixa e ajuste de estoque (`ProdutoBaixaEstoqueView` e `ProdutoAjusteEstoqueView`) acumulavam excesso de responsabilidades (busca de objeto sem filtro de tenant no `dispatch`, transação atômica manual, trava pessimista `select_for_update` e geração de logs).
+   - Esse acoplamento na camada de apresentação provocou uma vulnerabilidade de *Insecure Direct Object Reference* (IDOR), onde um lojista poderia alterar produtos de concorrentes via ID na URL.
+   - **Refatoração Aplicada**:
+     - No método `dispatch()` das Views, o objeto é buscado forçando o filtro `loja=request.user.perfil.loja` (`get_object_or_404(Produto, pk=pk, loja=loja)`), retornando HTTP 404/403 imediato para acessos cross-tenant.
+     - A lógica de transação atômica, lock pessimista e auditoria foi extraída para o módulo de serviços (`apps/catalogo/services.py:executar_baixa_avaria_estoque` e `executar_ajuste_geral_estoque`), deixando as Views enxutas e focadas exclusivamente na interação HTTP.
 
 ## 3. Alternativa Descartada
 

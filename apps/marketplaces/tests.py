@@ -2099,23 +2099,22 @@ class MarketplaceSecurityFernetAndWebhookUUIDTestCase(TestCase):
         self.assertEqual(res.status_code, 401)
         self.assertIn("inválida", res.json().get('error', '').lower())
 
-    # Valida aceitação de timestamp mais antigo quando o HMAC correspondente for matematicamente válido
+    # Valida rejeição de timestamp expirado (> 300s) mesmo com HMAC válido (US #15 / CWE-294)
     def test_webhook_individual_route_accepts_valid_hmac_with_old_timestamp(self):
-        """Valida que timestamp antigo (> 300s) é aceito sem bloqueio temporal quando o HMAC é válido."""
+        """Valida que timestamp antigo (> 300s) é rejeitado com HTTP 401 por Anti-Replay temporal."""
         url = f"/api/v1/webhooks/mercadolivre/{self.conta_individual.webhook_uuid}/"
         payload = {'topic': 'items', 'resource': '/items/MLB123456'}
         payload_bytes = json.dumps(payload).encode('utf-8')
         old_ts = str(int(time.time()) - 86400)  # 1 dia atrás (> 300s)
 
-        # Com HMAC gerado para o payload, o timestamp antigo não bloqueia mais a requisição
         sig = hmac.new(self.secret_chave.encode('utf-8'), payload_bytes, hashlib.sha256).hexdigest()
         headers = {
             'HTTP_X_SIGNATURE': f"ts={old_ts},v1={sig}",
             'HTTP_X_TIMESTAMP': old_ts,
         }
         res = self.client.post(url, data=payload_bytes, content_type='application/json', **headers)
-        self.assertEqual(res.status_code, 200)
-        self.assertEqual(res.json().get('status'), 'ignored')
+        self.assertEqual(res.status_code, 401)
+        self.assertIn("expirado", res.json().get('error', '').lower())
 
     # Valida fluxo de ponta a ponta na rota individual com assinatura válida e baixa de estoque
     def test_webhook_individual_route_success_with_valid_hmac_and_timestamp(self):

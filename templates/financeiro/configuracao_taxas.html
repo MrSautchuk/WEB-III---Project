@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Configuração de Taxas e Parâmetros — Hub Marketplaces{% endblock %}
+
+{% block page_title %}Parâmetros Fiscais e Tarifas por Loja{% endblock %}
+{% block page_subtitle %}Definição de alíquotas tributárias, piso de margem mínima de segurança e taxas por canal (US #18){% endblock %}
+
+{% block content %}
+<div class="row g-4">
+    {% if is_dev and todas_lojas %}
+    <div class="col-12">
+        <div class="card shadow-sm border-info bg-light">
+            <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                <div>
+                    <span class="badge bg-danger me-2">DEV MODE</span>
+                    <strong>Loja Ativa para Edição:</strong> {{ loja.nome }} ({{ loja.cnpj }})
+                </div>
+                <form method="get" class="d-flex align-items-center gap-2">
+                    <label class="small text-muted fw-bold">Alternar Loja:</label>
+                    <select name="loja" class="form-select form-select-sm" onchange="this.form.submit()">
+                        {% for l in todas_lojas %}
+                            <option value="{{ l.id }}" {% if l.id == loja.id %}selected{% endif %}>{{ l.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-primary text-white fw-bold d-flex align-items-center">
+                <i class="bi bi-bank me-2"></i> Diretrizes Fiscais e Custos Fixos ({{ loja.nome }})
+            </div>
+            <div class="card-body p-4">
+                <form method="post" id="form-taxas">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.aliquota_imposto.label }}</label>
+                        {{ form.aliquota_imposto }}
+                        <div class="form-text text-muted">{{ form.aliquota_imposto.help_text }}</div>
+                        {% if form.aliquota_imposto.errors %}
+                            <div class="text-danger small">{{ form.aliquota_imposto.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.custo_embalagem_padrao.label }}</label>
+                        {{ form.custo_embalagem_padrao }}
+                        <div class="form-text text-muted">{{ form.custo_embalagem_padrao.help_text }}</div>
+                        {% if form.custo_embalagem_padrao.errors %}
+                            <div class="text-danger small">{{ form.custo_embalagem_padrao.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.margem_minima_seguranca.label }}</label>
+                        {{ form.margem_minima_seguranca }}
+                        <div class="form-text text-muted">{{ form.margem_minima_seguranca.help_text }}</div>
+                        {% if form.margem_minima_seguranca.errors %}
+                            <div class="text-danger small">{{ form.margem_minima_seguranca.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.custos_fixos_mensais.label }}</label>
+                        {{ form.custos_fixos_mensais }}
+                        <div class="form-text text-muted">{{ form.custos_fixos_mensais.help_text }}</div>
+                        {% if form.custos_fixos_mensais.errors %}
+                            <div class="text-danger small">{{ form.custos_fixos_mensais.errors }}</div>
+                        {% endif %}
+                    </div>
+
+                    <hr class="my-4">
+
+                    <h5 class="fw-bold mb-3 text-secondary">
+                        <i class="bi bi-diagram-3 me-2"></i>Tarifas de Canais e Frete por Partes (Piecewise Linear)
+                    </h5>
+                    
+                    {% for p in canais_loja %}
+                    <div class="card mb-3 border">
+                        <div class="card-header bg-light py-2 fw-bold text-dark d-flex justify-content-between align-items-center">
+                            <span>{{ p.get_marketplace_display }}</span>
+                            <span class="badge bg-secondary font-monospace">{{ p.marketplace }}</span>
+                        </div>
+                        <div class="card-body p-3">
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Comissão (ex: 0.16 = 16%)</label>
+                                    <input type="number" step="0.0001" min="0" max="1" class="form-control form-control-sm font-monospace"
+                                           name="canal_{{ p.marketplace }}_comissao" value="{{ p.comissao_padrao }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Piso Frete Grátis (R$)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control form-control-sm font-monospace"
+                                           name="canal_{{ p.marketplace }}_frete_piso" value="{{ p.frete_gratis_piso }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Frete Acima do Piso (R$)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control form-control-sm font-monospace"
+                                           name="canal_{{ p.marketplace }}_frete_acima" value="{{ p.taxa_frete_acima_limite }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Taxa Fixa Abaixo Piso (R$)</label>
+                                    <input type="number" step="0.01" min="0" class="form-control form-control-sm font-monospace"
+                                           name="canal_{{ p.marketplace }}_taxa_fixa" value="{{ p.taxa_fixa_abaixo_limite }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <a href="{% url 'simulador_promocional' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Ir para Simulador
+                        </a>
+                        <button type="submit" class="btn btn-success fw-bold px-4">
+                            <i class="bi bi-check-circle me-1"></i> Salvar Parâmetros
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-dark text-white fw-bold">
+                <i class="bi bi-info-circle me-2"></i> Governança Financeira & Regras Aplicadas
+            </div>
+            <div class="card-body p-4">
+                <h6 class="fw-bold text-primary">1. Isolamento Multi-Tenant Rigoroso (RN-01)</h6>
+                <p class="text-muted small">
+                    Cada lojista opera estritamente com seus parâmetros tributários (ex.: Simples Nacional) e custos operacionais de galpão.
+                    Nenhum parâmetro é compartilhado entre lojas diferentes no banco de dados.
+                </p>
+
+                <h6 class="fw-bold text-primary mt-4">2. Resolução Tarifária por Partes (Piecewise Linear)</h6>
+                <p class="text-muted small">
+                    O motor financeiro resolve a circularidade de fretes e comissões avaliando dois regimes tarifários distintos com base no ticket:
+                </p>
+                <ul class="text-muted small">
+                    <li><strong>Regime A (Preço &lt; Piso):</strong> Incide taxa administrativa fixa (ex.: R$ 6,00) sem custo de frete.</li>
+                    <li><strong>Regime B (Preço &ge; Piso):</strong> Incide o custo de frete obrigatório subsidiado pelo lojista (ex.: R$ 18,00).</li>
+                </ul>
+
+                <h6 class="fw-bold text-primary mt-4">3. Margem Mínima de Segurança (RN-09)</h6>
+                <p class="text-muted small">
+                    Utilizada pelo Simulador Promocional para disparar o alerta de viabilidade (<code>ALERTA_ELASTICIDADE</code> ou <code>PREJUIZO</code>) caso um desconto aplicado force a margem líquida unitária abaixo deste piso.
+                </p>
+
+                <div class="alert alert-info mt-4 mb-0 small">
+                    <i class="bi bi-shield-check me-1"></i>
+                    <strong>Controle RBAC:</strong> Edição permitida apenas para perfis <code>DEV</code> e <code>ADMIN</code> da loja. Operadores com perfil <code>SUPERVISOR</code> possuem apenas permissão de visualização.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

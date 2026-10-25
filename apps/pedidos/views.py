@@ -75,6 +75,11 @@ class WebhookMercadoLivreView(View):
         # Se o slug foi fornecido no caminho da URL, busca a organização tenant correspondente
         if slug:
             loja = Loja.objects.filter(slug=slug, ativo=True).first()
+            if not loja:
+                return JsonResponse({
+                    'status': 'error',
+                    'reason': f"Loja com slug '{slug}' não encontrada."
+                }, status=404)
 
         # Tenta decodificar o corpo da requisição HTTP como objeto JSON
         try:
@@ -97,19 +102,13 @@ class WebhookMercadoLivreView(View):
         if conta and not loja:
             loja = conta.loja
 
-        # Fallback de contingência: se ainda assim não identificar a loja, adota a primeira loja ativa do sistema
+        # Eliminação do Fallback Arbitrário (US #14 / CWE-306):
+        # A loja DEVE ser identificada exclusivamente via slug da URL ou conta vinculada.
         if not loja:
-            loja = Loja.objects.filter(ativo=True).first()
-
-        # Se a loja foi resolvida mas a conta ainda não, busca a conta padrão do Mercado Livre da referida loja
-        if not conta and loja:
-            conta = ContaMarketplace.objects.filter(
-                canal=CanalMarketplaceEnum.MERCADOLIVRE, loja=loja
-            ).first()
-
-        # Se nenhuma loja for localizada para assumir a titularidade do webhook, rejeita com HTTP 404
-        if not loja:
-            return JsonResponse({'status': 'ignored', 'reason': 'Loja não encontrada'}, status=404)
+            return JsonResponse({
+                'status': 'error',
+                'reason': 'Inquilino não identificado. O slug da loja ou seller_id é estritamente obrigatório.'
+            }, status=404)
 
         # Grava registro de telemetria técnica auditando a recepção da notificação bruta
         LogSincronizacao.objects.create(
