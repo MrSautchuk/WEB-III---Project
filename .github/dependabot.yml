@@ -36,9 +36,9 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
-    # Reviewers opcionais (descomente e preencha com o login do GitHub dos integrantes):
-    # reviewers:
-    #   - "[USUARIO_GITHUB_DO_INTEGRANTE]"
+    reviewers:
+      - "MrSautchuk"
+
 
   # ------------------------------------------------------------
   # GITHUB ACTIONS (as próprias actions usadas no CI)

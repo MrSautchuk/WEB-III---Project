@@ -134,10 +134,10 @@ Os papéis são dinâmicos e **rotativos a cada sprint**, garantindo que todos o
 
 | Sprint | Período / Foco | Product Owner (PO) | Scrum Master (SM) | Time de Desenvolvimento |
 | :--- | :--- | :--- | :--- | :--- |
-| **Sprint 1** | Fundamentos & Setup | `Allan Sautchuk` | `Oscar Neris` | `Vando Souza, Rafael Neves, Guilherme Vilela, Davidson Willis` |
-| **Sprint 2** | Integrações & Mocking | `Oscar Neris` | `Davidson Willis` | `Allan Sautchuk, Vando Souza, Rafael Neves, Guilherme Vilela` |
-| **Sprint 3 (Atual)** | Adequação ao Template & Governança | `Allan Sautchuk` | `Rafael Neves` | `Guilherme Vilela, Oscar Neris, Davidson Willis, Vando Souza` |
-| **Sprint 4** | Deploy, NoSQL & Entrega Final | `Oscar Neris` | `Guilherme Vilela` | `Allan Sautchuk, Davidson Willis, Rafael Neves, Vando Souza` |
+| **Sprint 1** | Fundamentos & Setup | `Allan Sautchuk` | `Oscar Neris` |
+| **Sprint 2** | Integrações & Mocking | `Oscar Neris` | `Davidson Willis` | `Vando Souza` , `Allan Sautchuk` , `Rafael Neves` , `Guilherme Vilela` |
+| **Sprint 3 (Atual)** | Adequação ao Template & Governança | `Allan Sautchuk` | `Rafael Neves` | `Guilherme Vilela` |
+| **Sprint 4** | Deploy, NoSQL & Entrega Final | `Oscar Neris` |
 
 ---
 
