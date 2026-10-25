@@ -1,3 +1,4 @@
+# Os códigos foram gerados com auxilio de I.A.
 import requests
 import json
 
@@ -5,10 +6,14 @@ BASE_URL = "http://127.0.0.1:8000"
 
 def run_live_audit():
     session = requests.Session()
-    print("=== 1. TESTE DE REDIRECIONAMENTO E PROTEÇÃO ANÔNIMA ===")
-    r = session.get(f"{BASE_URL}/", allow_redirects=False)
-    print(f"GET / -> Status {r.status_code}, Location: {r.headers.get('Location')}")
-    assert r.status_code == 302, "Deveria redirecionar para login"
+    print("=== 1. TESTE DE ROTAS ANÔNIMAS E PROTEÇÃO DE ACESSO ===")
+    r_root = session.get(f"{BASE_URL}/", allow_redirects=False)
+    print(f"GET / (anônimo) -> Status {r_root.status_code} (Landing Page/Apresentação)")
+    assert r_root.status_code == 200, "Raiz anônima deveria carregar landing page (200)"
+
+    r_protected = session.get(f"{BASE_URL}/produtos/", allow_redirects=False)
+    print(f"GET /produtos/ (anônimo) -> Status {r_protected.status_code}, Location: {r_protected.headers.get('Location')}")
+    assert r_protected.status_code == 302, "Rota protegida deveria redirecionar para login (302)"
 
     print("\n=== 2. TESTE DE LOGIN E SESSÃO ===")
     r_login_page = session.get(f"{BASE_URL}/auth/login/")

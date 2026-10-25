@@ -1,3 +1,4 @@
+# Os códigos foram gerados com auxilio de I.A.
 # Importa o módulo nativo uuid para mitigação de IDOR/BOLA via identificadores públicos universais
 import uuid
 
