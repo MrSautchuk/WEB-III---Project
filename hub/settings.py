@@ -148,6 +148,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     # Camada que aplica cabeçalhos de proteção como HSTS e proteção contra spoofing
     'django.middleware.security.SecurityMiddleware',
+    # Middleware do Whitenoise para entrega e compressão de arquivos estáticos em produção (US-31)
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     # Camada que recupera ou instancia o objeto de sessão vinculado ao cookie da requisição
     'django.contrib.sessions.middleware.SessionMiddleware',
     # Middleware de CORS (Cross-Origin Resource Sharing)
@@ -203,18 +205,25 @@ WSGI_APPLICATION = 'hub.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
-# Comentário de seção com link para documentação oficial de bancos de dados suportados pelo Django
+# Suporte condicional a DATABASE_URL para nuvem (PostgreSQL) preservando SQLite local (US-31)
+import dj_database_url
 
-# Estrutura de conexão aos bancos de dados da aplicação
-DATABASES = {
-    # Define a base relacional default do sistema
-    'default': {
-        # Configura o driver de banco nativo para o SQLite
-        'ENGINE': 'django.db.backends.sqlite3',
-        # Define o local do arquivo SQLite db.sqlite3 armazenado na raiz do projeto
-        'NAME': BASE_DIR / 'db.sqlite3',
+database_url = os.getenv('DATABASE_URL')
+if database_url:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=database_url,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -273,6 +282,20 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# Whitenoise - Armazenamento de arquivos estáticos com suporte a compressão em produção (US-31)
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": (
+            "whitenoise.storage.CompressedManifestStaticFilesStorage"
+            if not DEBUG
+            else "django.contrib.staticfiles.storage.StaticFilesStorage"
+        ),
+    },
+}
 
 
 
