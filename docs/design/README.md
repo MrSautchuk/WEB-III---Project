@@ -34,6 +34,7 @@ Nosso Caderno de Design reúne as decisões estruturantes implementadas ao longo
 | **ADR 011** | Máquina de Estados para Ciclo de Vida e Sincronização | **State Pattern** (Finite State Machine) | `34f5b3f` | [ADR-011-padrao-state-maquina-estados-ciclo-anuncios.md](file:///z:/home/oscar/projetos/django/hub_integracao_marketplaces/docs/design/ADR-011-padrao-state-maquina-estados-ciclo-anuncios.md) |
 | **ADR 012** | Modo Híbrido, Simulação e Feature Flags de Ambiente | **Feature Toggle Pattern** / Mocking | `bee4786` | [ADR-012-mocking-modo-hibrido-feature-flags.md](file:///z:/home/oscar/projetos/django/hub_integracao_marketplaces/docs/design/ADR-012-mocking-modo-hibrido-feature-flags.md) |
 | **ADR 013** | Segurança Defensiva de Apresentação e Governança de IA | Hardening Anti-Leakage / AI Governance | `d58cc2e` | [ADR-013-seguranca-defensiva-apresentacao-governanca.md](file:///z:/home/oscar/projetos/django/hub_integracao_marketplaces/docs/design/ADR-013-seguranca-defensiva-apresentacao-governanca.md) |
+| **ADR 014** | Extrair um Service da view AnuncioToggleIgnorarView | **Domain Service Pattern** / Separação de Camadas | *Planejado* | [ADR-014-extrair-service-da-view-anuncio-toggle-ignorar.md](ADR-014-extrair-service-da-view-anuncio-toggle-ignorar.md) |
 
 Consulte o mapeamento exaustivo de todas as 35 branches em:  
 👉 [HISTORICO_GIT_MARCO1.md](file:///z:/home/oscar/projetos/django/hub_integracao_marketplaces/docs/design/HISTORICO_GIT_MARCO1.md)
