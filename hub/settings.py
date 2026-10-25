@@ -141,6 +141,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_filters',
+    'drf_spectacular',
 ]
 
 # Lista sequencial de middlewares que interceptam e processam cada requisição e resposta HTTP
@@ -339,6 +340,7 @@ SIMULAR_ROTAS_MOCK = os.getenv("SIMULAR_ROTAS_MOCK", "True").lower() in ("true",
 from datetime import timedelta
 
 REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.SessionAuthentication',
@@ -354,6 +356,17 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
+}
+
+# ==============================================================================
+# DRF-SPECTACULAR (OPENAPI 3.0 & SWAGGER UI) (US-29)
+# ==============================================================================
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Hub Central de Marketplaces API',
+    'DESCRIPTION': 'Documentação interativa dos endpoints REST da plataforma Hub Central de Marketplaces (FATEC Web III).',
+    'VERSION': '3.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
 }
 
 SIMPLE_JWT = {
