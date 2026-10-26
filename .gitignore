@@ -21,6 +21,8 @@
 credentials.json
 secrets.json
 config.local.py
+*relatorio-conformidade*.pdf
+
 
 # ---------- Django ----------
 *.log
