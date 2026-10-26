@@ -37,8 +37,20 @@ from apps.core.views_testes import (
     ConcorrenciaTestesView,
 )
 
+# Importa views do Swagger / OpenAPI 3.0 (US-29)
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
+
 # Lista de padrões de roteamento avaliada sequencialmente a cada requisição HTTP recebida
 urlpatterns = [
+    # Documentação Interativa da API (Swagger / OpenAPI 3.0) (US-29)
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+
     # Mapeia a rota do console administrativo nativo do Django para auditoria e gestão direta do banco
     path('admin/', admin.site.urls),
     

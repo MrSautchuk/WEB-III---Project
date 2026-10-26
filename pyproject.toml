@@ -1,0 +1,66 @@
+# Os códigos foram gerados com auxilio de I.A.
+[project]
+name = "hub-central-marketplace"
+version = "1.0.0"
+description = "Hub de Marketplaces multi-tenant desenvolvido para a disciplina de Web III - FATEC Olímpia"
+readme = "README.md"
+requires-python = ">=3.12"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "env",
+    "__pycache__",
+    "*/migrations/*",
+    "staticfiles",
+    "static",
+    "htmlcov",
+    "scratch",
+    "scripts",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+]
+ignore = [
+    "E501",  # Linha muito longa (documentação/URLs/docstrings pedagógicas)
+    "E402",  # Module level import not at top of file
+    "E741",  # Ambiguous variable name
+    "W291",  # Trailing whitespace
+    "W292",  # No newline at end of file
+    "W293",  # Blank line contains whitespace
+    "F401",  # Unused imports in __init__ files
+    "F403",  # Star imports in __init__ files
+    "F405",  # Undefined or defined from star imports
+    "F811",  # Redefinition of unused name
+    "F841",  # Local variable assigned to but never used
+]
+
+[tool.coverage.run]
+branch = true
+source = ["."]
+omit = [
+    "manage.py",
+    "hub/wsgi.py",
+    "hub/asgi.py",
+    "*/migrations/*",
+    "*/tests.py",
+    "*/test_*.py",
+    "*_tests.py",
+    ".venv/*",
+    "venv/*",
+    "scratch/*",
+    "scripts/*",
+]
+
+[tool.coverage.report]
+fail_under = 40
+show_missing = true
+skip_covered = false

@@ -138,14 +138,22 @@ INSTALLED_APPS = [
     # bibliotecas de terceiros
     # Registra conjunto de ferramentas extras para desenvolvimento (shell estendido, comandos adicionais)
     'django_extensions',
+    'rest_framework',
+    'corsheaders',
+    'django_filters',
+    'drf_spectacular',
 ]
 
 # Lista sequencial de middlewares que interceptam e processam cada requisição e resposta HTTP
 MIDDLEWARE = [
     # Camada que aplica cabeçalhos de proteção como HSTS e proteção contra spoofing
     'django.middleware.security.SecurityMiddleware',
+    # Middleware do Whitenoise para entrega e compressão de arquivos estáticos em produção (US-31)
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     # Camada que recupera ou instancia o objeto de sessão vinculado ao cookie da requisição
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # Middleware de CORS (Cross-Origin Resource Sharing)
+    'corsheaders.middleware.CorsMiddleware',
     # Camada que aplica regras genéricas de URL, compressão e validações básicas de cabeçalho
     'django.middleware.common.CommonMiddleware',
     # Camada de segurança contra ataques de falsificação de solicitação entre sites (CSRF)
@@ -197,18 +205,25 @@ WSGI_APPLICATION = 'hub.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
-# Comentário de seção com link para documentação oficial de bancos de dados suportados pelo Django
+# Suporte condicional a DATABASE_URL para nuvem (PostgreSQL) preservando SQLite local (US-31)
+import dj_database_url
 
-# Estrutura de conexão aos bancos de dados da aplicação
-DATABASES = {
-    # Define a base relacional default do sistema
-    'default': {
-        # Configura o driver de banco nativo para o SQLite
-        'ENGINE': 'django.db.backends.sqlite3',
-        # Define o local do arquivo SQLite db.sqlite3 armazenado na raiz do projeto
-        'NAME': BASE_DIR / 'db.sqlite3',
+database_url = os.getenv('DATABASE_URL')
+if database_url:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=database_url,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 # Password validation
@@ -267,6 +282,30 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# Whitenoise - Armazenamento de arquivos estáticos com suporte a compressão em produção (US-31)
+# Em ambiente de teste automatizado (pytest/manage.py test), usa StaticFilesStorage padrão
+# para não exigir manifesto estático gerado por collectstatic durante a renderização de views nos testes.
+IS_TESTING = (
+    'test' in sys.argv
+    or 'pytest' in sys.modules
+    or any('pytest' in arg for arg in sys.argv)
+    or os.environ.get('TESTING') == 'True'
+)
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if (DEBUG or IS_TESTING)
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        ),
+    },
+}
+
 
 
 
@@ -327,4 +366,62 @@ FIELD_ENCRYPTION_KEY = os.getenv("FIELD_ENCRYPTION_KEY", "")
 
 # Converte o valor da variável de ambiente para booleano, definindo se as requisições chamarão mocks ou APIs reais
 SIMULAR_ROTAS_MOCK = os.getenv("SIMULAR_ROTAS_MOCK", "True").lower() in ("true", "1", "yes")
+
+# ==============================================================================
+# DJANGO REST FRAMEWORK & SIMPLE JWT (US-28)
+# ==============================================================================
+from datetime import timedelta
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ),
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20,
+}
+
+# ==============================================================================
+# DRF-SPECTACULAR (OPENAPI 3.0 & SWAGGER UI) (US-29)
+# ==============================================================================
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Hub Central de Marketplaces API',
+    'DESCRIPTION': 'Documentação interativa dos endpoints REST da plataforma Hub Central de Marketplaces (FATEC Web III).',
+    'VERSION': '3.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=int(os.getenv('JWT_ACCESS_TOKEN_LIFETIME_MINUTES', 60))),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=int(os.getenv('JWT_REFRESH_TOKEN_LIFETIME_DAYS', 7))),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': False,
+    'SIGNING_KEY': os.getenv('JWT_SECRET_KEY', SECRET_KEY),
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# Configuração de CORS (Cross-Origin Resource Sharing)
+CORS_ALLOW_ALL_ORIGINS = DEBUG
+CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=[
+    'http://localhost:3000',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+])
+
+# ==============================================================================
+# BANCO DE DADOS NOSQL MONGODB ATLAS (US-30)
+# ==============================================================================
+MONGODB_URI = os.getenv('MONGODB_URI', '')
+MONGODB_DB_NAME = os.getenv('MONGODB_DB_NAME', 'hub_marketplace_db')
 
