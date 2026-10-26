@@ -1,0 +1,56 @@
+# =====================================================================
+# CONFIGURAÇÃO DO DEPENDABOT
+# =====================================================================
+# Web III - FATEC Olímpia - 2026/2
+#
+# Este arquivo faz com que o Dependabot verifique automaticamente
+# as dependências do projeto e abra Pull Requests quando encontrar:
+#   - Versões vulneráveis (com CVE registrado)
+#   - Versões novas disponíveis
+#
+# Documentação oficial:
+# https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+# NÃO PRECISA ATIVAR NADA NA UI - basta ter este arquivo commitado.
+# =====================================================================
+
+version: 2
+updates:
+
+  # ------------------------------------------------------------
+  # PYTHON (Django, DRF, pytest, etc)
+  # Monitora o arquivo requirements.txt na raiz do projeto
+  # ------------------------------------------------------------
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "08:00"
+      timezone: "America/Sao_Paulo"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+      - "security"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    reviewers:
+      - "MrSautchuk"
+
+
+  # ------------------------------------------------------------
+  # GITHUB ACTIONS (as próprias actions usadas no CI)
+  # Mantém os workflows de CI/CD seguros e atualizados
+  # ------------------------------------------------------------
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
