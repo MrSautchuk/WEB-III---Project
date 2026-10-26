@@ -1,0 +1,17 @@
+# Gitleaks ignore list for test mocks and historical dummy credentials
+# These are test fixture passwords, mock keys, and CI dummy secrets.
+
+5ef64b641f496f0278ff61c9921592e4395a0d75:.github/workflows/ci.yml:generic-api-key:60
+5ef64b641f496f0278ff61c9921592e4395a0d75:.github/workflows/ci.yml:generic-api-key:75
+476a938ba7c3c952d71aa1b58710d5ad796369e8:apps/marketplaces/tests.py:generic-api-key:2037
+476a938ba7c3c952d71aa1b58710d5ad796369e8:apps/marketplaces/tests.py:generic-api-key:2051
+9eed224fb54b0649221049566513527941a3f5d0:core/tests.py:generic-api-key:195
+9eed224fb54b0649221049566513527941a3f5d0:core/tests.py:generic-api-key:196
+9eed224fb54b0649221049566513527941a3f5d0:core/tests.py:generic-api-key:214
+9eed224fb54b0649221049566513527941a3f5d0:core/tests.py:generic-api-key:215
+9eed224fb54b0649221049566513527941a3f5d0:core/tests.py:generic-api-key:228
+9eed224fb54b0649221049566513527941a3f5d0:core/tests.py:generic-api-key:229
+9eed224fb54b0649221049566513527941a3f5d0:core/tests.py:generic-api-key:305
+9eed224fb54b0649221049566513527941a3f5d0:core/tests.py:generic-api-key:306
+9eed224fb54b0649221049566513527941a3f5d0:core/tests.py:generic-api-key:329
+9eed224fb54b0649221049566513527941a3f5d0:core/tests.py:generic-api-key:330

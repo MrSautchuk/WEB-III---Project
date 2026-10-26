@@ -62,6 +62,7 @@ jobs:
           SIMULAR_ROTAS_MOCK: "True"
         run: |
           python manage.py check
+          python manage.py collectstatic --noinput
 
       - name: Rodar linter (Ruff)
         run: ruff check . --output-format=github
@@ -75,8 +76,10 @@ jobs:
           FIELD_ENCRYPTION_KEY: "ZEd4V2RYSnpZWGxsYkdWdWQzZHBjSEpsYzNNPT0="
           LOGIN_DEBUG: "False"
           SIMULAR_ROTAS_MOCK: "True"
+          TESTING: "True"
+          PYTHONPATH: "."
         run: |
-          pytest --cov=. --cov-report=term-missing --cov-report=xml || python manage.py test
+          pytest --cov=. --cov-report=term-missing --cov-report=xml
 
       - name: Verificar cobertura mínima (>= 40%)
         run: |

@@ -284,18 +284,28 @@ STATICFILES_DIRS = [
 ]
 
 # Whitenoise - Armazenamento de arquivos estáticos com suporte a compressão em produção (US-31)
+# Em ambiente de teste automatizado (pytest/manage.py test), usa StaticFilesStorage padrão
+# para não exigir manifesto estático gerado por collectstatic durante a renderização de views nos testes.
+IS_TESTING = (
+    'test' in sys.argv
+    or 'pytest' in sys.modules
+    or any('pytest' in arg for arg in sys.argv)
+    or os.environ.get('TESTING') == 'True'
+)
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
         "BACKEND": (
-            "whitenoise.storage.CompressedManifestStaticFilesStorage"
-            if not DEBUG
-            else "django.contrib.staticfiles.storage.StaticFilesStorage"
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if (DEBUG or IS_TESTING)
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
         ),
     },
 }
+
 
 
 
