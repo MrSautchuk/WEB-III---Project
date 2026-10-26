@@ -133,11 +133,11 @@ Os papéis são dinâmicos e **rotativos a cada sprint**, garantindo que todos o
 ### 6.1 Matriz de Papéis Rotativos por Sprint
 
 | Sprint | Período / Foco | Product Owner (PO) | Scrum Master (SM) | Time de Desenvolvimento |
-| :--- | :--- | :--- | :--- | :--- |
-| **Sprint 1** | Fundamentos & Setup | `Allan Sautchuk` | `Oscar Neris` | |
+| :---  | :--- | :--- | :--- | :--- |
+| **Sprint 1** | Fundamentos & Setup | `Allan Sautchuk` | `Oscar Neris` | `Vando Souza` , `Guilherme Vilela` , `Rafael Neves` , `Davidson Willis` |
 | **Sprint 2** | Integrações & Mocking | `Oscar Neris` | `Davidson Willis` | `Vando Souza` , `Allan Sautchuk` , `Rafael Neves` , `Guilherme Vilela` |
-| **Sprint 3 (Atual)** | Adequação ao Template & Governança | `Allan Sautchuk` | `Rafael Neves` | `Guilherme Vilela` |
-| **Sprint 4** | Deploy, NoSQL & Entrega Final | `Oscar Neris` | | |
+| **Sprint 3 (Atual)** | Adequação ao Template & Governança | `Allan Sautchuk` | `Rafael Neves` | `Oscar Neris` , `Davidson Willis` , `Vando Souza` , `Guilherme Vilela` |
+| **Sprint 4** | Deploy, NoSQL & Entrega Final | `Guilherme Vilela` | `Vando Souza` , `Oscar Neris` , `Rafael Neves` , `Davidson Willis` | `Allan Sautchuk` |
 
 ---
 
