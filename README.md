@@ -26,8 +26,8 @@ O **Hub Central de Marketplaces** resolve essa dor ao centralizar a gestão de m
 - Empreendedores que buscam precificação orientada a dados com margem líquida garantida.
 
 ### Organização Parceira
-- **Organização / Stakeholder Real:** [NOME DA EMPRESA OU LOJISTA PARCEIRO]
-- **Contato / Ramo:** [Ramo de Atuação - ex: Varejo de Moda / Eletrônicos / Casa e Decoração]
+- **Organização / Stakeholder Real:** Projeto de Base Acadêmica / E-commerce Multicanal
+- **Contato / Ramo:** Educacional — FATEC Olímpia
 
 ---
 
