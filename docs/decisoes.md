@@ -16,7 +16,7 @@ Os documentos detalhados individuais encontram-se salvos no diretório [`docs/de
 
 ---
 
-## 2. Matriz Consolidada de Decisões (ADR-001 a ADR-014)
+## 2. Matriz Consolidada de Decisões (ADR-001 a ADR-015)
 
 | Código | Título da Decisão | Padrão / Princípio Envolvido | Problema / Motivação | Decisão Adotada | Documento Completo |
 | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -34,6 +34,7 @@ Os documentos detalhados individuais encontram-se salvos no diretório [`docs/de
 | **ADR-012** | Mock Lab e Modo Híbrido com Feature Flags | Service Mocking / Feature Toggle | Depender de APIs reais nos testes tornava o CI lento, instável e sujeito a limites de quota. | Módulo `mockar_dados` com chave `SIMULAR_ROTAS_MOCK=True` permitindo execução offline dos 213 testes em segundos. | [Ver ADR-012](design/ADR-012-mocking-modo-hibrido-feature-flags.md) |
 | **ADR-013** | Segurança Defensiva e Apresentação de Governança | Defense in Depth & Zero Trust Interno | Proteger a aplicação contra vazamento de segredos, ataques de injeção e violações de compliance da FATEC. | Adoção de Gitleaks no CI, Dependabot, auditoria pip-audit e política em 4 níveis para geração de código com IA. | [Ver ADR-013](design/ADR-013-seguranca-defensiva-apresentacao-governanca.md) |
 | **ADR-014** | Ergonomia Operacional e Acessibilidade | Design System Acessível (WCAG 2.1) | Proporcionar interface fluida, responsiva e legível para operadores de e-commerce em ambientes de alta carga. | Adoção de paleta com alto contraste, atalhos de teclado, estados de foco evidentes e feedback visual imediato. | [Ver ADR-014](design/ADR-014%20Ergonomia%20Operacional%20e%20Acessibilidade.md) |
+| **ADR-015** | Extração de Service da View AnuncioToggleIgnorar | Domain Service Pattern / Separação de Camadas | Desacoplar regra de negócio e máquina de estados da camada web para viabilizar testes unitários isolados. | Criação do serviço de domínio especializado `AnuncioCicloService` em `services.py`. | [Ver ADR-015](design/ADR-015-extrair-service-da-view-anuncio-toggle-ignorar.md) |
 
 ---
 
