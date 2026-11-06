@@ -1,73 +1,204 @@
 <!-- Os códigos foram gerados com auxilio de I.A. -->
-{% extends "base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar — FOKUS</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
+    {% include "layouts/_assets.html" %}
+</head>
+<body class="fokus-login-body">
+<div class="fokus-login-wrapper">
+    <div class="fokus-login-container">
 
-{% block title %}Entrar — Hub Central Marketplaces{% endblock %}
-{% block page_title %}Autenticação{% endblock %}
-{% block page_subtitle %}Acesse sua conta no Hub de Marketplaces{% endblock %}
+        <!-- ======================================================= -->
+        <!-- LADO ESQUERDO: LOGO CENTRALIZADA + MARKETPLACES         -->
+        <!-- ======================================================= -->
+        <div class="fokus-login-brand">
 
-{% block content %}
-<div class="row justify-content-center mt-3">
-    <div class="col-md-6 col-lg-5 col-xl-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-header bg-primary text-white text-center py-3">
-                <h5 class="mb-0 fw-bold"><i class="bi bi-shield-lock-fill me-2"></i>Acesso ao Sistema</h5>
+            <!-- Círculo Central Neon com Logo FOKUS e Nome da Empresa -->
+            <div class="fokus-neon-circle">
+                <img src="{% static 'images/fokus-logo.png' %}" alt="FOKUS" class="fokus-neon-logo-img" width="68" height="68">
+                <div class="fokus-neon-brand-word">
+                    FO<span class="fokus-k-cyan">K</span>US
+                </div>
+                <p class="fokus-neon-subtitle">
+                    Gestão e Inteligência<br>para Marketplaces
+                </p>
             </div>
-            <div class="card-body p-4">
-                {% if login_debug %}
-                    <div class="alert alert-warning py-2 px-3 small border-warning d-flex align-items-center gap-2 mb-3 shadow-sm">
-                        <span>⚠️ Modo Debug: Credenciais de teste injetadas automaticamente (LoginDebug=True)</span>
+
+            <!-- Frase de Destaque (Descrição Mantida) -->
+            <h2 class="fokus-brand-tagline">
+                Sua operação de marketplaces com mais
+                <span class="text-highlight-purple">controle</span> e
+                <span class="text-highlight-purple">inteligência.</span>
+            </h2>
+
+            <!-- Marketplaces Organizados em 2 Fileiras (como na imagem) -->
+            <div class="fokus-mp-showcase" aria-label="Marketplaces integrados">
+                <!-- Fileira 1: Mercado Livre | Shopee | Amazon -->
+                <div class="fokus-mp-row">
+                    <!-- Mercado Livre -->
+                    <div class="fokus-mp-item">
+                        <img src="{% static 'images/mercadolivre-logo.png' %}" alt="Mercado Livre" class="mp-logo-meli" width="40" height="28">
+                        <span class="mp-text-meli">mercado<br>livre</span>
                     </div>
-                {% endif %}
 
-                {% if form.errors %}
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Usuário ou senha incorretos.
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <span class="fokus-mp-sep" aria-hidden="true"></span>
+
+                    <!-- Shopee -->
+                    <div class="fokus-mp-item">
+                        <svg viewBox="0 0 32 36" width="24" height="27" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path d="M11 10 V8 C11 5.2 13.2 3 16 3 C18.8 3 21 5.2 21 8 V10" fill="none" stroke="#EE4D2D" stroke-width="2.4" stroke-linecap="round"/>
+                            <rect x="4" y="10" width="24" height="23" rx="4" fill="#EE4D2D"/>
+                            <path d="M19.5 16.5 C19.5 14.8 17.8 14 16 14 C14.2 14 12.8 15 12.8 16.5 C12.8 18 14.2 18.6 16 19.2 C17.8 19.8 19.5 20.5 19.5 22.3 C19.5 24.2 17.8 25.2 15.8 25.2 C13.8 25.2 12.3 24.2 12 22.5" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round"/>
+                        </svg>
+                        <span class="mp-text-shopee">Shopee</span>
                     </div>
-                {% endif %}
 
-                <!-- Formulário com ordem canônica do DOM (Doc ① §16.2) -->
-                <form method="post" action="{% url 'login' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="next" value="{{ next|default:'/' }}">
+                    <span class="fokus-mp-sep" aria-hidden="true"></span>
 
-                    <!-- 1. Campo Usuário (autocomplete="username") -->
-                    <div class="mb-3">
-                        <label for="id_username" class="form-label">Usuário</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light text-muted"><i class="bi bi-person"></i></span>
-                            <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username" maxlength="150" required id="id_username" class="form-control" placeholder="Seu nome de usuário" value="{% if form.username.value %}{{ form.username.value }}{% elif login_debug %}{{ dev_debug_user }}{% endif %}">
+                    <!-- Amazon -->
+                    <div class="fokus-mp-item">
+                        <div class="mp-text-amazon-wrap">
+                            <span class="mp-text-amazon">amazon</span>
+                            <svg class="mp-amazon-smile" viewBox="0 0 70 14" width="58" height="12" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                <path d="M4 3 Q34 14 62 4" fill="none" stroke="#FF9900" stroke-width="2.8" stroke-linecap="round"/>
+                                <path d="M57 2 L63 4 L59 9" fill="none" stroke="#FF9900" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fileira 2: Magalu | SHEIN | enjoei | AliExpress | NETSHOES -->
+                <div class="fokus-mp-row fokus-mp-row-bottom">
+                    <!-- Magalu -->
+                    <div class="fokus-mp-item">
+                        <div class="mp-magalu-wrap">
+                            <span class="mp-text-magalu">Magalu</span>
+                            <span class="mp-magalu-bar"></span>
                         </div>
                     </div>
 
-                    <!-- 2. Campo Senha (autocomplete="current-password") -->
-                    <div class="mb-4">
-                        <label for="id_password" class="form-label">Senha</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light text-muted"><i class="bi bi-key"></i></span>
-                            <input type="password" name="password" autocomplete="current-password" required id="id_password" class="form-control" placeholder="Sua senha secreta" value="{% if login_debug %}{{ dev_debug_pass }}{% endif %}">
+                    <span class="fokus-mp-sep" aria-hidden="true"></span>
+
+                    <!-- SHEIN -->
+                    <div class="fokus-mp-item">
+                        <span class="mp-text-shein">SHEIN</span>
+                    </div>
+
+                    <span class="fokus-mp-sep" aria-hidden="true"></span>
+
+                    <!-- enjoei -->
+                    <div class="fokus-mp-item">
+                        <div class="mp-enjoei-wrap">
+                            <span class="mp-text-enjoei">enjoei</span>
+                            <span class="mp-enjoei-smile"></span>
                         </div>
                     </div>
 
-                    <!-- 4. Botão Entrar (Ação Principal) -->
-                    <div class="d-grid gap-2 mb-3">
-                        <button type="submit" class="btn btn-primary py-2 fw-semibold justify-content-center">
-                            <i class="bi bi-box-arrow-in-right me-1"></i>Entrar no Hub
+                    <span class="fokus-mp-sep" aria-hidden="true"></span>
+
+                    <!-- AliExpress -->
+                    <div class="fokus-mp-item">
+                        <span class="mp-text-aliexpress"><strong class="ali-orange">Ali</strong>Express</span>
+                    </div>
+
+                    <span class="fokus-mp-sep" aria-hidden="true"></span>
+
+                    <!-- NETSHOES -->
+                    <div class="fokus-mp-item">
+                        <span class="mp-text-netshoes">NETSHOES</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ======================================================= -->
+        <!-- LADO DIREITO: FORMULÁRIO DE LOGIN                       -->
+        <!-- ======================================================= -->
+        <div class="fokus-login-form-area">
+
+            <div class="fokus-login-form-header">
+                <h2>Bem-vindo ao <span>FOKUS!</span></h2>
+                <p>Faça login para acessar sua conta</p>
+            </div>
+
+            {% if login_debug %}
+            <div class="alert alert-warning py-2 px-3 small mb-3 rounded-3">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Modo Debug: Credenciais de teste preenchidas automaticamente.
+            </div>
+            {% endif %}
+
+            {% if form.errors %}
+            <div class="alert alert-danger alert-dismissible fade show py-2 px-3 small mb-3 rounded-3" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                Usuário ou senha incorretos. Verifique seus dados.
+                <button type="button" class="btn-close py-2" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{% url 'home' as dashboard_url %}{{ next|default:dashboard_url }}">
+
+                <!-- E-mail, Usuário ou CNPJ -->
+                <div class="fokus-form-group">
+                    <label for="id_username" class="visually-hidden">E-mail, usuário ou CNPJ</label>
+                    <div class="fokus-input-wrapper">
+                        <i class="bi bi-envelope"></i>
+                        <input type="text" name="username" autofocus autocapitalize="none" autocomplete="username"
+                            maxlength="150" required id="id_username" placeholder="E-mail ou CNPJ"
+                            value="{% if form.username.value %}{{ form.username.value }}{% elif login_debug %}{{ dev_debug_user }}{% endif %}">
+                    </div>
+                </div>
+
+                <!-- Senha com ícone de visualizar -->
+                <div class="fokus-form-group">
+                    <label for="id_password" class="visually-hidden">Senha</label>
+                    <div class="fokus-input-wrapper">
+                        <i class="bi bi-lock"></i>
+                        <input type="password" name="password" autocomplete="current-password" required id="id_password"
+                            placeholder="Senha" value="{% if login_debug %}{{ dev_debug_pass }}{% endif %}">
+                        <button type="button" class="fokus-password-toggle" data-toggle-password="id_password"
+                            aria-label="Mostrar ou ocultar senha">
+                            <i class="bi bi-eye-slash"></i>
                         </button>
                     </div>
+                </div>
 
-                    <!-- 5. Link Esqueci minha senha (Obrigatoriamente ABAIXO do botão Entrar no DOM - §16.2) -->
-                    <div class="text-center pt-1">
-                        <a href="{% url 'password_reset' %}" class="text-decoration-none small text-muted">
-                            <i class="bi bi-question-circle me-1"></i>Esqueci minha senha
-                        </a>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer bg-light text-center py-3 text-muted small">
-                Multi-Tenant Hub &bull; Fonte Única da Verdade
-            </div>
+                <!-- Lembrar-me & Esqueceu sua senha? -->
+                <div class="fokus-login-options">
+                    <label class="fokus-remember-check">
+                        <input type="checkbox" name="remember_me" checked>
+                        <span>Lembrar-me</span>
+                    </label>
+
+                    <a href="{% url 'password_reset' %}">
+                        Esqueceu sua senha?
+                    </a>
+                </div>
+
+                <!-- Botão Principal Entrar -->
+                <button type="submit" class="fokus-login-button">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Entrar</span>
+                </button>
+            </form>
+
         </div>
+
     </div>
 </div>
-{% endblock %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        crossorigin="anonymous" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"></script>
+<script src="{% static 'js/app.js' %}?v={{ tema_versao }}_20261101e" defer></script>
+</body>
+</html>

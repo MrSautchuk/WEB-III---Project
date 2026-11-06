@@ -291,6 +291,12 @@ class ProdutoListView(LoginRequiredMixin, ModuloRequeridoMixin, ListView):
     context_object_name = 'produtos'
     paginate_by = 20
 
+    # Suporte a HTMX: Se for requisicao parcial via HTMX, renderiza apenas o fragmento da tabela
+    def get_template_names(self):
+        if self.request.headers.get('HX-Request'):
+            return ['catalogo/_produto_tabela.html']
+        return [self.template_name]
+
     # Constrói o QuerySet dos produtos com otimização de joins e aplicação de múltiplos filtros
     def get_queryset(self):
         user = self.request.user

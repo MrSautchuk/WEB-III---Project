@@ -10,7 +10,7 @@ from . import views
 urlpatterns = [
     # Dashboard Inicial
     # Rota raiz do aplicativo que renderiza o painel principal consolidado do sistema para usuários autenticados
-    path('', views.DashboardHomeView.as_view(), name='home'),
+    path('dashboard/', views.DashboardHomeView.as_view(), name='home'),
 
     # Gestão de Lojas (Tenants) & Feature Flags — Exclusivo DEV (RF-01)
     # Rota para listagem global de todas as lojas e tenants cadastrados na plataforma

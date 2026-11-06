@@ -189,7 +189,7 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+((fn) => { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn); else fn(); })(function() {
     const slider = document.getElementById('desconto_slider');
     const inputDesc = document.getElementById('desconto_pct');
     const labelDesc = document.getElementById('label-desconto');

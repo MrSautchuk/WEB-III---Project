@@ -1,575 +1,1126 @@
+<!-- Os códigos foram gerados com auxilio de I.A. -->
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-br" data-bs-theme="{{ html_theme|default:'light' }}" data-tema="{{ tema.slug|default:'profissional' }}"
+<html lang="pt-br" data-bs-theme="{{ html_theme|default:'dark' }}" data-tema="{{ tema.slug|default:'profissional' }}"
       data-raio="{{ tema.raio|default:'suave' }}" data-sombra="{{ tema.sombra|default:'suave' }}"
       data-densidade="{{ tema.densidade|default:'confortavel' }}" data-movimento="{{ tema.movimento|default:'discreto' }}"
       data-tipografia="{{ tema.tipografia|default:'sans' }}" data-icones="{{ tema.icones|default:'contorno' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Hub Central de Marketplaces{% endblock %}</title>
+    <title>{% block title %}Dashboard Administrativo — FOKUS{% endblock %}</title>
+    <link rel="icon" href="{% static 'images/fokus-logo.png' %}" type="image/png">
     {% block meta %}{% endblock %}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     {% include "layouts/_assets.html" %}
-    {% block extra_head %}{% endblock %}
+    <style>
+        /* =====================================================
+           VARIÁVEIS DE TEMA (ESCURO PADRÃO & CLARO) — FOKUS ADMIN
+           ===================================================== */
+        :root,
+        html[data-bs-theme="dark"] {
+            --fk-bg-body: #030916;
+            --fk-bg-layout: radial-gradient(circle at 20% 0%, rgba(0, 114, 255, 0.12) 0%, transparent 45%),
+                            radial-gradient(circle at 85% 20%, rgba(14, 165, 233, 0.08) 0%, transparent 45%),
+                            linear-gradient(180deg, #040b1a 0%, #020712 100%);
+            --fk-sidebar-bg: linear-gradient(180deg, #050d20 0%, #030815 100%);
+            --fk-sidebar-border: rgba(56, 189, 248, 0.14);
+            --fk-text-main: #ffffff;
+            --fk-text-muted: #7c93b2;
+            --fk-text-nav: #94a3b8;
+            --fk-nav-hover-bg: rgba(30, 58, 138, 0.28);
+            --fk-card-bg: linear-gradient(155deg, rgba(10, 25, 54, 0.92) 0%, rgba(6, 15, 34, 0.95) 100%);
+            --fk-panel-bg: linear-gradient(160deg, rgba(9, 22, 48, 0.9) 0%, rgba(5, 13, 30, 0.94) 100%);
+            --fk-inner-card-bg: rgba(8, 20, 44, 0.85);
+            --fk-inner-card-hover: rgba(14, 34, 72, 0.92);
+            --fk-border-subtle: rgba(56, 189, 248, 0.18);
+            --fk-pill-bg: rgba(9, 22, 48, 0.88);
+            --fk-pill-hover: rgba(16, 36, 74, 0.96);
+            --fk-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+            --fk-divider: rgba(56, 189, 248, 0.12);
+        }
+
+        html[data-bs-theme="light"] {
+            --fk-bg-body: #f1f5f9;
+            --fk-bg-layout: radial-gradient(circle at 20% 0%, rgba(0, 114, 255, 0.06) 0%, transparent 45%),
+                            linear-gradient(180deg, #f8fafc 0%, #eef2f6 100%);
+            --fk-sidebar-bg: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            --fk-sidebar-border: #e2e8f0;
+            --fk-text-main: #0f172a;
+            --fk-text-muted: #64748b;
+            --fk-text-nav: #475569;
+            --fk-nav-hover-bg: #eff6ff;
+            --fk-card-bg: #ffffff;
+            --fk-panel-bg: #ffffff;
+            --fk-inner-card-bg: #f8fafc;
+            --fk-inner-card-hover: #f1f5f9;
+            --fk-border-subtle: #e2e8f0;
+            --fk-pill-bg: #ffffff;
+            --fk-pill-hover: #f1f5f9;
+            --fk-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+            --fk-divider: #e2e8f0;
+        }
+
+        body {
+            background-color: var(--fk-bg-body) !important;
+            color: var(--fk-text-main) !important;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        /* =====================================================
+           ESTRUTURA GERAL DO DASHBOARD (SIDEBAR + MAIN)
+           ===================================================== */
+        .fokus-admin-layout {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+            background: var(--fk-bg-layout);
+            position: relative;
+        }
+
+        /* Backdrop escuro para quando a sidebar abre em telas menores */
+        .fokus-sidebar-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.65);
+            backdrop-filter: blur(3px);
+            z-index: 1040;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.25s ease, visibility 0.25s ease;
+        }
+
+        /* =====================================================
+           SIDEBAR ESQUERDA FOKUS + ABA DE ABRE E FECHA
+           ===================================================== */
+        .fokus-admin-sidebar {
+            width: 260px;
+            flex-shrink: 0;
+            background: var(--fk-sidebar-bg);
+            border-right: 1px solid var(--fk-sidebar-border);
+            display: flex;
+            flex-direction: column;
+            padding: 22px 16px 18px;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            z-index: 1050;
+            transition: margin-left 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                        transform 0.28s cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow 0.28s ease;
+        }
+
+        /* Estado recolhido no Desktop */
+        .fokus-admin-layout.sidebar-collapsed .fokus-admin-sidebar {
+            margin-left: -260px;
+        }
+
+        /* Aba Lateral ("Aba de Abre e Fecha") presa na borda direita da Sidebar */
+        .fokus-sidebar-tab {
+            position: absolute;
+            top: 78px;
+            right: -30px;
+            width: 30px;
+            height: 56px;
+            background: linear-gradient(135deg, #0072ff 0%, #0051cc 100%);
+            color: #ffffff;
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 4px 0 16px rgba(0, 114, 255, 0.35);
+            z-index: 1060;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+
+        .fokus-sidebar-tab:hover {
+            width: 34px;
+            right: -34px;
+            background: linear-gradient(135deg, #0084ff 0%, #0062e6 100%);
+        }
+
+        .fokus-sidebar-tab i {
+            font-size: 1rem;
+            transition: transform 0.28s ease;
+        }
+
+        .fokus-admin-layout.sidebar-collapsed .fokus-sidebar-tab i {
+            transform: rotate(180deg);
+        }
+
+        .fokus-sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 4px 8px 22px;
+        }
+
+        .fokus-sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            text-decoration: none;
+        }
+
+        .fokus-sidebar-logo {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(0, 198, 255, 0.4));
+            flex-shrink: 0;
+        }
+
+        .fokus-sidebar-brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+        }
+
+        .fokus-sidebar-brand-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: var(--fk-text-main);
+        }
+
+        .fokus-sidebar-brand-title span {
+            color: #00b8e6;
+        }
+
+        .fokus-sidebar-brand-sub {
+            font-size: 0.67rem;
+            color: var(--fk-text-muted);
+            font-weight: 500;
+            margin-top: 2px;
+            line-height: 1.2;
+        }
+
+        .fokus-sidebar-close-btn {
+            display: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--fk-border-subtle);
+            background: var(--fk-inner-card-bg);
+            color: var(--fk-text-main);
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Navegação Vertical */
+        .fokus-sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .fokus-nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 14px;
+            border-radius: 12px;
+            color: var(--fk-text-nav);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.18s ease;
+            border: 1px solid transparent;
+        }
+
+        .fokus-nav-link-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .fokus-nav-link i.nav-icon {
+            font-size: 1.1rem;
+            color: var(--fk-text-muted);
+            transition: color 0.18s ease;
+            width: 20px;
+            text-align: center;
+        }
+
+        .fokus-nav-link:hover {
+            color: var(--fk-text-main);
+            background: var(--fk-nav-hover-bg);
+            border-color: var(--fk-border-subtle);
+        }
+
+        .fokus-nav-link:hover i.nav-icon {
+            color: #0284c7;
+        }
+
+        .fokus-nav-link.active {
+            background: linear-gradient(90deg, #0072ff 0%, #0055cc 100%);
+            color: #ffffff !important;
+            font-weight: 600;
+            box-shadow: 0 6px 20px rgba(0, 114, 255, 0.34);
+            border-color: rgba(56, 189, 248, 0.35);
+        }
+
+        .fokus-nav-link.active i.nav-icon {
+            color: #ffffff !important;
+        }
+
+        /* Submenu retrátil na Sidebar */
+        .fokus-subnav {
+            list-style: none;
+            padding: 4px 0 6px 36px;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .fokus-subnav a {
+            display: block;
+            padding: 6px 10px;
+            border-radius: 8px;
+            color: var(--fk-text-muted);
+            font-size: 0.82rem;
+            text-decoration: none;
+            transition: all 0.15s ease;
+        }
+
+        .fokus-subnav a:hover,
+        .fokus-subnav a.active {
+            color: var(--fk-text-main);
+            background: var(--fk-nav-hover-bg);
+            font-weight: 600;
+        }
+
+        /* Rodapé do usuário na Sidebar */
+        .fokus-sidebar-footer {
+            padding-top: 14px;
+            border-top: 1px solid var(--fk-divider);
+            margin-top: 12px;
+        }
+
+        .fokus-sidebar-user-btn {
+            width: 100%;
+            background: var(--fk-inner-card-bg);
+            border: 1px solid var(--fk-border-subtle);
+            border-radius: 12px;
+            padding: 9px 12px;
+            color: var(--fk-text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.88rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .fokus-sidebar-user-btn:hover {
+            background: var(--fk-inner-card-hover);
+            border-color: rgba(56, 189, 248, 0.35);
+        }
+
+        .fokus-user-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0284c7, #1d4ed8);
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+        }
+
+        /* =====================================================
+           ÁREA PRINCIPAL DIREITA (CONTEÚDO E TRANSIÇÃO SPA)
+           ===================================================== */
+        .fokus-admin-main {
+            flex: 1;
+            min-width: 0;
+            padding: 26px 34px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        /* Topbar de Saudação e Controles */
+        .fokus-admin-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .fokus-topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .fokus-menu-toggle-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: var(--fk-pill-bg);
+            border: 1px solid var(--fk-border-subtle);
+            color: var(--fk-text-main);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            flex-shrink: 0;
+        }
+
+        .fokus-menu-toggle-btn:hover {
+            background: var(--fk-pill-hover);
+            border-color: #38bdf8;
+            color: #0284c7;
+        }
+
+        .fokus-greeting-title {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--fk-text-main);
+            margin: 0 0 2px 0;
+            letter-spacing: -0.3px;
+        }
+
+        .fokus-greeting-sub {
+            font-size: 0.88rem;
+            color: var(--fk-text-muted);
+            margin: 0;
+        }
+
+        .fokus-topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .fokus-pill-btn {
+            background: var(--fk-pill-bg);
+            border: 1px solid var(--fk-border-subtle);
+            color: var(--fk-text-main);
+            border-radius: 999px;
+            padding: 7px 15px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            text-decoration: none;
+        }
+
+        .fokus-pill-btn:hover {
+            background: var(--fk-pill-hover);
+            border-color: rgba(56, 189, 248, 0.45);
+        }
+
+        .fokus-notif-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--fk-pill-bg);
+            border: 1px solid var(--fk-border-subtle);
+            color: #0284c7;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .fokus-notif-btn:hover {
+            background: var(--fk-pill-hover);
+            border-color: rgba(56, 189, 248, 0.45);
+        }
+
+        .fokus-notif-dot {
+            position: absolute;
+            top: 7px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00d4ff;
+            box-shadow: 0 0 8px #00d4ff;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .fokus-notif-dot.d-none {
+            display: none !important;
+        }
+
+        /* Menu Dropdown de Notificações do Sistema */
+        .fokus-notif-menu {
+            width: 360px;
+            max-width: 92vw;
+            background: var(--fk-panel-bg) !important;
+            border: 1px solid var(--fk-border-subtle) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.45) !important;
+            padding: 0 !important;
+            overflow: hidden;
+        }
+
+        .fokus-notif-header {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--fk-divider);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .fokus-notif-title {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--fk-text-main);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fokus-notif-clear-btn {
+            background: none;
+            border: none;
+            color: #38bdf8;
+            font-size: 0.76rem;
+            font-weight: 600;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .fokus-notif-clear-btn:hover {
+            text-decoration: underline;
+        }
+
+        .fokus-notif-list {
+            max-height: 340px;
+            overflow-y: auto;
+        }
+
+        .fokus-notif-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--fk-divider);
+            text-decoration: none;
+            color: var(--fk-text-main);
+            transition: background-color 0.15s ease;
+        }
+
+        .fokus-notif-item:last-child {
+            border-bottom: none;
+        }
+
+        .fokus-notif-item:hover {
+            background: var(--fk-inner-card-hover);
+            color: var(--fk-text-main);
+        }
+
+        .fokus-notif-item.notif-read {
+            opacity: 0.6;
+        }
+
+        .fokus-notif-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .fokus-notif-icon.notif-success {
+            background: rgba(34, 197, 94, 0.16);
+            border: 1px solid rgba(74, 222, 128, 0.35);
+            color: #4ade80;
+        }
+
+        .fokus-notif-icon.notif-info {
+            background: rgba(14, 165, 233, 0.16);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #38bdf8;
+        }
+
+        .fokus-notif-icon.notif-primary {
+            background: rgba(59, 130, 246, 0.16);
+            border: 1px solid rgba(96, 165, 250, 0.35);
+            color: #60a5fa;
+        }
+
+        .fokus-notif-icon.notif-warning {
+            background: rgba(245, 158, 11, 0.16);
+            border: 1px solid rgba(251, 191, 36, 0.35);
+            color: #fbbf24;
+        }
+
+        .fokus-notif-body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .fokus-notif-item-title {
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--fk-text-main);
+            margin-bottom: 2px;
+            line-height: 1.25;
+        }
+
+        .fokus-notif-item-desc {
+            font-size: 0.76rem;
+            color: var(--fk-text-muted);
+            line-height: 1.3;
+            margin-bottom: 4px;
+        }
+
+        .fokus-notif-item-time {
+            font-size: 0.7rem;
+            color: #38bdf8;
+            font-weight: 500;
+        }
+
+        /* Animação suave de troca de aba sem recarregar a página */
+        #fokus-dynamic-view {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+
+        #fokus-dynamic-view.fokus-view-loading {
+            opacity: 0.45;
+            pointer-events: none;
+        }
+
+        #fokus-dynamic-view.fokus-view-enter {
+            animation: fokusFadeSlideIn 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @keyframes fokusFadeSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Toolbar interna para páginas filhas (Lojas, Produtos, Pedidos, etc.) */
+        .fokus-page-toolbar {
+            background: var(--fk-panel-bg);
+            border: 1px solid var(--fk-border-subtle);
+            border-radius: 16px;
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 14px;
+            box-shadow: var(--fk-shadow);
+        }
+
+        .fokus-page-toolbar h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--fk-text-main);
+            margin: 0;
+        }
+
+        .fokus-page-toolbar small {
+            color: var(--fk-text-muted);
+            font-size: 0.84rem;
+        }
+
+        /* Adaptação automática dos cards e tabelas das telas internas ao tema FOKUS */
+        #fokus-dynamic-view .card {
+            background: var(--fk-panel-bg) !important;
+            border: 1px solid var(--fk-border-subtle) !important;
+            border-radius: 16px !important;
+            box-shadow: var(--fk-shadow) !important;
+            color: var(--fk-text-main) !important;
+        }
+
+        html[data-bs-theme="dark"] #fokus-dynamic-view .table {
+            --bs-table-bg: transparent;
+            --bs-table-color: #e2e8f0;
+            --bs-table-hover-bg: rgba(56, 189, 248, 0.06);
+            --bs-table-border-color: rgba(56, 189, 248, 0.12);
+        }
+
+        html[data-bs-theme="dark"] #fokus-dynamic-view .table-light th {
+            background-color: rgba(15, 32, 66, 0.85) !important;
+            color: #93c5fd !important;
+            border-bottom-color: rgba(56, 189, 248, 0.2) !important;
+        }
+
+        html[data-bs-theme="dark"] #fokus-dynamic-view .text-dark {
+            color: #f8fafc !important;
+        }
+
+        html[data-bs-theme="dark"] #fokus-dynamic-view .bg-white,
+        html[data-bs-theme="dark"] #fokus-dynamic-view .bg-light {
+            background-color: rgba(8, 20, 44, 0.85) !important;
+            color: #f8fafc !important;
+        }
+
+        html[data-bs-theme="dark"] #fokus-dynamic-view .form-control,
+        html[data-bs-theme="dark"] #fokus-dynamic-view .form-select,
+        html[data-bs-theme="dark"] #fokus-dynamic-view .input-group-text {
+            background-color: rgba(8, 20, 44, 0.9) !important;
+            border-color: rgba(56, 189, 248, 0.22) !important;
+            color: #f8fafc !important;
+        }
+
+        /* =====================================================
+           RESPONSIVIDADE: GAVETA DESLIZANTE EM TELAS MENORES
+           ===================================================== */
+        @media (max-width: 991.98px) {
+            .fokus-admin-sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                height: 100vh;
+                margin-left: 0 !important;
+                transform: translateX(-100%);
+                box-shadow: none;
+            }
+
+            .fokus-admin-layout.sidebar-mobile-open .fokus-admin-sidebar {
+                transform: translateX(0);
+                box-shadow: 16px 0 40px rgba(0, 0, 0, 0.55);
+            }
+
+            .fokus-admin-layout.sidebar-mobile-open .fokus-sidebar-backdrop {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .fokus-sidebar-tab i {
+                transform: rotate(180deg);
+            }
+
+            .fokus-admin-layout.sidebar-mobile-open .fokus-sidebar-tab i {
+                transform: rotate(0deg);
+            }
+
+            .fokus-sidebar-close-btn {
+                display: inline-flex;
+            }
+
+            .fokus-admin-main {
+                padding: 20px 18px 32px;
+            }
+
+            .fokus-greeting-title {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+    <div id="fokus-extra-head-slot">
+        {% block extra_head %}{% endblock %}
+    </div>
 </head>
 <body>
-    <a class="visually-hidden-focusable" href="#conteudo">Ir para o conteúdo</a>
+    <div class="fokus-admin-layout">
 
-    <!-- CABEÇALHO / NAVBAR OPERACIONAL COMPLETA (Fundo Sólido e Alto Contraste) -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm navbar-app app-navbar"
-         style="background-color: var(--tema-destaque, #0f2b48) !important;">
-        <div class="container-fluid px-2 px-md-3">
-            <a class="navbar-brand fw-bold me-2 me-xl-3 d-flex align-items-center gap-2" href="{% url 'home' %}">
-                <i class="bi bi-layers-fill"></i> Hub Marketplaces
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Alternar navegação">
-                <span class="navbar-toggler-icon"></span>
+        <!-- Backdrop para fechar a Sidebar ao clicar fora em telas minimizadas -->
+        <div class="fokus-sidebar-backdrop" data-close-sidebar="true"></div>
+
+        <!-- ===================================================== -->
+        <!-- SIDEBAR ESQUERDA FOKUS COM ABA DE ABRE E FECHA        -->
+        <!-- ===================================================== -->
+        <aside class="fokus-admin-sidebar" id="fokusSidebar">
+
+            <!-- Aba Lateral de Abre e Fecha -->
+            <button type="button" class="fokus-sidebar-tab" data-toggle-sidebar="true"
+                    title="Abrir ou recolher menu lateral" aria-label="Abrir ou recolher menu lateral">
+                <i class="bi bi-chevron-left"></i>
             </button>
 
-            <div class="collapse navbar-collapse" id="navMenu">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 align-items-center">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
-                                <i class="bi bi-house-door me-1"></i> Início
-                            </a>
-                        </li>
-                        
-                        {% if is_dev or user.is_superuser %}
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'loja' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'loja_list' %}">
-                                    <i class="bi bi-shop me-1"></i> Lojas
-                                </a>
-                            </li>
-                        {% endif %}
+            <div class="fokus-sidebar-header">
+                <a href="{% url 'home' %}" class="fokus-sidebar-brand" data-fokus-nav="true">
+                    <img src="{% static 'images/fokus-logo.png' %}" alt="FOKUS" class="fokus-sidebar-logo">
+                    <div class="fokus-sidebar-brand-text">
+                        <span class="fokus-sidebar-brand-title">FO<span>K</span>US</span>
+                        <span class="fokus-sidebar-brand-sub">Gestão e Inteligência<br>para Marketplaces</span>
+                    </div>
+                </a>
+            </div>
 
-                        {% if modulos_ativos.catalogo or is_dev %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle {% if 'categoria' in request.resolver_match.url_name or 'produto' in request.resolver_match.url_name %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-box-seam me-1"></i> Catálogo
-                                </a>
-                                <ul class="dropdown-menu shadow">
-                                    <li><a class="dropdown-item" href="{% url 'categoria_list' %}"><i class="bi bi-tag me-2"></i> Categorias</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'produto_list' %}"><i class="bi bi-boxes me-2"></i> Produtos</a></li>
-                                </ul>
-                            </li>
-                        {% endif %}
+            <ul class="fokus-sidebar-nav" id="fokusSidebarNav">
+                <!-- Início -->
+                <li>
+                    <a href="{% url 'home' %}" data-fokus-nav="true"
+                       class="fokus-nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                        <span class="fokus-nav-link-left">
+                            <i class="bi bi-house-door-fill nav-icon"></i>
+                            <span>Início</span>
+                        </span>
+                    </a>
+                </li>
 
-                        {% if modulos_ativos.marketplaces or is_dev %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle {% if 'canal' in request.resolver_match.url_name or 'anuncio' in request.resolver_match.url_name %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-diagram-3 me-1"></i> Marketplaces
-                                </a>
-                                <ul class="dropdown-menu shadow">
-                                    <li><a class="dropdown-item" href="{% url 'canal_list' %}"><i class="bi bi-link-45deg me-2"></i> Canais / Contas</a></li>
-                                    <li><a class="dropdown-item" href="{% url 'anuncio_list' %}"><i class="bi bi-megaphone me-2"></i> Anúncios</a></li>
-                                </ul>
-                            </li>
-                        {% endif %}
+                <!-- Lojas -->
+                {% if is_dev or user.is_superuser %}
+                <li>
+                    <a href="{% url 'loja_list' %}" data-fokus-nav="true"
+                       class="fokus-nav-link {% if 'loja' in request.resolver_match.url_name %}active{% endif %}">
+                        <span class="fokus-nav-link-left">
+                            <i class="bi bi-shop nav-icon"></i>
+                            <span>Lojas</span>
+                        </span>
+                    </a>
+                </li>
+                {% endif %}
 
-                        {% if modulos_ativos.pedidos or is_dev %}
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'pedido_list' %}">
-                                    <i class="bi bi-receipt me-1"></i> Pedidos
-                                </a>
-                            </li>
-                        {% endif %}
+                <!-- Catálogo -->
+                {% if modulos_ativos.catalogo or is_dev %}
+                <li>
+                    <a class="fokus-nav-link {% if 'categoria' in request.resolver_match.url_name or 'produto' in request.resolver_match.url_name %}active{% endif %}"
+                       data-bs-toggle="collapse" href="#subCatalogo" role="button" aria-expanded="false">
+                        <span class="fokus-nav-link-left">
+                            <i class="bi bi-journal-bookmark nav-icon"></i>
+                            <span>Catálogo</span>
+                        </span>
+                        <i class="bi bi-chevron-down small opacity-50"></i>
+                    </a>
+                    <div class="collapse {% if 'categoria' in request.resolver_match.url_name or 'produto' in request.resolver_match.url_name %}show{% endif %}" id="subCatalogo">
+                        <ul class="fokus-subnav">
+                            <li><a href="{% url 'produto_list' %}" data-fokus-nav="true">Produtos</a></li>
+                            <li><a href="{% url 'categoria_list' %}" data-fokus-nav="true">Categorias</a></li>
+                        </ul>
+                    </div>
+                </li>
+                {% endif %}
 
-                        {% if modulos_ativos.financeiro or is_dev %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle {% if 'simulador' in request.resolver_match.url_name or 'taxas' in request.resolver_match.url_name or 'parametro' in request.resolver_match.url_name %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-cash-coin me-1"></i> Precificação
-                                </a>
-                                <ul class="dropdown-menu shadow">
-                                    <li><a class="dropdown-item" href="{% url 'simulador_promocional' %}"><i class="bi bi-graph-up-arrow me-2"></i> Simulador Promocional</a></li>
-                                    {% if is_dev or user.perfil.is_admin or user.is_superuser %}
-                                        <li><a class="dropdown-item" href="{% url 'taxas_loja_list' %}"><i class="bi bi-shop-window me-2"></i> Taxas das Lojas</a></li>
-                                        <li><a class="dropdown-item" href="{% url 'parametro_canal_list' %}"><i class="bi bi-tags me-2"></i> Parâmetros dos Marketplaces</a></li>
-                                    {% endif %}
-                                </ul>
-                            </li>
-                        {% endif %}
+                <!-- Marketplaces -->
+                {% if modulos_ativos.marketplaces or is_dev %}
+                <li>
+                    <a class="fokus-nav-link {% if 'canal' in request.resolver_match.url_name or 'anuncio' in request.resolver_match.url_name %}active{% endif %}"
+                       data-bs-toggle="collapse" href="#subMarketplaces" role="button" aria-expanded="false">
+                        <span class="fokus-nav-link-left">
+                            <i class="bi bi-share nav-icon"></i>
+                            <span>Marketplaces</span>
+                        </span>
+                        <i class="bi bi-chevron-down small opacity-50"></i>
+                    </a>
+                    <div class="collapse {% if 'canal' in request.resolver_match.url_name or 'anuncio' in request.resolver_match.url_name %}show{% endif %}" id="subMarketplaces">
+                        <ul class="fokus-subnav">
+                            <li><a href="{% url 'canal_list' %}" data-fokus-nav="true">Canais / Contas</a></li>
+                            <li><a href="{% url 'anuncio_list' %}" data-fokus-nav="true">Anúncios</a></li>
+                        </ul>
+                    </div>
+                </li>
+                {% endif %}
 
-                        {% if modulos_ativos.marketplaces or is_dev %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle {% if 'log' in request.resolver_match.url_name %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-journal-text me-1"></i> Logs
-                                </a>
-                                <ul class="dropdown-menu shadow">
-                                    <li><a class="dropdown-item" href="{% url 'log_sincronizacao_list' %}"><i class="bi bi-arrow-repeat me-2"></i> Logs de Integração</a></li>
-                                    {% if is_dev or user.perfil.is_admin or user.is_superuser %}
-                                        <li><a class="dropdown-item" href="{% url 'log_auditoria_list' %}"><i class="bi bi-shield-check me-2"></i> Logs de Auditoria</a></li>
-                                    {% endif %}
-                                </ul>
-                            </li>
-                        {% endif %}
+                <!-- Pedidos -->
+                {% if modulos_ativos.pedidos or is_dev %}
+                <li>
+                    <a href="{% url 'pedido_list' %}" data-fokus-nav="true"
+                       class="fokus-nav-link {% if 'pedido' in request.resolver_match.url_name %}active{% endif %}">
+                        <span class="fokus-nav-link-left">
+                            <i class="bi bi-cart3 nav-icon"></i>
+                            <span>Pedidos</span>
+                        </span>
+                    </a>
+                </li>
+                {% endif %}
 
-                        {% if is_dev or user.perfil.is_admin or user.perfil.is_supervisor or user.is_superuser %}
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle {% if 'usuario' in request.resolver_match.url_name or 'matriz' in request.resolver_match.url_name %}active{% endif %}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-person-badge me-1"></i> Gestão de Identidade
-                                </a>
-                                <ul class="dropdown-menu shadow">
-                                    <li><a class="dropdown-item" href="{% url 'usuario_list' %}"><i class="bi bi-people me-2"></i> Usuários</a></li>
-                                    {% if is_dev or user.perfil.is_admin or user.is_superuser %}
-                                        <li><a class="dropdown-item" href="{% url 'accounts:matriz' %}"><i class="bi bi-shield-lock me-2"></i> Matriz RBAC</a></li>
-                                    {% endif %}
-                                </ul>
-                            </li>
-                        {% endif %}
+                <!-- Precificação -->
+                {% if modulos_ativos.financeiro or is_dev %}
+                <li>
+                    <a class="fokus-nav-link {% if 'simulador' in request.resolver_match.url_name or 'taxas' in request.resolver_match.url_name or 'parametro' in request.resolver_match.url_name %}active{% endif %}"
+                       data-bs-toggle="collapse" href="#subPrecificacao" role="button" aria-expanded="false">
+                        <span class="fokus-nav-link-left">
+                            <i class="bi bi-tag nav-icon"></i>
+                            <span>Precificação</span>
+                        </span>
+                        <i class="bi bi-chevron-down small opacity-50"></i>
+                    </a>
+                    <div class="collapse {% if 'simulador' in request.resolver_match.url_name or 'taxas' in request.resolver_match.url_name or 'parametro' in request.resolver_match.url_name %}show{% endif %}" id="subPrecificacao">
+                        <ul class="fokus-subnav">
+                            <li><a href="{% url 'simulador_promocional' %}" data-fokus-nav="true">Simulador Promocional</a></li>
+                            {% if is_dev or user.perfil.is_admin or user.is_superuser %}
+                            <li><a href="{% url 'taxas_loja_list' %}" data-fokus-nav="true">Taxas das Lojas</a></li>
+                            <li><a href="{% url 'parametro_canal_list' %}" data-fokus-nav="true">Parâmetros dos Canais</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </li>
+                {% endif %}
 
-                        {% if is_dev or user.perfil.is_dev or user.is_superuser %}
-                            <li class="nav-item">
-                                <a class="nav-link {% if 'teste' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'testes_dashboard' %}">
-                                    <i class="bi bi-cpu me-1"></i> Testes
-                                </a>
-                            </li>
-                        {% endif %}
+                <!-- Logs -->
+                {% if modulos_ativos.marketplaces or is_dev %}
+                <li>
+                    <a class="fokus-nav-link {% if 'log' in request.resolver_match.url_name %}active{% endif %}"
+                       data-bs-toggle="collapse" href="#subLogs" role="button" aria-expanded="false">
+                        <span class="fokus-nav-link-left">
+                            <i class="bi bi-file-earmark-text nav-icon"></i>
+                            <span>Logs</span>
+                        </span>
+                        <i class="bi bi-chevron-down small opacity-50"></i>
+                    </a>
+                    <div class="collapse {% if 'log' in request.resolver_match.url_name %}show{% endif %}" id="subLogs">
+                        <ul class="fokus-subnav">
+                            <li><a href="{% url 'log_sincronizacao_list' %}" data-fokus-nav="true">Logs de Integração</a></li>
+                            {% if is_dev or user.perfil.is_admin or user.is_superuser %}
+                            <li><a href="{% url 'log_auditoria_list' %}" data-fokus-nav="true">Logs de Auditoria</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </li>
+                {% endif %}
+
+                <!-- Gestão de Identidade -->
+                {% if is_dev or user.perfil.is_admin or user.perfil.is_supervisor or user.is_superuser %}
+                <li>
+                    <a class="fokus-nav-link {% if 'usuario' in request.resolver_match.url_name or 'matriz' in request.resolver_match.url_name %}active{% endif %}"
+                       data-bs-toggle="collapse" href="#subIdentidade" role="button" aria-expanded="false">
+                        <span class="fokus-nav-link-left">
+                            <i class="bi bi-shield-check nav-icon"></i>
+                            <span>Gestão de Identidade</span>
+                        </span>
+                        <i class="bi bi-chevron-down small opacity-50"></i>
+                    </a>
+                    <div class="collapse {% if 'usuario' in request.resolver_match.url_name or 'matriz' in request.resolver_match.url_name %}show{% endif %}" id="subIdentidade">
+                        <ul class="fokus-subnav">
+                            <li><a href="{% url 'usuario_list' %}" data-fokus-nav="true">Usuários</a></li>
+                            {% if is_dev or user.perfil.is_admin or user.is_superuser %}
+                            <li><a href="{% url 'accounts:matriz' %}" data-fokus-nav="true">Matriz RBAC</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </li>
+                {% endif %}
+
+                <!-- Testes -->
+                {% if is_dev or user.perfil.is_dev or user.is_superuser %}
+                <li>
+                    <a href="{% url 'testes_dashboard' %}" data-fokus-nav="true"
+                       class="fokus-nav-link {% if 'teste' in request.resolver_match.url_name %}active{% endif %}">
+                        <span class="fokus-nav-link-left">
+                            <i class="bi bi-gear nav-icon"></i>
+                            <span>Testes</span>
+                        </span>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+
+            <!-- Usuário na base da Sidebar -->
+            <div class="fokus-sidebar-footer dropdown">
+                <button class="fokus-sidebar-user-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="d-flex align-items-center gap-2 text-truncate">
+                        <span class="fokus-user-avatar"><i class="bi bi-person-fill"></i></span>
+                        <span class="text-truncate">{{ user.first_name|default:user.username }}</span>
+                    </span>
+                    <i class="bi bi-chevron-down small opacity-75"></i>
+                </button>
+                <ul class="dropdown-menu shadow w-100">
+                    {% if is_dev or user.perfil.is_dev or user.is_superuser %}
+                    <li>
+                        <a class="dropdown-item small" href="{% url 'mockar_dados_dashboard' %}" data-fokus-nav="true">
+                            <i class="bi bi-database-fill-gear me-2 text-warning"></i>Mockar Dados
+                        </a>
+                    </li>
                     {% endif %}
+                    {% if user.is_staff or user.is_superuser %}
+                    <li>
+                        <a class="dropdown-item small" href="{% url 'admin:index' %}">
+                            <i class="bi bi-gear-fill me-2"></i>Admin Django
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form method="post" action="{% url 'logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="dropdown-item small text-danger">
+                                <i class="bi bi-box-arrow-right me-2"></i>Sair do Sistema
+                            </button>
+                        </form>
+                    </li>
                 </ul>
+            </div>
+        </aside>
 
-                <ul class="navbar-nav ms-auto align-items-center gap-2">
-                    {% if user.is_authenticated %}
-                        <!-- SELETOR DE TEMA E CATÁLOGO DOS 10 MODELOS (Doc ① §11.6 a §11.9) -->
-                        <li class="nav-item dropdown">
-                        <button class="btn btn-outline-light btn-theme-nav dropdown-toggle" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" aria-label="Alternar tema">
-                            <span id="bd-theme-text"><i class="bi bi-palette-fill me-1"></i> Tema: {{ tema.modelo|default:'T05' }}</span>
+        <!-- ===================================================== -->
+        <!-- ÁREA PRINCIPAL DIREITA                                -->
+        <!-- ===================================================== -->
+        <div class="fokus-admin-main">
+
+            <!-- TOPBAR FIXA: SAUDAÇÃO + TEMA + NOTIFICAÇÃO + PERFIL -->
+            <header class="fokus-admin-topbar">
+                <div class="fokus-topbar-left">
+                    <div>
+                        <h1 class="fokus-greeting-title">Olá, {{ user.first_name|default:user.username }}!</h1>
+                        <p class="fokus-greeting-sub">Aqui está um resumo da sua operação.</p>
+                    </div>
+                </div>
+
+                <div class="fokus-topbar-actions">
+                    <!-- Botão Tema: Escuro / Claro -->
+                    <div class="dropdown">
+                        <button class="fokus-pill-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i id="fokus-theme-icon" class="bi bi-moon-stars-fill text-info"></i>
+                            <span id="fokus-theme-label">Tema: Escuro</span>
+                            <i class="bi bi-chevron-down small opacity-75"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 p-2" aria-labelledby="bd-theme" style="min-width: 320px; max-height: 520px; overflow-y: auto;">
-                            <!-- MODO DE ILUMINAÇÃO (BOOTSTRAP) -->
-                            <li class="px-2 py-1"><span class="text-uppercase small fw-bold text-muted">Modo de Iluminação</span></li>
-                            <li class="d-flex gap-1 px-2 mb-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1" data-bs-theme-value="light" title="Modo Claro">
-                                    <i class="bi bi-sun-fill text-warning me-1"></i> Claro
+                        <ul class="dropdown-menu dropdown-menu-end shadow p-2" style="min-width: 220px;">
+                            <li class="px-2 py-1 small text-uppercase text-muted fw-bold">Modo de Iluminação</li>
+                            <li class="d-flex gap-1 px-2 py-1">
+                                <button type="button" class="btn btn-sm btn-outline-primary flex-fill" data-bs-theme-value="dark">
+                                    <i class="bi bi-moon-stars-fill me-1"></i>Escuro
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1" data-bs-theme-value="dark" title="Modo Escuro">
-                                    <i class="bi bi-moon-stars-fill text-info me-1"></i> Escuro
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary flex-fill py-1" data-bs-theme-value="auto" title="Automático">
-                                    <i class="bi bi-circle-half text-secondary me-1"></i> Auto
-                                </button>
-                            </li>
-
-                            <li><hr class="dropdown-divider my-2"></li>
-
-                            <!-- 10 MODELOS CANÔNICOS DE DESIGN (Doc ① §11.6) -->
-                            <li class="px-2 py-1 d-flex justify-content-between align-items-center">
-                                <span class="text-uppercase small fw-bold text-muted">10 Modelos Canônicos</span>
-                                <span class="badge bg-secondary-subtle text-secondary small">Doc ① §11.6</span>
-                            </li>
-
-                            <!-- T01 Alegre -->
-                            <li>
-                                <form method="post" action="{% url 'site:tema_alternar' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="modelo" value="T01">
-                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T01' %}active fw-bold{% endif %}">
-                                        <span class="d-flex align-items-center gap-2">
-                                            <span style="display:inline-block; width:16px; height:16px; border-radius:50%; background: linear-gradient(135deg, #FFFBF0 50%, #E4572E 50%); border:1px solid #ccc;"></span>
-                                            <span>T01 — Alegre</span>
-                                        </span>
-                                        {% if tema.modelo == 'T01' %}<i class="bi bi-check2 text-primary fw-bold"></i>{% endif %}
-                                    </button>
-                                </form>
-                            </li>
-
-                            <!-- T02 Sofisticado -->
-                            <li>
-                                <form method="post" action="{% url 'site:tema_alternar' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="modelo" value="T02">
-                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T02' %}active fw-bold{% endif %}">
-                                        <span class="d-flex align-items-center gap-2">
-                                            <span style="display:inline-block; width:16px; height:16px; border-radius:50%; background: linear-gradient(135deg, #F5F1EA 50%, #7B2D3B 50%); border:1px solid #ccc;"></span>
-                                            <span>T02 — Sofisticado</span>
-                                        </span>
-                                        {% if tema.modelo == 'T02' %}<i class="bi bi-check2 text-primary fw-bold"></i>{% endif %}
-                                    </button>
-                                </form>
-                            </li>
-
-                            <!-- T03 Sóbrio -->
-                            <li>
-                                <form method="post" action="{% url 'site:tema_alternar' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="modelo" value="T03">
-                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T03' %}active fw-bold{% endif %}">
-                                        <span class="d-flex align-items-center gap-2">
-                                            <span style="display:inline-block; width:16px; height:16px; border-radius:50%; background: linear-gradient(135deg, #F1F5F9 50%, #334155 50%); border:1px solid #ccc;"></span>
-                                            <span>T03 — Sóbrio</span>
-                                        </span>
-                                        {% if tema.modelo == 'T03' %}<i class="bi bi-check2 text-primary fw-bold"></i>{% endif %}
-                                    </button>
-                                </form>
-                            </li>
-
-                            <!-- T04 Animado -->
-                            <li>
-                                <form method="post" action="{% url 'site:tema_alternar' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="modelo" value="T04">
-                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T04' %}active fw-bold{% endif %}">
-                                        <span class="d-flex align-items-center gap-2">
-                                            <span style="display:inline-block; width:16px; height:16px; border-radius:50%; background: linear-gradient(135deg, #FAF5FF 50%, #7E22CE 50%); border:1px solid #ccc;"></span>
-                                            <span>T04 — Animado</span>
-                                        </span>
-                                        {% if tema.modelo == 'T04' %}<i class="bi bi-check2 text-primary fw-bold"></i>{% endif %}
-                                    </button>
-                                </form>
-                            </li>
-
-                            <!-- T05 Profissional (Padrão) -->
-                            <li>
-                                <form method="post" action="{% url 'site:tema_alternar' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="modelo" value="T05">
-                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T05' %}active fw-bold{% endif %}">
-                                        <span class="d-flex align-items-center gap-2">
-                                            <span style="display:inline-block; width:16px; height:16px; border-radius:50%; background: linear-gradient(135deg, #F8FAFC 50%, #1E3A8A 50%); border:1px solid #ccc;"></span>
-                                            <span>T05 — Profissional (Padrão)</span>
-                                        </span>
-                                        {% if tema.modelo == 'T05' %}<i class="bi bi-check2 text-primary fw-bold"></i>{% endif %}
-                                    </button>
-                                </form>
-                            </li>
-
-                            <!-- T06 Luxuoso -->
-                            <li>
-                                <form method="post" action="{% url 'site:tema_alternar' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="modelo" value="T06">
-                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T06' %}active fw-bold{% endif %}">
-                                        <span class="d-flex align-items-center gap-2">
-                                            <span style="display:inline-block; width:16px; height:16px; border-radius:50%; background: linear-gradient(135deg, #16120F 50%, #D4AF37 50%); border:1px solid #ccc;"></span>
-                                            <span>T06 — Luxuoso</span>
-                                        </span>
-                                        {% if tema.modelo == 'T06' %}<i class="bi bi-check2 text-primary fw-bold"></i>{% endif %}
-                                    </button>
-                                </form>
-                            </li>
-
-                            <!-- T07 SoftClean -->
-                            <li>
-                                <form method="post" action="{% url 'site:tema_alternar' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="modelo" value="T07">
-                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T07' %}active fw-bold{% endif %}">
-                                        <span class="d-flex align-items-center gap-2">
-                                            <span style="display:inline-block; width:16px; height:16px; border-radius:50%; background: linear-gradient(135deg, #FBFBFD 50%, #4A76A8 50%); border:1px solid #ccc;"></span>
-                                            <span>T07 — SoftClean</span>
-                                        </span>
-                                        {% if tema.modelo == 'T07' %}<i class="bi bi-check2 text-primary fw-bold"></i>{% endif %}
-                                    </button>
-                                </form>
-                            </li>
-
-                            <!-- T08 Noturno -->
-                            <li>
-                                <form method="post" action="{% url 'site:tema_alternar' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="modelo" value="T08">
-                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T08' %}active fw-bold{% endif %}">
-                                        <span class="d-flex align-items-center gap-2">
-                                            <span style="display:inline-block; width:16px; height:16px; border-radius:50%; background: linear-gradient(135deg, #12141A 50%, #4FA3FF 50%); border:1px solid #ccc;"></span>
-                                            <span>T08 — Noturno</span>
-                                        </span>
-                                        {% if tema.modelo == 'T08' %}<i class="bi bi-check2 text-primary fw-bold"></i>{% endif %}
-                                    </button>
-                                </form>
-                            </li>
-
-                            <!-- T09 Acessível -->
-                            <li>
-                                <form method="post" action="{% url 'site:tema_alternar' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="modelo" value="T09">
-                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T09' %}active fw-bold{% endif %}">
-                                        <span class="d-flex align-items-center gap-2">
-                                            <span style="display:inline-block; width:16px; height:16px; border-radius:50%; background: linear-gradient(135deg, #FFFFFF 50%, #0B3D91 50%); border:1px solid #ccc;"></span>
-                                            <span>T09 — Acessível (7:1)</span>
-                                        </span>
-                                        {% if tema.modelo == 'T09' %}<i class="bi bi-check2 text-primary fw-bold"></i>{% endif %}
-                                    </button>
-                                </form>
-                            </li>
-
-                            <li><hr class="dropdown-divider my-2"></li>
-
-                            <!-- T10 Personalizado: 3 Cores da Paleta -->
-                            <li>
-                                <button type="button" class="dropdown-item d-flex align-items-center justify-content-between py-2 text-primary fw-semibold rounded"
-                                        data-bs-toggle="modal" data-bs-target="#modalTemaPersonalizado">
-                                    <span class="d-flex align-items-center gap-2">
-                                        <i class="bi bi-brush-fill text-primary"></i>
-                                        <span>T10 — Personalizado (3 Cores)</span>
-                                    </span>
-                                    {% if tema.modelo == 'T10' %}<span class="badge bg-primary text-white small">Ativo</span>{% else %}<i class="bi bi-sliders"></i>{% endif %}
+                                <button type="button" class="btn btn-sm btn-outline-primary flex-fill" data-bs-theme-value="light">
+                                    <i class="bi bi-sun-fill me-1"></i>Claro
                                 </button>
                             </li>
                         </ul>
-                    <!-- FERRAMENTAS DEV / MOCK E IDENTIFICAÇÃO DO USUÁRIO -->
-                    {% if is_dev or user.perfil.is_dev or user.is_superuser %}
-                            <li class="nav-item dropdown">
-                                <div class="btn-group btn-group-sm">
-                                    <a class="btn btn-warning fw-semibold text-dark shadow-sm btn-mock-nav" href="{% url 'mockar_dados_dashboard' %}" title="Ambiente de Testes e Mock de Dados">
-                                        Mockar dados
-                                    </a>
-                                    <button type="button" class="btn btn-warning text-dark dropdown-toggle dropdown-toggle-split shadow-sm btn-mock-nav ms-1" data-bs-toggle="dropdown" aria-expanded="false" title="Controle de Simulação Mock">
-                                        <span class="visually-hidden">Controle Mock</span>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end shadow p-3" style="min-width: 250px;">
-                                        <li>
-                                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                                <span class="small fw-bold text-muted text-uppercase">Simulação de Rotas</span>
-                                                {% if simular_rotas_mock %}
-                                                    <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i>Ativa</span>
-                                                {% else %}
-                                                    <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i>Desativada</span>
-                                                {% endif %}
-                                            </div>
-                                            <p class="small text-muted mb-3" style="font-size: 0.78rem;">
-                                                {% if simular_rotas_mock %}
-                                                    Contas mockadas respondem com HTTP 200 simulado.
-                                                {% else %}
-                                                    Contas mockadas respondem com recusa HTTP 401.
-                                                {% endif %}
-                                            </p>
-                                            <form method="post" action="{% url 'alternar_simulacao_mock' %}">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-sm {% if simular_rotas_mock %}btn-outline-danger{% else %}btn-outline-success{% endif %} w-100 fw-bold">
-                                                    {% if simular_rotas_mock %}
-                                                        <i class="bi bi-toggle-on text-success me-1 fs-6"></i> Desativar Simulação
-                                                    {% else %}
-                                                        <i class="bi bi-toggle-off text-muted me-1 fs-6"></i> Ativar Simulação
-                                                    {% endif %}
-                                                </button>
-                                            </form>
-                                        </li>
-                                        <li><hr class="dropdown-divider my-2"></li>
-                                        <li>
-                                            <a class="dropdown-item small d-flex align-items-center gap-1 text-primary" href="{% url 'mockar_dados_dashboard' %}">
-                                                <i class="bi bi-sliders"></i> Abrir Painel de Mock
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </li>
-                        {% endif %}
-                        <li class="nav-item">
-                            {% if user.is_superuser %}
-                                <span class="badge bg-danger badge-nav-role">Superusuário</span>
-                            {% elif user.perfil %}
-                                <span class="badge badge-role-{{ user.perfil.papel|lower }} badge-nav-role">
-                                    {{ user.perfil.get_papel_display }}
-                                </span>
-                            {% endif %}
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-white d-flex align-items-center gap-1 user-nav-dropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="bi bi-person-circle fs-5 me-1"></i>
-                                <span>{{ user.get_full_name|default:user.username }}</span>
-                                {% if user.perfil.loja %}
-                                    <span class="badge bg-light text-dark small ms-1">{{ user.perfil.loja.nome }}</span>
-                                {% endif %}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end shadow">
-                                <li>
-                                    <h6 class="dropdown-header">
-                                        <i class="bi bi-shield-lock me-1"></i>
-                                        Papel: {{ user.perfil.get_papel_display|default:'Usuário' }}
-                                    </h6>
-                                </li>
-                                {% if user.is_staff or user.is_superuser %}
-                                    <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bi bi-gear-fill me-1"></i> Admin Django</a></li>
-                                {% endif %}
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form method="post" action="{% url 'logout' %}" class="d-inline">
-                                        {% csrf_token %}
-                                        <button type="submit" class="dropdown-item text-danger d-flex align-items-center gap-2">
-                                            <i class="bi bi-box-arrow-right"></i> Sair do Sistema
-                                        </button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="btn btn-sm btn-outline-light fw-semibold px-3" href="{% url 'login' %}">
-                                <i class="bi bi-box-arrow-in-right me-1"></i> Entrar
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
-        </div>
-    </nav>
-
-    <!-- TOOLBAR DA PÁGINA -->
-    {% block toolbar %}
-    <header class="app-toolbar">
-        <div class="container-fluid px-4 d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h4 mb-0 fw-bold">{% block page_title %}Visão Geral{% endblock %}</h1>
-                <small class="text-muted">{% block page_subtitle %}{% endblock %}</small>
-            </div>
-            <div class="d-flex gap-2">{% block toolbar_actions %}{% endblock %}</div>
-        </div>
-    </header>
-    {% endblock %}
-
-    <!-- MENSAGENS FLASH -->
-    <div class="container-fluid px-4">
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-            </div>
-        {% endfor %}
-    </div>
-
-    <!-- CONTEÚDO PRINCIPAL -->
-    <main id="conteudo" class="container-fluid px-4 mb-5">
-        {% block content %}{% endblock %}
-    </main>
-
-    <!-- MODAL DE PERSONALIZAÇÃO DE TEMA (T10 — 3 CORES DA PALETA) -->
-    {% if user.is_authenticated %}
-    <div class="modal fade" id="modalTemaPersonalizado" tabindex="-1" aria-labelledby="modalTemaPersonalizadoLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content shadow border-0">
-                <form method="post" action="{% url 'site:tema_alternar' %}">
-                    {% csrf_token %}
-                    <input type="hidden" name="modelo" value="T10">
-                    <div class="modal-header bg-dark text-white">
-                        <h5 class="modal-title d-flex align-items-center gap-2" id="modalTemaPersonalizadoLabel">
-                            <i class="bi bi-palette2"></i> Personalizar Tema (Modelo T10 — 3 Cores)
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
                     </div>
-                    <div class="modal-body p-4">
-                        <p class="text-muted small mb-4">
-                            Selecione as 3 cores canônicas (Fundos, Destaques e Escritas) ou utilize uma das paletas de referência.
-                            Os tokens CSS e variáveis derivadas serão gerados dinamicamente.
-                        </p>
 
-                        <!-- PALETAS RÁPIDAS -->
-                        <div class="mb-4">
-                            <label class="form-label text-uppercase small text-muted fw-bold">Paletas Sugeridas de 1 Clique</label>
-                            <div class="d-flex flex-wrap gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 btn-paleta-rapida"
-                                        data-fundo="#F0FDF4" data-destaque="#059669" data-escrita="#064E3B">
-                                    <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background: #059669;"></span>
-                                    Esmeralda
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 btn-paleta-rapida"
-                                        data-fundo="#FFFBEB" data-destaque="#D97706" data-escrita="#78350F">
-                                    <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background: #D97706;"></span>
-                                    Âmbar / Laranja
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 btn-paleta-rapida"
-                                        data-fundo="#EEF2FF" data-destaque="#4F46E5" data-escrita="#1E1B4B">
-                                    <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background: #4F46E5;"></span>
-                                    Índigo Corporativo
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 btn-paleta-rapida"
-                                        data-fundo="#0A0A0F" data-destaque="#00F0FF" data-escrita="#F0F0FF">
-                                    <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background: #00F0FF;"></span>
-                                    Cyber Neon (Dark)
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-2 btn-paleta-rapida"
-                                        data-fundo="#F8FAFC" data-destaque="#0F2B48" data-escrita="#0F172A">
-                                    <span style="display:inline-block; width:14px; height:14px; border-radius:50%; background: #0F2B48;"></span>
-                                    Hub Clássico
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- 3 SELETORES DE CORES -->
-                        <div class="row g-3 mb-4">
-                            <!-- Cor 1: Fundos -->
-                            <div class="col-md-4">
-                                <label class="form-label fw-bold small">1. Cor de Fundos</label>
-                                <div class="input-group">
-                                    <input type="color" class="form-control form-control-color" id="picker_fundos"
-                                           name="picker_fundos" value="{{ tema.fundos|default:'#F8FAFC' }}" title="Escolha a cor de fundo">
-                                    <input type="text" class="form-control font-monospace text-uppercase" id="cor_fundos"
-                                           name="cor_fundos" value="{{ tema.fundos|default:'#F8FAFC' }}" maxlength="7" required>
-                                </div>
-                                <div class="form-text small">Fundo principal das páginas</div>
-                            </div>
-
-                            <!-- Cor 2: Destaques -->
-                            <div class="col-md-4">
-                                <label class="form-label fw-bold small">2. Cor de Destaques</label>
-                                <div class="input-group">
-                                    <input type="color" class="form-control form-control-color" id="picker_destaques"
-                                           name="picker_destaques" value="{{ tema.destaques|default:'#1E3A8A' }}" title="Escolha a cor de destaque">
-                                    <input type="text" class="form-control font-monospace text-uppercase" id="cor_destaques"
-                                           name="cor_destaques" value="{{ tema.destaques|default:'#1E3A8A' }}" maxlength="7" required>
-                                </div>
-                                <div class="form-text small">Navbar, botões primários e links</div>
-                            </div>
-
-                            <!-- Cor 3: Escritas -->
-                            <div class="col-md-4">
-                                <label class="form-label fw-bold small">3. Cor de Escritas</label>
-                                <div class="input-group">
-                                    <input type="color" class="form-control form-control-color" id="picker_escritas"
-                                           name="picker_escritas" value="{{ tema.escritas|default:'#0F172A' }}" title="Escolha a cor dos textos">
-                                    <input type="text" class="form-control font-monospace text-uppercase" id="cor_escritas"
-                                           name="cor_escritas" value="{{ tema.escritas|default:'#0F172A' }}" maxlength="7" required>
-                                </div>
-                                <div class="form-text small">Títulos e corpo de texto</div>
-                            </div>
-                        </div>
-
-                        <!-- EIXOS DE ESTILO (Raio e Sombra) -->
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold small">Raio dos Cantos (data-raio)</label>
-                                <select name="raio" class="form-select form-select-sm">
-                                    <option value="reto" {% if tema.raio == 'reto' %}selected{% endif %}>Reto (0px)</option>
-                                    <option value="suave" {% if tema.raio == 'suave' %}selected{% endif %}>Suave (.375rem)</option>
-                                    <option value="arredondado" {% if tema.raio == 'arredondado' %}selected{% endif %}>Arredondado (1rem)</option>
-                                    <option value="pilula" {% if tema.raio == 'pilula' %}selected{% endif %}>Pílula (2rem)</option>
-                                </select>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-bold small">Sombras (data-sombra)</label>
-                                <select name="sombra" class="form-select form-select-sm">
-                                    <option value="nenhuma" {% if tema.sombra == 'nenhuma' %}selected{% endif %}>Nenhuma (Plano)</option>
-                                    <option value="suave" {% if tema.sombra == 'suave' %}selected{% endif %}>Suave (Discreta)</option>
-                                    <option value="marcada" {% if tema.sombra == 'marcada' %}selected{% endif %}>Marcada</option>
-                                    <option value="difusa" {% if tema.sombra == 'difusa' %}selected{% endif %}>Difusa</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary fw-bold px-4">
-                            <i class="bi bi-check-lg me-1"></i> Salvar e Aplicar Tema
+                    <!-- Sino de Notificações (Dropdown do Sistema) -->
+                    <div class="dropdown">
+                        <button type="button" class="fokus-notif-btn" data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                                aria-expanded="false" title="Notificações do Sistema" aria-label="Notificações do Sistema">
+                            <i class="bi bi-bell-fill"></i>
+                            <span class="fokus-notif-dot" id="fokusNotifDot"></span>
                         </button>
+                        <div class="dropdown-menu dropdown-menu-end fokus-notif-menu">
+                            <div class="fokus-notif-header">
+                                <h6 class="fokus-notif-title">
+                                    <i class="bi bi-bell-fill text-info"></i>
+                                    <span>Notificações</span>
+                                </h6>
+                                <button type="button" class="fokus-notif-clear-btn" data-clear-notifs="true">
+                                    Marcar como lidas
+                                </button>
+                            </div>
+                            <div class="fokus-notif-list" id="fokusNotifList">
+                                {% for notif in notificacoes_sistema %}
+                                <a href="{{ notif.url }}" class="fokus-notif-item" data-fokus-nav="true">
+                                    <div class="fokus-notif-icon notif-{{ notif.cor }}">
+                                        <i class="bi {{ notif.icone }}"></i>
+                                    </div>
+                                    <div class="fokus-notif-body">
+                                        <div class="fokus-notif-item-title">{{ notif.titulo }}</div>
+                                        <div class="fokus-notif-item-desc">{{ notif.descricao }}</div>
+                                        <div class="fokus-notif-item-time">{{ notif.tempo }}</div>
+                                    </div>
+                                </a>
+                                {% empty %}
+                                <div class="p-4 text-center text-muted small">
+                                    Nenhuma notificação no momento.
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
+
+                    <!-- Perfil no Topo -->
+                    <div class="dropdown">
+                        <button class="fokus-pill-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="fokus-user-avatar" style="width: 24px; height: 24px; font-size: 0.78rem;">
+                                <i class="bi bi-person-fill"></i>
+                            </span>
+                            <span>{{ user.first_name|default:user.username }}</span>
+                            <i class="bi bi-chevron-down small opacity-75"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li class="dropdown-header small">
+                                Papel: {% if is_dev or user.is_superuser %}Dev / Superuser{% else %}{{ user.perfil.get_papel_display }}{% endif %}
+                            </li>
+                            {% if is_dev or user.perfil.is_dev or user.is_superuser %}
+                            <li>
+                                <a class="dropdown-item small" href="{% url 'mockar_dados_dashboard' %}" data-fokus-nav="true">
+                                    <i class="bi bi-sliders me-2 text-warning"></i>Painel de Mock
+                                </a>
+                            </li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'logout' %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item small text-danger">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Sair
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+
+            <!-- CONTAINER DINÂMICO DE TRANSIÇÃO DE PÁGINAS NO MESMO LUGAR -->
+            <main id="fokus-dynamic-view">
+                {% if messages %}
+                <div>
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show mb-2" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% block toolbar %}
+                <div class="fokus-page-toolbar">
+                    <div>
+                        <h1>{% block page_title %}Visão Geral{% endblock %}</h1>
+                        <small>{% block page_subtitle %}{% endblock %}</small>
+                    </div>
+                    <div class="d-flex gap-2">{% block toolbar_actions %}{% endblock %}</div>
+                </div>
+                {% endblock %}
+
+                <div id="conteudo">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+
         </div>
     </div>
-    {% endif %}
-
-    <!-- RODAPÉ INSTITUCIONAL -->
-    <footer class="py-3 text-center text-muted small">
-        <div class="container-fluid">
-            &copy; 2026 Hub Central de Marketplaces &bull; Plataforma Multicanal &bull; Fonte Única da Verdade
-        </div>
-    </footer>
 
     <!-- Bootstrap 5.3.3 JS com SRI oficial -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
             crossorigin="anonymous" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"></script>
-    <script src="{% static 'js/app.js' %}?v={{ tema_versao }}" defer></script>
-    {% block extra_js %}{% endblock %}
+    <script src="{% static 'js/app.js' %}?v={{ tema_versao }}_20261103d" defer></script>
+    <div id="fokus-extra-js-slot">
+        {% block extra_js %}{% endblock %}
+    </div>
 </body>
 </html>

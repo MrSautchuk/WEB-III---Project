@@ -1,242 +1,617 @@
 <!-- Os códigos foram gerados com auxilio de I.A. -->
 {% extends "base.html" %}
+{% load static %}
 
-{% block title %}Visão Geral — Hub Marketplaces{% endblock %}
+{% block title %}Dashboard Administrativo — FOKUS{% endblock %}
 
 {% block toolbar %}{% endblock %}
 
 {% block extra_head %}
 <style>
-    .module-card-link,
-    .journey-card-link {
-        color: inherit;
+    /* =====================================================
+       1. CARDS DE MÉTRICAS DO TOPO (4 KPIs)
+       ===================================================== */
+    .fokus-kpi-card {
+        background: var(--fk-card-bg);
+        border: 1px solid var(--fk-border-subtle);
+        border-radius: 16px;
+        padding: 20px 20px;
+        height: 100%;
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        box-shadow: var(--fk-shadow);
+        transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    .fokus-kpi-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(56, 189, 248, 0.42);
+    }
+
+    .fokus-kpi-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .fokus-kpi-icon.icon-blue {
+        background: rgba(14, 116, 244, 0.15);
+        border: 1px solid rgba(56, 189, 248, 0.28);
+        color: #0284c7;
+    }
+
+    html[data-bs-theme="dark"] .fokus-kpi-icon.icon-blue {
+        color: #38bdf8;
+    }
+
+    .fokus-kpi-icon.icon-green {
+        background: rgba(34, 197, 94, 0.14);
+        border: 1px solid rgba(34, 197, 94, 0.28);
+        color: #22c55e;
+    }
+
+    .fokus-kpi-green-ball {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 12px rgba(74, 222, 128, 0.75);
+    }
+
+    .fokus-kpi-body {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .fokus-kpi-label {
+        font-size: 0.82rem;
+        color: var(--fk-text-muted);
+        font-weight: 500;
+        margin-bottom: 6px;
+    }
+
+    .fokus-kpi-value {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: var(--fk-text-main);
+        line-height: 1.15;
+        margin-bottom: 6px;
+    }
+
+    .fokus-kpi-value.val-green {
+        color: #16a34a;
+        font-size: 1.55rem;
+    }
+
+    html[data-bs-theme="dark"] .fokus-kpi-value.val-green {
+        color: #4ade80;
+    }
+
+    .fokus-kpi-value.val-text {
+        font-size: 1.45rem;
+    }
+
+    .fokus-kpi-sub {
+        font-size: 0.78rem;
+        color: var(--fk-text-muted);
+    }
+
+    .fokus-kpi-badge-dot {
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 16px;
+        right: 16px;
+    }
+
+    .fokus-kpi-badge-dot::after {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    .fokus-kpi-badge-dot.dot-blue {
+        background: rgba(14, 165, 233, 0.2);
+        border: 1px solid rgba(56, 189, 248, 0.45);
+        box-shadow: 0 0 10px rgba(14, 165, 233, 0.35);
+    }
+    .fokus-kpi-badge-dot.dot-blue::after {
+        background: #0284c7;
+    }
+    html[data-bs-theme="dark"] .fokus-kpi-badge-dot.dot-blue::after {
+        background: #38bdf8;
+    }
+
+    .fokus-kpi-badge-dot.dot-green {
+        background: rgba(34, 197, 94, 0.2);
+        border: 1px solid rgba(74, 222, 128, 0.45);
+        box-shadow: 0 0 10px rgba(34, 197, 94, 0.35);
+    }
+    .fokus-kpi-badge-dot.dot-green::after {
+        background: #22c55e;
+    }
+
+    .fokus-kpi-badge-dot.dot-amber {
+        background: rgba(245, 158, 11, 0.2);
+        border: 1px solid rgba(251, 191, 36, 0.5);
+        box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
+    }
+    .fokus-kpi-badge-dot.dot-amber::after {
+        background: #f59e0b;
+    }
+
+    /* =====================================================
+       2. PAINÉIS E MÓDULOS DE ACESSO RÁPIDO
+       ===================================================== */
+    .fokus-panel {
+        background: var(--fk-panel-bg);
+        border: 1px solid var(--fk-border-subtle);
+        border-radius: 18px;
+        padding: 22px 24px;
+        height: 100%;
+        box-shadow: var(--fk-shadow);
+    }
+
+    .fokus-panel-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+
+    .fokus-panel-header-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: rgba(14, 116, 244, 0.16);
+        border: 1px solid rgba(56, 189, 248, 0.28);
+        color: #0284c7;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    html[data-bs-theme="dark"] .fokus-panel-header-icon {
+        color: #38bdf8;
+    }
+
+    .fokus-panel-title {
+        font-size: 1.02rem;
+        font-weight: 700;
+        color: var(--fk-text-main);
+        margin: 0;
+    }
+
+    .fokus-panel-subtitle {
+        font-size: 0.8rem;
+        color: var(--fk-text-muted);
+        margin: 2px 0 0 0;
+    }
+
+    .fokus-mod-link {
         text-decoration: none;
+        color: inherit;
         display: block;
         height: 100%;
     }
-    .module-access-card,
-    .journey-step-card {
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 12px !important;
-        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+
+    .fokus-mod-card {
+        background: var(--fk-inner-card-bg);
+        border-radius: 14px;
+        padding: 18px 18px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        height: 100%;
+        transition: all 0.2s ease;
+        border: 1px solid var(--fk-border-subtle);
     }
-    .module-access-card:hover,
-    .journey-step-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        border-color: #cbd5e1 !important;
+
+    .fokus-mod-card-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
     }
-    .module-color-badge {
-        width: 38px;
-        height: 32px;
-        border-radius: 8px;
+
+    .fokus-mod-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
         flex-shrink: 0;
     }
-    .journey-badge {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        background-color: #034575;
+
+    .fokus-mod-card.mod-blue {
+        border-color: rgba(56, 189, 248, 0.3);
+        box-shadow: inset 0 0 22px rgba(14, 165, 233, 0.05);
+    }
+    .fokus-mod-card.mod-blue .fokus-mod-icon {
+        background: rgba(2, 132, 199, 0.18);
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        color: #0284c7;
+    }
+    html[data-bs-theme="dark"] .fokus-mod-card.mod-blue .fokus-mod-icon {
+        color: #38bdf8;
+    }
+    .fokus-mod-card.mod-blue:hover {
+        border-color: #38bdf8;
+        box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .fokus-mod-card.mod-green {
+        border-color: rgba(16, 185, 129, 0.32);
+        box-shadow: inset 0 0 22px rgba(16, 185, 129, 0.05);
+    }
+    .fokus-mod-card.mod-green .fokus-mod-icon {
+        background: rgba(16, 185, 129, 0.16);
+        border: 1px solid rgba(52, 211, 153, 0.35);
+        color: #10b981;
+    }
+    .fokus-mod-card.mod-green:hover {
+        border-color: #34d399;
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .fokus-mod-card.mod-amber {
+        border-color: rgba(245, 158, 11, 0.5);
+        box-shadow: 0 0 18px rgba(245, 158, 11, 0.1), inset 0 0 24px rgba(245, 158, 11, 0.05);
+    }
+    .fokus-mod-card.mod-amber .fokus-mod-icon {
+        background: rgba(217, 119, 6, 0.18);
+        border: 1px solid rgba(251, 191, 36, 0.4);
+        color: #d97706;
+    }
+    html[data-bs-theme="dark"] .fokus-mod-card.mod-amber .fokus-mod-icon {
+        color: #fbbf24;
+    }
+    .fokus-mod-card.mod-amber:hover {
+        border-color: #fbbf24;
+        box-shadow: 0 0 24px rgba(245, 158, 11, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .fokus-mod-card.mod-cyan {
+        border-color: rgba(6, 182, 212, 0.5);
+        box-shadow: 0 0 18px rgba(6, 182, 212, 0.12), inset 0 0 24px rgba(6, 182, 212, 0.05);
+    }
+    .fokus-mod-card.mod-cyan .fokus-mod-icon {
+        background: rgba(6, 182, 212, 0.18);
+        border: 1px solid rgba(34, 211, 238, 0.4);
+        color: #0891b2;
+    }
+    html[data-bs-theme="dark"] .fokus-mod-card.mod-cyan .fokus-mod-icon {
+        color: #22d3ee;
+    }
+    .fokus-mod-card.mod-cyan:hover {
+        border-color: #22d3ee;
+        box-shadow: 0 0 24px rgba(6, 182, 212, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .fokus-mod-title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--fk-text-main);
+        margin-bottom: 2px;
+    }
+
+    .fokus-mod-sub {
+        font-size: 0.8rem;
+        color: var(--fk-text-muted);
+    }
+
+    .fokus-mod-arrow {
+        color: var(--fk-text-muted);
+        font-size: 1rem;
+        transition: transform 0.18s ease, color 0.18s ease;
+    }
+
+    .fokus-mod-card:hover .fokus-mod-arrow {
+        transform: translateX(3px);
+        color: var(--fk-text-main);
+    }
+
+    .fokus-profile-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .fokus-profile-item {
+        padding: 11px 0;
+        border-bottom: 1px solid var(--fk-divider);
+    }
+
+    .fokus-profile-item:first-child {
+        padding-top: 2px;
+    }
+
+    .fokus-profile-item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .fokus-profile-label {
+        font-size: 0.78rem;
+        color: var(--fk-text-muted);
+        margin-bottom: 3px;
+    }
+
+    .fokus-profile-val {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--fk-text-main);
+    }
+
+    /* =====================================================
+       3. JORNADA OPERACIONAL (GRID 4x2 NUMERADO)
+       ===================================================== */
+    .fokus-step-card {
+        background: var(--fk-inner-card-bg);
+        border: 1px solid var(--fk-border-subtle);
+        border-radius: 14px;
+        padding: 15px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        height: 100%;
+        transition: all 0.18s ease;
+    }
+
+    .fokus-step-card:hover {
+        background: var(--fk-inner-card-hover);
+        border-color: rgba(56, 189, 248, 0.45);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 22px rgba(0, 114, 255, 0.15);
+    }
+
+    .fokus-step-left {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 0;
+    }
+
+    .fokus-step-num {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: linear-gradient(135deg, #0072ff 0%, #0051cc 100%);
         color: #ffffff;
         font-weight: 700;
-        font-size: 0.95rem;
+        font-size: 0.92rem;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        box-shadow: 0 4px 12px rgba(0, 114, 255, 0.35);
     }
-    [data-bs-theme="dark"] .bg-white {
-        background-color: var(--bs-body-bg) !important;
+
+    .fokus-step-icon {
+        font-size: 1.15rem;
+        color: #0284c7;
+        flex-shrink: 0;
     }
-    [data-bs-theme="dark"] .module-access-card,
-    [data-bs-theme="dark"] .journey-step-card {
-        background-color: var(--bs-tertiary-bg) !important;
-        border-color: var(--bs-border-color) !important;
+
+    html[data-bs-theme="dark"] .fokus-step-icon {
+        color: #60a5fa;
     }
-    [data-bs-theme="dark"] .text-dark {
-        color: var(--bs-body-color) !important;
+
+    .fokus-step-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--fk-text-main);
+        line-height: 1.2;
+    }
+
+    .fokus-step-sub {
+        font-size: 0.75rem;
+        color: var(--fk-text-muted);
+        margin-top: 2px;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="py-2">
-    <!-- TÍTULO PRINCIPAL -->
-    <div class="mb-4 pt-2">
-        <h2 class="fw-bold mb-1 text-dark" style="font-size: 1.75rem;">Visão geral</h2>
-        <p class="text-muted mb-0" style="font-size: 0.95rem;">
-            {% if is_dev %}
-                Painel global de desenvolvimento e tenants
-            {% else %}
-                Gestão operacional — {{ minha_loja.nome|default:"Minha Loja" }}
-            {% endif %}
-        </p>
-    </div>
+<div class="d-flex flex-column gap-4">
 
     <!-- 1. MÉTRICAS GLOBAIS (TOPO - 4 CARDS) -->
-    <div class="row g-3 mb-4">
+    <div class="row g-3">
         {% if is_dev %}
-            <!-- Card 1: Total de Lojas -->
-            <div class="col-xl-3 col-md-6 col-12">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="text-secondary small fw-medium">Total de lojas</span>
-                        <div class="rounded-3" style="width: 28px; height: 28px; background-color: #e0f2fe;"></div>
-                    </div>
-                    <div class="h2 fw-bold text-dark mb-1">{{ total_lojas|default:2 }}</div>
-                    <div class="small text-muted" style="font-size: 0.82rem;">{{ lojas_ativas|default:2 }} ativas</div>
+        <!-- Card 1: Total de Lojas -->
+        <div class="col-xl-3 col-md-6 col-12">
+            <div class="fokus-kpi-card">
+                <div class="fokus-kpi-icon icon-blue">
+                    <i class="bi bi-shop"></i>
                 </div>
+                <div class="fokus-kpi-body">
+                    <div class="fokus-kpi-label">Total de lojas</div>
+                    <div class="fokus-kpi-value">{{ total_lojas|default:3 }}</div>
+                    <div class="fokus-kpi-sub">{{ lojas_ativas|default:3 }} ativas</div>
+                </div>
+                <span class="fokus-kpi-badge-dot dot-blue"></span>
             </div>
+        </div>
 
-            <!-- Card 2: Total de Usuários -->
-            <div class="col-xl-3 col-md-6 col-12">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="text-secondary small fw-medium">Total de usuários</span>
-                        <div class="rounded-3" style="width: 28px; height: 28px; background-color: #e0f2fe;"></div>
-                    </div>
-                    <div class="h2 fw-bold text-dark mb-1">{{ total_usuarios|default:1 }}</div>
-                    <div class="small text-muted" style="font-size: 0.82rem;">Em todas as lojas</div>
+        <!-- Card 2: Total de Usuários -->
+        <div class="col-xl-3 col-md-6 col-12">
+            <div class="fokus-kpi-card">
+                <div class="fokus-kpi-icon icon-blue">
+                    <i class="bi bi-people-fill"></i>
                 </div>
-            </div>
-
-            <!-- Card 3: Status do Sistema -->
-            <div class="col-xl-3 col-md-6 col-12">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="text-secondary small fw-medium">Status do sistema</span>
-                        <div class="rounded-3" style="width: 28px; height: 28px; background-color: #dcfce7;"></div>
-                    </div>
-                    <div class="h3 fw-bold mb-1" style="color: #15803d;">Operacional</div>
-                    <div class="small text-muted" style="font-size: 0.82rem;">Arquitetura modular</div>
+                <div class="fokus-kpi-body">
+                    <div class="fokus-kpi-label">Total de usuários</div>
+                    <div class="fokus-kpi-value">{{ total_usuarios|default:16 }}</div>
+                    <div class="fokus-kpi-sub">Em todas as lojas</div>
                 </div>
+                <span class="fokus-kpi-badge-dot dot-blue"></span>
             </div>
-
-            <!-- Card 4: Gestão de Módulos -->
-            <div class="col-xl-3 col-md-6 col-12">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="text-secondary small fw-medium">Gestão de módulos</span>
-                        <div class="rounded-3" style="width: 28px; height: 28px; background-color: #fef3c7;"></div>
-                    </div>
-                    <div class="h4 fw-bold text-dark mb-1">Feature flags</div>
-                    <div class="small text-muted" style="font-size: 0.82rem;">Controle por loja</div>
-                </div>
-            </div>
+        </div>
         {% else %}
-            <!-- Card 1: Minha Loja -->
-            <div class="col-xl-3 col-md-6 col-12">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="text-secondary small fw-medium">Minha loja</span>
-                        <div class="rounded-3" style="width: 28px; height: 28px; background-color: #e0f2fe;"></div>
-                    </div>
-                    <div class="h4 fw-bold text-dark mb-1">{{ minha_loja.nome|default:"Loja" }}</div>
-                    <div class="small text-muted" style="font-size: 0.82rem;">{{ minha_loja.cnpj|default:"Ativa" }}</div>
+        <!-- Card 1: Minha Loja -->
+        <div class="col-xl-3 col-md-6 col-12">
+            <div class="fokus-kpi-card">
+                <div class="fokus-kpi-icon icon-blue">
+                    <i class="bi bi-shop"></i>
                 </div>
+                <div class="fokus-kpi-body">
+                    <div class="fokus-kpi-label">Minha loja</div>
+                    <div class="fokus-kpi-value val-text">{{ minha_loja.nome|default:"Loja" }}</div>
+                    <div class="fokus-kpi-sub">{{ minha_loja.cnpj|default:"Ativa" }}</div>
+                </div>
+                <span class="fokus-kpi-badge-dot dot-blue"></span>
             </div>
+        </div>
 
-            <!-- Card 2: Usuários da Loja -->
-            <div class="col-xl-3 col-md-6 col-12">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="text-secondary small fw-medium">Usuários da loja</span>
-                        <div class="rounded-3" style="width: 28px; height: 28px; background-color: #e0f2fe;"></div>
-                    </div>
-                    <div class="h2 fw-bold text-dark mb-1">{{ total_usuarios_loja|default:1 }}</div>
-                    <div class="small text-muted" style="font-size: 0.82rem;">Equipe vinculada</div>
+        <!-- Card 2: Usuários da Loja -->
+        <div class="col-xl-3 col-md-6 col-12">
+            <div class="fokus-kpi-card">
+                <div class="fokus-kpi-icon icon-blue">
+                    <i class="bi bi-people-fill"></i>
                 </div>
-            </div>
-
-            <!-- Card 3: Status do Sistema -->
-            <div class="col-xl-3 col-md-6 col-12">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="text-secondary small fw-medium">Status do sistema</span>
-                        <div class="rounded-3" style="width: 28px; height: 28px; background-color: #dcfce7;"></div>
-                    </div>
-                    <div class="h3 fw-bold mb-1" style="color: #15803d;">Operacional</div>
-                    <div class="small text-muted" style="font-size: 0.82rem;">Conectores ativos</div>
+                <div class="fokus-kpi-body">
+                    <div class="fokus-kpi-label">Usuários da loja</div>
+                    <div class="fokus-kpi-value">{{ total_usuarios_loja|default:1 }}</div>
+                    <div class="fokus-kpi-sub">Equipe vinculada</div>
                 </div>
+                <span class="fokus-kpi-badge-dot dot-blue"></span>
             </div>
-
-            <!-- Card 4: Gestão de Módulos -->
-            <div class="col-xl-3 col-md-6 col-12">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-3 bg-white">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="text-secondary small fw-medium">Gestão de módulos</span>
-                        <div class="rounded-3" style="width: 28px; height: 28px; background-color: #fef3c7;"></div>
-                    </div>
-                    <div class="h4 fw-bold text-dark mb-1">Feature flags</div>
-                    <div class="small text-muted" style="font-size: 0.82rem;">Controle por loja</div>
-                </div>
-            </div>
+        </div>
         {% endif %}
-</div>
 
-    <!-- 2. SEÇÃO INTERMEDIÁRIA (MÓDULOS À ESQUERDA + PERFIL À DIREITA) -->
-    <div class="row g-3 mb-4">
-        <!-- Esquerda: Módulos e Acessos Rápidos (Grid 2x2) -->
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4 h-100">
-                <h5 class="fw-semibold text-dark mb-3" style="font-size: 0.95rem;">Módulos e acessos rápidos</h5>
+        <!-- Card 3: Status do Sistema -->
+        <div class="col-xl-3 col-md-6 col-12">
+            <div class="fokus-kpi-card">
+                <div class="fokus-kpi-icon icon-green">
+                    <span class="fokus-kpi-green-ball"></span>
+                </div>
+                <div class="fokus-kpi-body">
+                    <div class="fokus-kpi-label">Status do sistema</div>
+                    <div class="fokus-kpi-value val-green">Operacional</div>
+                    <div class="fokus-kpi-sub">Arquitetura modular</div>
+                </div>
+                <span class="fokus-kpi-badge-dot dot-green"></span>
+            </div>
+        </div>
+
+        <!-- Card 4: Gestão de Módulos -->
+        <div class="col-xl-3 col-md-6 col-12">
+            <div class="fokus-kpi-card">
+                <div class="fokus-kpi-icon icon-blue">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+                <div class="fokus-kpi-body">
+                    <div class="fokus-kpi-label">Gestão de módulos</div>
+                    <div class="fokus-kpi-value val-text">Feature flags</div>
+                    <div class="fokus-kpi-sub">Controle por loja</div>
+                </div>
+                <span class="fokus-kpi-badge-dot dot-amber"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. SEÇÃO INTERMEDIÁRIA: MÓDULOS E ACESSOS RÁPIDOS + INFORMAÇÕES DO PERFIL -->
+    <div class="row g-3">
+        <!-- Esquerda: Módulos e Acessos Rápidos (2x2) -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="fokus-panel">
+                <div class="fokus-panel-header">
+                    <span class="fokus-panel-header-icon">
+                        <i class="bi bi-box-seam"></i>
+                    </span>
+                    <h2 class="fokus-panel-title">Módulos e acessos rápidos</h2>
+                </div>
+
                 <div class="row g-3">
                     <!-- 1: Catálogo -->
                     <div class="col-md-6">
-                        <a href="{% url 'produto_list' %}" class="module-card-link">
-                            <div class="card h-100 border rounded-4 p-3 module-access-card bg-white">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="module-color-badge" style="background-color: #034575;"></div>
+                        <a href="{% url 'produto_list' %}" class="fokus-mod-link" data-fokus-nav="true">
+                            <div class="fokus-mod-card mod-blue">
+                                <div class="fokus-mod-card-left">
+                                    <div class="fokus-mod-icon">
+                                        <i class="bi bi-journal-bookmark-fill"></i>
+                                    </div>
                                     <div>
-                                        <div class="fw-bold text-dark" style="font-size: 0.92rem;">Catálogo</div>
-                                        <div class="text-muted" style="font-size: 0.78rem;">Produtos e categorias</div>
+                                        <div class="fokus-mod-title">Catálogo</div>
+                                        <div class="fokus-mod-sub">Produtos e categorias</div>
                                     </div>
                                 </div>
+                                <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                             </div>
                         </a>
                     </div>
 
                     <!-- 2: Vendas e Pedidos -->
                     <div class="col-md-6">
-                        <a href="{% url 'pedido_list' %}" class="module-card-link">
-                            <div class="card h-100 border rounded-4 p-3 module-access-card bg-white">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="module-color-badge" style="background-color: #365314;"></div>
+                        <a href="{% url 'pedido_list' %}" class="fokus-mod-link" data-fokus-nav="true">
+                            <div class="fokus-mod-card mod-green">
+                                <div class="fokus-mod-card-left">
+                                    <div class="fokus-mod-icon">
+                                        <i class="bi bi-box-seam-fill"></i>
+                                    </div>
                                     <div>
-                                        <div class="fw-bold text-dark" style="font-size: 0.92rem;">Vendas e pedidos</div>
-                                        <div class="text-muted" style="font-size: 0.78rem;">Baixa de estoque</div>
+                                        <div class="fokus-mod-title">Vendas e pedidos</div>
+                                        <div class="fokus-mod-sub">Baixa de estoque</div>
                                     </div>
                                 </div>
+                                <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                             </div>
                         </a>
                     </div>
 
                     <!-- 3: Hub Marketplaces -->
                     <div class="col-md-6">
-                        <a href="{% url 'canal_list' %}" class="module-card-link">
-                            <div class="card h-100 border rounded-4 p-3 module-access-card bg-white">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="module-color-badge" style="background-color: #78350f;"></div>
+                        <a href="{% url 'canal_list' %}" class="fokus-mod-link" data-fokus-nav="true">
+                            <div class="fokus-mod-card mod-amber">
+                                <div class="fokus-mod-card-left">
+                                    <div class="fokus-mod-icon">
+                                        <i class="bi bi-link-45deg"></i>
+                                    </div>
                                     <div>
-                                        <div class="fw-bold text-dark" style="font-size: 0.92rem;">Hub marketplaces</div>
-                                        <div class="text-muted" style="font-size: 0.78rem;">Conectores e credenciais</div>
+                                        <div class="fokus-mod-title">Hub marketplaces</div>
+                                        <div class="fokus-mod-sub">Conectores e credenciais</div>
                                     </div>
                                 </div>
+                                <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                             </div>
                         </a>
                     </div>
 
                     <!-- 4: Simulador Financeiro -->
                     <div class="col-md-6">
-                        <a href="{% url 'simulador_promocional' %}" class="module-card-link">
-                            <div class="card h-100 border rounded-4 p-3 module-access-card bg-white">
-                                <div class="d-flex align-items-center gap-3">
-                                    <div class="module-color-badge" style="background-color: #0f766e;"></div>
+                        <a href="{% url 'simulador_promocional' %}" class="fokus-mod-link" data-fokus-nav="true">
+                            <div class="fokus-mod-card mod-cyan">
+                                <div class="fokus-mod-card-left">
+                                    <div class="fokus-mod-icon">
+                                        <i class="bi bi-graph-up-arrow"></i>
+                                    </div>
                                     <div>
-                                        <div class="fw-bold text-dark" style="font-size: 0.92rem;">Simulador financeiro</div>
-                                        <div class="text-muted" style="font-size: 0.78rem;">Preço e margem</div>
+                                        <div class="fokus-mod-title">Simulador financeiro</div>
+                                        <div class="fokus-mod-sub">Preço e margem</div>
                                     </div>
                                 </div>
+                                <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                             </div>
                         </a>
                     </div>
@@ -245,21 +620,27 @@
         </div>
 
         <!-- Direita: Informações do Perfil -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4 h-100">
-                <h5 class="fw-semibold text-dark mb-3" style="font-size: 0.95rem;">Informações do perfil</h5>
-                <div class="d-flex flex-column gap-2">
-                    <div>
-                        <div class="text-muted small" style="font-size: 0.8rem;">Usuário</div>
-                        <div class="fw-medium text-dark" style="font-size: 0.88rem;">{{ user.username }}</div>
+        <div class="col-xl-4 col-lg-5">
+            <div class="fokus-panel">
+                <div class="fokus-panel-header">
+                    <span class="fokus-panel-header-icon">
+                        <i class="bi bi-person-fill"></i>
+                    </span>
+                    <h2 class="fokus-panel-title">Informações do perfil</h2>
+                </div>
+
+                <div class="fokus-profile-list">
+                    <div class="fokus-profile-item">
+                        <div class="fokus-profile-label">Usuário</div>
+                        <div class="fokus-profile-val">{{ user.username }}</div>
                     </div>
-                    <div>
-                        <div class="text-muted small" style="font-size: 0.8rem;">Nome</div>
-                        <div class="fw-medium text-dark" style="font-size: 0.88rem;">{{ user.get_full_name|default:user.username }}</div>
+                    <div class="fokus-profile-item">
+                        <div class="fokus-profile-label">Nome</div>
+                        <div class="fokus-profile-val">{{ user.get_full_name|default:user.username }}</div>
                     </div>
-                    <div>
-                        <div class="text-muted small" style="font-size: 0.8rem;">Papel RBAC</div>
-                        <div class="fw-medium text-dark" style="font-size: 0.88rem;">
+                    <div class="fokus-profile-item">
+                        <div class="fokus-profile-label">Papel RBAC</div>
+                        <div class="fokus-profile-val">
                             {% if is_dev or user.is_superuser %}
                                 Dev / superuser
                             {% else %}
@@ -272,136 +653,156 @@
         </div>
     </div>
 
-    <!-- 3. JORNADA OPERACIONAL (INFERIOR - GRID 4x2) -->
-    <div class="card border-0 shadow-sm rounded-4 bg-white p-3 p-md-4 mb-4">
-        <div class="mb-3">
-            <h5 class="fw-semibold text-dark mb-1" style="font-size: 0.95rem;">Jornada operacional</h5>
-            <p class="text-muted mb-0" style="font-size: 0.82rem;">Passo a passo de integração multicanal, em ordem cronológica</p>
+    <!-- 3. JORNADA OPERACIONAL (GRID 4x2) -->
+    <div class="fokus-panel">
+        <div class="fokus-panel-header">
+            <span class="fokus-panel-header-icon">
+                <i class="bi bi-lightning-charge-fill"></i>
+            </span>
+            <div>
+                <h2 class="fokus-panel-title">Jornada operacional</h2>
+                <p class="fokus-panel-subtitle">Passo a passo de integração multicanal, em ordem cronológica</p>
+            </div>
         </div>
 
         <div class="row g-3">
-            <!-- Linha 1 -->
             <!-- [1] Lojas -->
             <div class="col-xl-3 col-md-6 col-12">
-                <a href="{% if is_dev or user.is_superuser %}{% url 'loja_list' %}{% else %}#{% endif %}" class="journey-card-link">
-                    <div class="card border rounded-4 p-3 journey-step-card bg-white h-100">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="journey-badge">1</div>
+                <a href="{% if is_dev or user.is_superuser %}{% url 'loja_list' %}{% else %}#{% endif %}" class="fokus-mod-link" data-fokus-nav="true">
+                    <div class="fokus-step-card">
+                        <div class="fokus-step-left">
+                            <span class="fokus-step-num">1</span>
+                            <i class="bi bi-shop fokus-step-icon"></i>
                             <div>
-                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Lojas</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Tenant e conta</div>
+                                <div class="fokus-step-title">Lojas</div>
+                                <div class="fokus-step-sub">Tenant e conta</div>
                             </div>
                         </div>
+                        <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                     </div>
                 </a>
             </div>
 
             <!-- [2] Categorias -->
             <div class="col-xl-3 col-md-6 col-12">
-                <a href="{% url 'categoria_list' %}" class="journey-card-link">
-                    <div class="card border rounded-4 p-3 journey-step-card bg-white h-100">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="journey-badge">2</div>
+                <a href="{% url 'categoria_list' %}" class="fokus-mod-link" data-fokus-nav="true">
+                    <div class="fokus-step-card">
+                        <div class="fokus-step-left">
+                            <span class="fokus-step-num">2</span>
+                            <i class="bi bi-tag fokus-step-icon"></i>
                             <div>
-                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Categorias</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Árvore e taxonomia</div>
+                                <div class="fokus-step-title">Categorias</div>
+                                <div class="fokus-step-sub">Árvore e taxonomia</div>
                             </div>
                         </div>
+                        <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                     </div>
                 </a>
             </div>
 
             <!-- [3] Produtos -->
             <div class="col-xl-3 col-md-6 col-12">
-                <a href="{% url 'produto_list' %}" class="journey-card-link">
-                    <div class="card border rounded-4 p-3 journey-step-card bg-white h-100">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="journey-badge">3</div>
+                <a href="{% url 'produto_list' %}" class="fokus-mod-link" data-fokus-nav="true">
+                    <div class="fokus-step-card">
+                        <div class="fokus-step-left">
+                            <span class="fokus-step-num">3</span>
+                            <i class="bi bi-box-seam fokus-step-icon"></i>
                             <div>
-                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Produtos</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Catálogo e custo</div>
+                                <div class="fokus-step-title">Produtos</div>
+                                <div class="fokus-step-sub">Catálogo e custo</div>
                             </div>
                         </div>
+                        <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                     </div>
                 </a>
             </div>
 
             <!-- [4] Marketplaces -->
             <div class="col-xl-3 col-md-6 col-12">
-                <a href="{% url 'canal_list' %}" class="journey-card-link">
-                    <div class="card border rounded-4 p-3 journey-step-card bg-white h-100">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="journey-badge">4</div>
+                <a href="{% url 'canal_list' %}" class="fokus-mod-link" data-fokus-nav="true">
+                    <div class="fokus-step-card">
+                        <div class="fokus-step-left">
+                            <span class="fokus-step-num">4</span>
+                            <i class="bi bi-share fokus-step-icon"></i>
                             <div>
-                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Marketplaces</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">OAuth2 e conector</div>
+                                <div class="fokus-step-title">Marketplaces</div>
+                                <div class="fokus-step-sub">OAuth2 e conector</div>
                             </div>
                         </div>
+                        <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                     </div>
                 </a>
             </div>
 
-            <!-- Linha 2 -->
             <!-- [5] Anúncios -->
             <div class="col-xl-3 col-md-6 col-12">
-                <a href="{% url 'anuncio_list' %}" class="journey-card-link">
-                    <div class="card border rounded-4 p-3 journey-step-card bg-white h-100">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="journey-badge">5</div>
+                <a href="{% url 'anuncio_list' %}" class="fokus-mod-link" data-fokus-nav="true">
+                    <div class="fokus-step-card">
+                        <div class="fokus-step-left">
+                            <span class="fokus-step-num">5</span>
+                            <i class="bi bi-megaphone fokus-step-icon"></i>
                             <div>
-                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Anúncios</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Importação e sku</div>
+                                <div class="fokus-step-title">Anúncios</div>
+                                <div class="fokus-step-sub">Importação e sku</div>
                             </div>
                         </div>
+                        <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                     </div>
                 </a>
             </div>
 
             <!-- [6] Pedidos -->
             <div class="col-xl-3 col-md-6 col-12">
-                <a href="{% url 'pedido_list' %}" class="journey-card-link">
-                    <div class="card border rounded-4 p-3 journey-step-card bg-white h-100">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="journey-badge">6</div>
+                <a href="{% url 'pedido_list' %}" class="fokus-mod-link" data-fokus-nav="true">
+                    <div class="fokus-step-card">
+                        <div class="fokus-step-left">
+                            <span class="fokus-step-num">6</span>
+                            <i class="bi bi-file-earmark-text fokus-step-icon"></i>
                             <div>
-                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Pedidos</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Venda e baixa estoque</div>
+                                <div class="fokus-step-title">Pedidos</div>
+                                <div class="fokus-step-sub">Venda e baixa estoque</div>
                             </div>
                         </div>
+                        <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                     </div>
                 </a>
             </div>
 
             <!-- [7] Simulador -->
             <div class="col-xl-3 col-md-6 col-12">
-                <a href="{% url 'simulador_promocional' %}" class="journey-card-link">
-                    <div class="card border rounded-4 p-3 journey-step-card bg-white h-100">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="journey-badge">7</div>
+                <a href="{% url 'simulador_promocional' %}" class="fokus-mod-link" data-fokus-nav="true">
+                    <div class="fokus-step-card">
+                        <div class="fokus-step-left">
+                            <span class="fokus-step-num">7</span>
+                            <i class="bi bi-graph-up fokus-step-icon"></i>
                             <div>
-                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Simulador</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Preço e margem</div>
+                                <div class="fokus-step-title">Simulador</div>
+                                <div class="fokus-step-sub">Preço e margem</div>
                             </div>
                         </div>
+                        <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                     </div>
                 </a>
             </div>
 
             <!-- [8] Logs -->
             <div class="col-xl-3 col-md-6 col-12">
-                <a href="{% url 'log_sincronizacao_list' %}" class="journey-card-link">
-                    <div class="card border rounded-4 p-3 journey-step-card bg-white h-100">
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="journey-badge">8</div>
+                <a href="{% url 'log_sincronizacao_list' %}" class="fokus-mod-link" data-fokus-nav="true">
+                    <div class="fokus-step-card">
+                        <div class="fokus-step-left">
+                            <span class="fokus-step-num">8</span>
+                            <i class="bi bi-journal-text fokus-step-icon"></i>
                             <div>
-                                <div class="fw-bold text-dark" style="font-size: 0.88rem;">Logs</div>
-                                <div class="text-muted" style="font-size: 0.75rem;">Telemetria e auditoria</div>
+                                <div class="fokus-step-title">Logs</div>
+                                <div class="fokus-step-sub">Telemetria e auditoria</div>
                             </div>
                         </div>
+                        <i class="bi bi-chevron-right fokus-mod-arrow"></i>
                     </div>
                 </a>
             </div>
         </div>
     </div>
+
 </div>
 {% endblock %}

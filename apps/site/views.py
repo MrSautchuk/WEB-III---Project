@@ -3,7 +3,7 @@
 O QUE FAZ: Views do módulo de Site, Apresentação, Endpoint /tema.css e Alternância de Temas (T01 a T10).
 POR QUE FAZ:
   - Serve o CSS dinâmico /tema.css sanitizado contra CSS injection.
-  - Na rota raiz '/', entrega a experiência operacional direta: Dashboard para logados e chaveamento Landing/Login para anônimos.
+  - Na rota raiz '/', entrega a página de apresentação (Landing Page) como porta de entrada principal.
   - Oferece a página de apresentação em /apresentacao/ respeitando a política anti-enumeração (§17.2).
   - Permite aos usuários alternar entre os 10 modelos de catálogo (T01 a T09) e personalizar as 3 cores (T10).
 """
@@ -42,22 +42,16 @@ def tema_css_view(request):
 
 class RaizView(View):
     """
-    Controla o fluxo direto de acesso:
-      - Usuário logado: acessa imediatamente o Dashboard principal (tenancy/home.html).
-      - Usuário anônimo:
-          * Se visibilidade pública ativa: Landing Page com status 200.
-          * Se visibilidade pública desativada: Tela de login direto.
+    Controla o fluxo de entrada na raiz '/':
+      - Se visibilidade pública ativa: exibe sempre a Landing Page (site/landing.html) como porta de entrada.
+      - Se visibilidade pública desativada: redireciona logados ao Dashboard (/dashboard/) ou exibe Login.
     """
     def dispatch(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            try:
-                from apps.tenancy.views import DashboardHomeView
-                return DashboardHomeView.as_view()(request, *args, **kwargs)
-            except Exception:
-                return redirect('produto_list')
-
         if ConfigSite.is_visibilidade_publica_ativa():
             return render(request, 'site/landing.html', {'visibilidade_ativa': True})
+
+        if request.user.is_authenticated:
+            return redirect('home')
 
         from django.contrib.auth.views import LoginView
         return LoginView.as_view(template_name='registration/login.html')(request, *args, **kwargs)
