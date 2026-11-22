@@ -22,146 +22,124 @@
 {% endblock %}
 
 {% block content %}
-<!-- FILTROS -->
-<div class="card mb-4 shadow-sm">
+<!-- FILTROS COM ALPINE.JS (Reatividade no Navegador) E BUSCA AO VIVO VIA HTMX -->
+<div x-data="{ filtrosAbertos: false }" class="card mb-4 shadow-sm">
     <div class="card-body py-3">
-        <form method="get" class="row g-2 align-items-center">
-            <div class="col-md-3">
+        <form method="get" 
+              hx-get="{% url 'produto_list' %}" 
+              hx-target="#tabela-produtos" 
+              hx-swap="innerHTML" 
+              hx-trigger="submit"
+              class="row g-2 align-items-center">
+            
+            <!-- Campo de Busca com HTMX (Busca ao vivo sem recarregar tela) -->
+            <div class="col-md-5">
                 <div class="input-group">
                     <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
-                    <input type="text" name="q" value="{{ termo_busca }}" class="form-control" placeholder="Buscar por SKU, nome ou ID externo...">
+                    <input type="text" 
+                           name="q" 
+                           value="{{ termo_busca }}" 
+                           class="form-control"
+                           placeholder="Buscar por SKU, nome ou ID externo..."
+                           hx-get="{% url 'produto_list' %}"
+                           hx-target="#tabela-produtos"
+                           hx-swap="innerHTML"
+                           hx-trigger="keyup changed delay:400ms">
                 </div>
             </div>
-            {% if is_dev %}
-                <div class="col-md-2">
-                    <select name="loja" class="form-select">
-                        <option value="">Todas as Lojas</option>
-                        {% for l in lojas_disponiveis %}
-                            <option value="{{ l.id }}" {% if loja_filtro == l.id|stringformat:"s" %}selected{% endif %}>{{ l.nome }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            {% endif %}
-            <div class="col-md-2">
-                <select name="categoria" class="form-select">
-                    <option value="">Todas as Categorias</option>
-                    {% for c in categorias_disponiveis %}
-                        <option value="{{ c.id }}" {% if categoria_filtro == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nome }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-2">
-                <select name="estoque" class="form-select">
-                    <option value="">Todo o Estoque</option>
-                    <option value="disponivel" {% if estoque_filtro == 'disponivel' %}selected{% endif %}>Disponível (&gt; 0)</option>
-                    <option value="zerado" {% if estoque_filtro == 'zerado' %}selected{% endif %}>Zerado (= 0)</option>
-                    <option value="negativo" {% if estoque_filtro == 'negativo' %}selected{% endif %}>Negativo (Ruptura)</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <select name="status" class="form-select">
-                    <option value="">Todos os Status</option>
-                    {% for s_val, s_lbl in status_choices %}
-                        <option value="{{ s_val }}" {% if status_filtro == s_val %}selected{% endif %}>{{ s_lbl }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-md-1 d-flex gap-1">
-                <button type="submit" class="btn btn-secondary w-100"><i class="bi bi-funnel"></i></button>
+
+            <!-- Botão com Alpine.js: Alterna filtros sem ir ao servidor (Slide: interruptor do quarto) -->
+            <div class="col-md-7 d-flex justify-content-end gap-2">
+                <button type="button" 
+                        @click="filtrosAbertos = !filtrosAbertos" 
+                        class="btn btn-outline-secondary">
+                    <i class="bi bi-funnel"></i> 
+                    <span x-text="filtrosAbertos ? 'Ocultar Filtros' : 'Filtros Avançados'"></span>
+                </button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-arrow-clockwise"></i> Filtrar
+                </button>
                 {% if termo_busca or categoria_filtro or status_filtro or estoque_filtro or loja_filtro %}
-                    <a href="{% url 'produto_list' %}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+                <a href="{% url 'produto_list' %}" class="btn btn-outline-danger" title="Limpar Filtros">
+                    <i class="bi bi-x-lg"></i>
+                </a>
                 {% endif %}
+            </div>
+
+            <!-- Gaveta de Filtros Avançados controlada exclusivamente via Alpine.js (x-show) -->
+            <div x-show="filtrosAbertos" 
+                 x-transition 
+                 class="col-12 mt-3 pt-3 border-top">
+                <div class="row g-2">
+                    {% if is_dev %}
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Loja</label>
+                        <select name="loja" 
+                                class="form-select"
+                                hx-get="{% url 'produto_list' %}"
+                                hx-target="#tabela-produtos"
+                                hx-swap="innerHTML"
+                                hx-trigger="change">
+                            <option value="">Todas as Lojas</option>
+                            {% for l in lojas_disponiveis %}
+                            <option value="{{ l.id }}" {% if loja_filtro == l.id|stringformat:"s" %}selected{% endif %}>{{ l.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Categoria</label>
+                        <select name="categoria" 
+                                class="form-select"
+                                hx-get="{% url 'produto_list' %}"
+                                hx-target="#tabela-produtos"
+                                hx-swap="innerHTML"
+                                hx-trigger="change">
+                            <option value="">Todas as Categorias</option>
+                            {% for c in categorias_disponiveis %}
+                            <option value="{{ c.id }}" {% if categoria_filtro == c.id|stringformat:"s" %}selected{% endif %}>{{ c.nome }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Estoque</label>
+                        <select name="estoque" 
+                                class="form-select"
+                                hx-get="{% url 'produto_list' %}"
+                                hx-target="#tabela-produtos"
+                                hx-swap="innerHTML"
+                                hx-trigger="change">
+                            <option value="">Todo o Estoque</option>
+                            <option value="disponivel" {% if estoque_filtro == 'disponivel' %}selected{% endif %}>Disponível (&gt; 0)</option>
+                            <option value="zerado" {% if estoque_filtro == 'zerado' %}selected{% endif %}>Zerado (= 0)</option>
+                            <option value="negativo" {% if estoque_filtro == 'negativo' %}selected{% endif %}>Negativo (Ruptura)</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Status</label>
+                        <select name="status" 
+                                class="form-select"
+                                hx-get="{% url 'produto_list' %}"
+                                hx-target="#tabela-produtos"
+                                hx-swap="innerHTML"
+                                hx-trigger="change">
+                            <option value="">Todos os Status</option>
+                            {% for s_val, s_lbl in status_choices %}
+                            <option value="{{ s_val }}" {% if status_filtro == s_val %}selected{% endif %}>{{ s_lbl }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<!-- TABELA DE PRODUTOS -->
-<div class="card shadow-sm">
-    <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-            <thead class="table-light">
-                <tr>
-                    <th>SKU / Produto</th>
-                    <th>Categoria</th>
-                    {% if is_dev %}<th>Loja</th>{% endif %}
-                    <th class="text-end">Preço de Venda</th>
-                    <th class="text-center">Estoque</th>
-                    <th>Anúncios Multicanal</th>
-                    <th class="text-center">Status</th>
-                    <th class="text-end">Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for prod in produtos %}
-                    <tr>
-                        <td>
-                            <div class="fw-bold"><a href="{% url 'produto_detail' public_id=prod.public_id %}" class="text-decoration-none text-dark">{{ prod.nome }}</a></div>
-                            <code class="small text-primary font-monospace">{{ prod.sku }}</code>
-                        </td>
-                        <td><span class="badge bg-light text-dark border">{{ prod.categoria.nome }}</span></td>
-                        {% if is_dev %}<td><small class="text-muted">{{ prod.loja.nome }}</small></td>{% endif %}
-                        <td class="text-end fw-bold font-monospace">R$ {{ prod.preco|floatformat:2 }}</td>
-                        <td class="text-center">
-                            {% if prod.estoque > 5 %}
-                                <span class="badge bg-success font-monospace">{{ prod.estoque }} un.</span>
-                            {% elif prod.estoque > 0 %}
-                                <span class="badge bg-warning text-dark font-monospace">{{ prod.estoque }} un.</span>
-                            {% elif prod.estoque == 0 %}
-                                <span class="badge bg-secondary font-monospace">0 un.</span>
-                            {% else %}
-                                <span class="badge bg-danger font-monospace">{{ prod.estoque }} un. (Ruptura)</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="d-flex flex-wrap gap-1">
-                                {% for a in prod.anuncios.all %}
-                                    <span class="badge {% if a.conta_marketplace.canal == 'mercadolivre' %}bg-warning text-dark{% elif a.conta_marketplace.canal == 'shopee' %}bg-danger{% elif a.conta_marketplace.canal == 'magalu' %}bg-primary{% else %}bg-dark{% endif %}" title="{{ a.item_id_externo }}">
-                                        {{ a.conta_marketplace.get_canal_display }}: {{ a.item_id_externo|truncatechars:10 }}
-                                    </span>
-                                {% empty %}
-                                    <small class="text-muted">Sem anúncios</small>
-                                {% endfor %}
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            {% if prod.status == 'ATIVO' %}
-                                <span class="badge bg-success">Ativo</span>
-                            {% elif prod.status == 'INATIVO' %}
-                                <span class="badge bg-secondary">Inativo</span>
-                            {% else %}
-                                <span class="badge bg-warning text-dark">Rascunho</span>
-                            {% endif %}
-                        </td>
-                        <td class="text-end">
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'produto_detail' public_id=prod.public_id %}" class="btn btn-outline-secondary" title="Ver Detalhes">
-                                    <i class="bi bi-eye"></i>
-                                </a>
-                                <a href="{% url 'produto_update' public_id=prod.public_id %}" class="btn btn-outline-primary" title="Editar">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <a href="{% url 'produto_baixa_avaria' public_id=prod.public_id %}" class="btn btn-outline-warning" title="Baixa por Avaria">
-                                    <i class="bi bi-box-arrow-down"></i>
-                                </a>
-                                {% if pode_excluir %}
-                                    <a href="{% url 'produto_delete' public_id=prod.public_id %}" class="btn btn-outline-danger" title="Excluir">
-                                        <i class="bi bi-trash"></i>
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center py-4 text-muted">
-                            <i class="bi bi-box-seam fs-3 d-block mb-2"></i>
-                            Nenhum produto cadastrado.
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+<!-- CONTAINER QUE O HTMX ATUALIZA DINAMICAMENTE SEM PISCAR A PÁGINA -->
+<div id="tabela-produtos" class="card shadow-sm">
+    {% include "catalogo/_produto_tabela.html" %}
 </div>
 {% endblock %}

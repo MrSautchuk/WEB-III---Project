@@ -1,0 +1,1032 @@
+/* Os códigos foram gerados com auxilio de I.A. */
+/* ==========================================================================
+   LANDING PAGE FOKUS — DESIGN SYSTEM ESPELHADO NA fokus (https://fokus.com.br)
+   ========================================================================== */
+
+:root {
+    --fokus-purple: #7812c6;
+    --fokus-purple-bright: #981dff;
+    --fokus-purple-dark: #3e006f;
+    --fokus-purple-soft: #f3e5ff;
+    --fokus-purple-pill: #ead0ff;
+    --fokus-purple-light: #c376ff;
+    --fokus-yellow: #ffab1f;
+    --fokus-yellow-soft: #ffdc88;
+    --fokus-bg: #f3f4f6;
+    --fokus-white: #ffffff;
+    --fokus-dark: #0f0f0f;
+    --fokus-slate-900: #1e2939;
+    --fokus-slate-600: #364153;
+    --fokus-border: #e5e7eb;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--fokus-slate-600);
+    background-color: var(--fokus-bg);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.text-purple {
+    color: var(--fokus-purple) !important;
+}
+
+.text-purple-light {
+    color: var(--fokus-purple-pill) !important;
+}
+
+.max-w-700 {
+    max-width: 720px;
+}
+
+/* ==========================================================================
+   1. HEADER FLUTUANTE PÍLULA BRANCA
+   ========================================================================== */
+
+.fokus-header {
+    position: sticky;
+    top: 0;
+    padding: 18px 0 8px;
+    background: transparent;
+    z-index: 1030;
+}
+
+.fokus-navbar {
+    background-color: var(--fokus-white);
+    border: 1px solid rgba(229, 231, 235, 0.95);
+    border-radius: 999px;
+    padding: 10px 24px;
+    box-shadow: 0 8px 30px rgba(15, 15, 15, 0.06);
+    max-width: 1180px;
+    margin: 0 auto;
+    flex-wrap: nowrap;
+}
+
+.fokus-brand {
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.fokus-logo-img {
+    width: 38px !important;
+    height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+    object-fit: contain;
+    display: block;
+    transition: transform 0.2s ease;
+}
+
+.fokus-brand:hover .fokus-logo-img {
+    transform: scale(1.06);
+}
+
+.fokus-brand-name {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 800;
+    font-size: 1.55rem;
+    color: var(--fokus-dark);
+    letter-spacing: -0.03em;
+}
+
+.fokus-navbar .navbar-nav .nav-link {
+    font-size: clamp(0.84rem, 0.95vw, 0.94rem);
+    font-weight: 500;
+    color: var(--fokus-slate-600) !important;
+    padding: 6px 8px;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+.fokus-navbar .navbar-nav .nav-link.active-nav,
+.fokus-navbar .navbar-nav .nav-link:hover,
+.fokus-navbar .navbar-nav .nav-link:focus {
+    color: var(--fokus-purple) !important;
+}
+
+.fokus-navbar .navbar-nav .nav-link.active-nav {
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   2. BOTÕES PÍLULA fokus
+   ========================================================================== */
+
+.btn-fokus-outline-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 22px;
+    border-radius: 999px;
+    border: 1.5px solid var(--fokus-purple);
+    background: transparent;
+    color: var(--fokus-purple);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-fokus-outline-sm:hover {
+    background: var(--fokus-purple-soft);
+    color: var(--fokus-purple-dark);
+}
+
+.btn-fokus-solid-sm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 24px;
+    border-radius: 999px;
+    border: none;
+    background: var(--fokus-purple);
+    color: var(--fokus-white);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 4px 14px rgba(120, 18, 198, 0.25);
+    transition: all 0.2s ease;
+}
+
+.btn-fokus-solid-sm:hover {
+    background: var(--fokus-purple-bright);
+    color: var(--fokus-white);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(120, 18, 198, 0.35);
+}
+
+.btn-fokus-solid-lg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 34px;
+    border-radius: 999px;
+    border: none;
+    background: var(--fokus-purple);
+    color: var(--fokus-white);
+    font-size: 0.98rem;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(120, 18, 198, 0.25);
+    transition: all 0.2s ease;
+}
+
+.btn-fokus-solid-lg:hover {
+    background: var(--fokus-purple-bright);
+    color: var(--fokus-white);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(120, 18, 198, 0.35);
+}
+
+.btn-fokus-outline-lg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 13px 32px;
+    border-radius: 999px;
+    border: 1.5px solid var(--fokus-purple);
+    background: transparent;
+    color: var(--fokus-purple);
+    font-size: 0.98rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.btn-fokus-outline-lg:hover {
+    background: var(--fokus-purple-soft);
+    color: var(--fokus-purple-dark);
+    transform: translateY(-2px);
+}
+
+.btn-fokus-yellow-lg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 34px;
+    border-radius: 999px;
+    border: none;
+    background: var(--fokus-yellow);
+    color: var(--fokus-dark);
+    font-size: 0.98rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 8px 24px rgba(255, 171, 31, 0.3);
+    transition: all 0.2s ease;
+}
+
+.btn-fokus-yellow-lg:hover {
+    background: var(--fokus-yellow-soft);
+    color: var(--fokus-dark);
+    transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   3. HERO SECTION (CAMUFLADA COM A IMAGEM DE RAMIFICAÇÃO #010A1B)
+   ========================================================================== */
+
+.fokus-hero {
+    position: relative;
+    background-color: #010A1B;
+    background-image:
+        radial-gradient(circle at 72% 50%, #001C44 0%, #010A1B 58%, #000717 100%);
+    margin-top: -92px;
+    padding: 150px 0 110px;
+    border-bottom-left-radius: 44px;
+    border-bottom-right-radius: 44px;
+    overflow: hidden;
+}
+
+.fokus-eyebrow {
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: var(--fokus-slate-600);
+}
+
+.fokus-hero .fokus-eyebrow {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    padding: 6px 16px;
+    border-radius: 999px;
+}
+
+.fokus-hero .fokus-eyebrow i {
+    color: #38bdf8 !important;
+}
+
+.fokus-hero-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(2.1rem, 3.8vw, 3.15rem);
+    font-weight: 800;
+    color: #ffffff;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+}
+
+.fokus-hero-desc {
+    font-size: 1.04rem;
+    color: #cbd5e1;
+    line-height: 1.7;
+    max-width: 520px;
+}
+
+.fokus-hero .btn-fokus-outline-lg {
+    border-color: rgba(56, 189, 248, 0.7);
+    color: #ffffff;
+}
+
+.fokus-hero .btn-fokus-outline-lg:hover {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: #38bdf8;
+    color: #ffffff;
+}
+
+/* Composição Direita da Hero — Camuflagem Total */
+.fokus-hero-visual {
+    position: relative;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fokus-visual-frame {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    box-shadow: none;
+    position: relative;
+}
+
+.fokus-network-img {
+    width: 100%;
+    max-width: 620px;
+    border-radius: 24px;
+    display: block;
+    mix-blend-mode: lighten;
+    -webkit-mask-image: radial-gradient(ellipse 92% 90% at 50% 50%, #000 72%, transparent 100%);
+    mask-image: radial-gradient(ellipse 92% 90% at 50% 50%, #000 72%, transparent 100%);
+}
+
+.fokus-floating-link {
+    position: absolute;
+    top: 0;
+    right: 36px;
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: var(--fokus-purple-pill);
+    color: var(--fokus-purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    box-shadow: 0 8px 20px rgba(120, 18, 198, 0.16);
+    z-index: 3;
+}
+
+.fokus-floating-product {
+    position: absolute;
+    bottom: 24px;
+    left: 28px;
+    background: rgba(54, 65, 83, 0.92);
+    backdrop-filter: blur(8px);
+    color: var(--fokus-white);
+    padding: 14px 22px;
+    border-radius: 16px;
+    max-width: 310px;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.22);
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.fokus-floating-product span {
+    font-size: 0.75rem;
+    color: #d1d5dc;
+}
+
+.fokus-floating-product strong {
+    font-size: 0.96rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+.fokus-floating-price {
+    position: absolute;
+    bottom: 0;
+    right: 28px;
+    background: var(--fokus-purple-pill);
+    color: var(--fokus-purple);
+    font-weight: 700;
+    font-size: 1.15rem;
+    padding: 9px 20px;
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(120, 18, 198, 0.15);
+    z-index: 3;
+}
+
+/* ==========================================================================
+   4. MÉTRICAS DE PERFORMANCE
+   ========================================================================== */
+
+.fokus-metrics-section {
+    position: relative;
+    z-index: 5;
+    margin-top: -48px;
+    padding: 0 0 40px;
+}
+
+.fokus-metrics-card {
+    background: var(--fokus-white);
+    border-radius: 28px;
+    padding: 36px 24px;
+    box-shadow: 0 12px 36px rgba(15, 15, 15, 0.05);
+    border: 1px solid var(--fokus-border);
+}
+
+.fokus-metric-item {
+    padding: 4px 8px;
+}
+
+.fokus-metric-number {
+    display: block;
+    font-family: 'Space Grotesk', 'Poppins', sans-serif;
+    font-size: clamp(1.45rem, 2.3vw, 2.35rem);
+    font-weight: 800;
+    color: var(--fokus-purple);
+    line-height: 1.15;
+    margin-bottom: 6px;
+    white-space: nowrap;
+}
+
+.fokus-metric-label {
+    font-size: clamp(0.82rem, 1vw, 0.92rem);
+    color: var(--fokus-slate-600);
+    margin: 0;
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   5. SEÇÕES GERAIS, MARKETPLACES E FUNCIONALIDADES
+   ========================================================================== */
+
+.fokus-section {
+    padding: 80px 0;
+}
+
+.fokus-section-alt {
+    background: var(--fokus-white);
+    border-radius: 40px;
+}
+
+.fokus-section-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 800;
+    color: var(--fokus-dark);
+    line-height: 1.22;
+}
+
+.fokus-section-subtitle {
+    font-size: 1.02rem;
+    color: var(--fokus-slate-600);
+    line-height: 1.65;
+}
+
+/* Badges de Marketplaces */
+.fokus-mp-badges {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+}
+
+.fokus-mp-pill {
+    display: inline-flex;
+    align-items: center;
+    background: var(--fokus-white);
+    border: 1px solid var(--fokus-border);
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--fokus-slate-900);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.fokus-mp-pill:hover {
+    transform: translateY(-2px);
+    border-color: var(--fokus-purple);
+}
+
+/* Cards de Marketplaces & Funcionalidades */
+.fokus-feature-card,
+.fokus-bento-card {
+    background: var(--fokus-white);
+    border: 1px solid var(--fokus-border);
+    border-radius: 24px;
+    padding: 32px 26px;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.fokus-section-alt .fokus-bento-card {
+    background: var(--fokus-bg);
+}
+
+.fokus-feature-card:hover,
+.fokus-bento-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 40px rgba(120, 18, 198, 0.08);
+    border-color: var(--fokus-purple-light);
+}
+
+.fokus-icon-box {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: var(--fokus-purple-soft);
+    color: var(--fokus-purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+}
+
+.fokus-bento-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--fokus-purple-pill);
+    color: var(--fokus-purple-dark);
+    margin-bottom: 14px;
+}
+
+.fokus-card-title {
+    font-size: 1.22rem;
+    font-weight: 700;
+    color: var(--fokus-dark);
+    margin-bottom: 10px;
+}
+
+.fokus-card-text {
+    font-size: 0.94rem;
+    color: var(--fokus-slate-600);
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ==========================================================================
+   6. BANNER DE SUPORTE HUMANIZADO
+   ========================================================================== */
+
+.fokus-support-banner {
+    background: linear-gradient(135deg, var(--fokus-purple-dark) 0%, var(--fokus-purple) 100%);
+    border-radius: 32px;
+    padding: 56px 48px;
+    color: var(--fokus-white);
+    box-shadow: 0 24px 50px rgba(62, 0, 111, 0.22);
+}
+
+.fokus-support-title {
+    font-size: clamp(1.75rem, 2.8vw, 2.4rem);
+    font-weight: 800;
+    color: var(--fokus-white);
+    line-height: 1.22;
+}
+
+.fokus-support-desc {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.65;
+}
+
+.fokus-support-mini-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 20px;
+    padding: 22px 20px;
+    height: 100%;
+}
+
+.fokus-support-mini-card i {
+    font-size: 1.6rem;
+    color: var(--fokus-yellow);
+    display: block;
+    margin-bottom: 10px;
+}
+
+.fokus-support-mini-card h4 {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--fokus-white);
+    margin-bottom: 6px;
+}
+
+.fokus-support-mini-card p {
+    font-size: 0.86rem;
+    color: rgba(255, 255, 255, 0.8);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   7. PARCEIROS & DEPOIMENTOS
+   ========================================================================== */
+
+.fokus-partner-card {
+    background: var(--fokus-white);
+    border: 1px solid var(--fokus-border);
+    border-radius: 24px;
+    padding: 32px 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.fokus-partner-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.06);
+}
+
+.fokus-partner-tag {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--fokus-purple-soft);
+    color: var(--fokus-purple);
+}
+
+.fokus-partner-name {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--fokus-dark);
+}
+
+.fokus-testimonial-card {
+    background: var(--fokus-bg);
+    border: 1px solid var(--fokus-border);
+    border-radius: 24px;
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+}
+
+.fokus-stars {
+    color: var(--fokus-yellow);
+    font-size: 1.05rem;
+    display: flex;
+    gap: 4px;
+}
+
+.fokus-testimonial-quote {
+    font-size: 0.96rem;
+    color: var(--fokus-slate-600);
+    line-height: 1.68;
+    font-style: italic;
+}
+
+.fokus-testimonial-author {
+    display: flex;
+    flex-direction: column;
+}
+
+.fokus-testimonial-author strong {
+    color: var(--fokus-dark);
+    font-size: 1rem;
+}
+
+.fokus-testimonial-author span {
+    color: var(--fokus-purple);
+    font-size: 0.84rem;
+    font-weight: 500;
+}
+
+/* ==========================================================================
+   8. PLANOS (START, LITE, STANDARD)
+   ========================================================================== */
+
+.fokus-discount-pill {
+    display: inline-flex;
+    align-items: center;
+    background: var(--fokus-yellow-soft);
+    color: var(--fokus-dark);
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: 0.92rem;
+}
+
+.fokus-plan-card {
+    position: relative;
+    background: var(--fokus-white);
+    border: 1.5px solid var(--fokus-border);
+    border-radius: 28px;
+    padding: 38px 30px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.fokus-plan-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 44px rgba(15, 15, 15, 0.08);
+}
+
+.fokus-plan-featured {
+    border: 2px solid var(--fokus-purple);
+    box-shadow: 0 20px 50px rgba(120, 18, 198, 0.14);
+}
+
+.fokus-plan-popular-badge {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--fokus-purple);
+    color: var(--fokus-white);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 6px 18px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.fokus-plan-name {
+    font-size: 1.65rem;
+    font-weight: 800;
+    color: var(--fokus-dark);
+    margin-bottom: 8px;
+}
+
+.fokus-plan-desc {
+    font-size: 0.92rem;
+    color: var(--fokus-slate-600);
+    line-height: 1.55;
+    margin-bottom: 24px;
+}
+
+.fokus-plan-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.fokus-plan-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.93rem;
+    color: var(--fokus-slate-600);
+    line-height: 1.45;
+}
+
+.fokus-plan-features li i {
+    color: var(--fokus-purple);
+    font-size: 1.05rem;
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   9. FOOTER ESCURO
+   ========================================================================== */
+
+.fokus-footer {
+    background: #030712;
+    color: var(--fokus-white);
+    padding: 70px 0 40px;
+    margin-top: 40px;
+}
+
+.fokus-footer-badge-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: rgba(152, 29, 255, 0.2);
+    color: var(--fokus-purple-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.fokus-footer-heading {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--fokus-white);
+    margin-bottom: 16px;
+}
+
+.fokus-footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.fokus-footer-links a {
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.fokus-footer-links a:hover {
+    color: var(--fokus-white);
+}
+
+/* ==========================================================================
+   10. BOTÃO FLUTUANTE E MODAL DO WHATSAPP
+   ========================================================================== */
+
+.wpp-button {
+    position: fixed !important;
+    right: 24px !important;
+    bottom: 24px !important;
+    left: auto !important;
+    top: auto !important;
+    z-index: 99999 !important;
+    display: block;
+    width: 60px;
+    height: 60px;
+}
+
+.wpp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #25D366;
+    box-shadow: 0 6px 18px rgba(37, 211, 102, 0.35);
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.wpp-btn:hover {
+    transform: scale(1.06);
+}
+
+.wpp-btn img {
+    display: block;
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+}
+
+.wpp-toggle {
+    position: absolute;
+    right: 0;
+    bottom: 76px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 330px;
+    max-width: calc(100vw - 32px);
+}
+
+.wpp-toggle[hidden] {
+    display: none !important;
+}
+
+.wpp-box {
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 22px 20px 24px;
+    background: var(--fokus-white);
+    border: 1px solid var(--fokus-border);
+    border-radius: 20px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+}
+
+.wpp-box h3 {
+    margin-bottom: 6px;
+    color: var(--fokus-dark);
+    font-family: 'Poppins', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.wpp-box p {
+    margin-bottom: 16px;
+    color: var(--fokus-slate-600);
+    font-size: 13.5px;
+    line-height: 1.45;
+}
+
+.wpp-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: var(--fokus-bg);
+    color: var(--fokus-slate-600);
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.wpp-close:hover {
+    background: var(--fokus-border);
+}
+
+.wpp-box input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 44px;
+    margin-bottom: 10px;
+    padding: 0 14px;
+    border: 1px solid var(--fokus-border);
+    border-radius: 10px;
+    outline: none;
+    background: var(--fokus-white);
+    color: var(--fokus-dark);
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wpp-box input:focus {
+    border-color: var(--fokus-purple);
+    box-shadow: 0 0 0 3px rgba(120, 18, 198, 0.12);
+}
+
+.wpp-send {
+    width: 100%;
+    height: 46px;
+    margin-top: 6px;
+    border: none;
+    border-radius: 999px;
+    background: var(--fokus-purple);
+    color: var(--fokus-white);
+    font-family: 'Poppins', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.wpp-send:hover {
+    background: var(--fokus-purple-bright);
+}
+
+.wpp-toggle-content {
+    box-sizing: border-box;
+    padding: 16px;
+    background: var(--fokus-white);
+    border: 1px solid var(--fokus-border);
+    border-radius: 16px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+.wpp-toggle-content p {
+    margin-bottom: 8px;
+    color: var(--fokus-slate-600);
+    font-size: 13px;
+}
+
+.wpp-toggle-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--fokus-purple);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.wpp-toggle-link:hover {
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   11. RESPONSIVIDADE
+   ========================================================================== */
+
+@media (max-width: 1199.98px) {
+    .fokus-navbar {
+        padding: 10px 16px;
+    }
+
+    .fokus-navbar .navbar-nav {
+        gap: 0.25rem !important;
+    }
+
+    .btn-fokus-outline-sm,
+    .btn-fokus-solid-sm {
+        padding: 8px 14px;
+        font-size: 0.84rem;
+    }
+}
+
+@media (max-width: 991.98px) {
+    .fokus-navbar {
+        border-radius: 24px;
+        padding: 12px 20px;
+        flex-wrap: wrap;
+    }
+
+    .fokus-hero {
+        margin-top: -92px;
+        padding: 130px 0 80px;
+    }
+
+    .fokus-support-banner {
+        padding: 36px 24px;
+    }
+
+    .fokus-floating-product {
+        position: static;
+        margin-top: 12px;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 576px) {
+    .fokus-section {
+        padding: 56px 0;
+    }
+
+    .wpp-button {
+        right: 16px !important;
+        bottom: 16px !important;
+    }
+}

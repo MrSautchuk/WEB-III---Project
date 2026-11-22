@@ -1,3 +1,4 @@
+/* Os códigos foram gerados com auxilio de I.A. */
 /* static/css/base.css — Estrutura Estática e Eixos de Estilo (Doc ① §11.4, §11.10 e Anexo A.4) */
 
 :root {
@@ -41,30 +42,74 @@
 }
 
 /* Eixos de estilo: Raio dos Cantos (Doc ① §11.10) */
-[data-raio="reto"] { --raio: 0; }
-[data-raio="suave"] { --raio: .375rem; }
-[data-raio="arredondado"] { --raio: 1rem; }
-[data-raio="pilula"] { --raio: 2rem; }
+[data-raio="reto"] {
+  --raio: 0;
+}
+
+[data-raio="suave"] {
+  --raio: .375rem;
+}
+
+[data-raio="arredondado"] {
+  --raio: 1rem;
+}
+
+[data-raio="pilula"] {
+  --raio: 2rem;
+}
 
 /* Eixos de estilo: Sombra */
-[data-sombra="nenhuma"] { --sombra: none; }
-[data-sombra="suave"] { --sombra: 0 1px 3px rgba(0, 0, 0, .08); }
-[data-sombra="marcada"] { --sombra: 0 6px 18px rgba(0, 0, 0, .18); }
-[data-sombra="difusa"] { --sombra: 0 10px 30px rgba(0, 0, 0, .06); }
+[data-sombra="nenhuma"] {
+  --sombra: none;
+}
+
+[data-sombra="suave"] {
+  --sombra: 0 1px 3px rgba(0, 0, 0, .08);
+}
+
+[data-sombra="marcada"] {
+  --sombra: 0 6px 18px rgba(0, 0, 0, .18);
+}
+
+[data-sombra="difusa"] {
+  --sombra: 0 10px 30px rgba(0, 0, 0, .06);
+}
 
 /* Eixos de estilo: Densidade */
-[data-densidade="compacta"] { --espaco: .75; }
-[data-densidade="confortavel"] { --espaco: 1; }
-[data-densidade="ampla"] { --espaco: 1.35; }
+[data-densidade="compacta"] {
+  --espaco: .75;
+}
+
+[data-densidade="confortavel"] {
+  --espaco: 1;
+}
+
+[data-densidade="ampla"] {
+  --espaco: 1.35;
+}
 
 /* Eixos de estilo: Movimento */
-[data-movimento="nenhum"] { --duracao: 0s; }
-[data-movimento="discreto"] { --duracao: .15s; }
-[data-movimento="expressivo"] { --duracao: .35s; }
+[data-movimento="nenhum"] {
+  --duracao: 0s;
+}
+
+[data-movimento="discreto"] {
+  --duracao: .15s;
+}
+
+[data-movimento="expressivo"] {
+  --duracao: .35s;
+}
 
 /* Eixos de estilo: Tipografia (Pilha do Sistema) */
-[data-tipografia="sans"] { --bs-body-font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-[data-tipografia="arredondada"] { --bs-body-font-family: ui-rounded, "Trebuchet MS", "Segoe UI", sans-serif; }
+[data-tipografia="sans"] {
+  --bs-body-font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+[data-tipografia="arredondada"] {
+  --bs-body-font-family: ui-rounded, "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
 [data-tipografia="serifa-titulos"] h1,
 [data-tipografia="serifa-titulos"] h2,
 [data-tipografia="serifa-titulos"] h3 {
@@ -73,7 +118,10 @@
 
 /* Acessibilidade: Prefers Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     transition-duration: 0s !important;
     animation-duration: 0s !important;
     scroll-behavior: auto !important;
@@ -164,7 +212,8 @@ body {
   font-size: .875rem;
 }
 
-.form-control:focus, .form-select:focus {
+.form-control:focus,
+.form-select:focus {
   border-color: var(--tema-destaque);
   box-shadow: 0 0 0 .25rem rgba(var(--tema-destaque-rgb), .2);
 }
@@ -221,7 +270,7 @@ footer {
 .btn-theme-nav:hover,
 .btn-theme-nav:focus,
 .btn-theme-nav:active,
-.show > .btn-theme-nav.dropdown-toggle {
+.show>.btn-theme-nav.dropdown-toggle {
   font-size: 0.82rem;
   font-weight: 500;
   padding: 0.35rem 0.95rem !important;
@@ -234,7 +283,7 @@ footer {
 
 .btn-theme-nav:hover,
 .btn-theme-nav:focus,
-.show > .btn-theme-nav.dropdown-toggle {
+.show>.btn-theme-nav.dropdown-toggle {
   background-color: rgba(255, 255, 255, 0.22) !important;
   border-color: rgba(255, 255, 255, 0.7) !important;
   color: #ffffff !important;
@@ -250,6 +299,7 @@ footer {
   border-color: #f59e0b !important;
   color: #0f172a !important;
 }
+
 .btn-mock-nav:hover {
   background-color: #d97706 !important;
   border-color: #d97706 !important;
@@ -279,14 +329,17 @@ footer {
   background-color: #0284c7 !important;
   color: #ffffff !important;
 }
+
 .badge-role-supervisor {
   background-color: #0d9488 !important;
   color: #ffffff !important;
 }
+
 .badge-role-operador {
   background-color: #475569 !important;
   color: #ffffff !important;
 }
+
 .badge-role-dev {
   background-color: #7c3aed !important;
   color: #ffffff !important;
@@ -300,6 +353,7 @@ footer {
   font-weight: 600;
   transition: all 0.15s ease-in-out;
 }
+
 .btn-hub-solid:hover,
 .btn-hub-solid:focus {
   background-color: #173d63 !important;
@@ -307,27 +361,33 @@ footer {
   color: #ffffff !important;
   box-shadow: 0 4px 12px rgba(15, 43, 72, 0.25);
 }
+
 .btn-hub-solid:active {
   background-color: #0a1e33 !important;
   border-color: #0a1e33 !important;
   color: #ffffff !important;
 }
+
 .btn-hub-solid:disabled {
   background-color: #4b6b8b !important;
   border-color: #4b6b8b !important;
   color: #e2e8f0 !important;
   opacity: 0.7;
 }
+
 .text-hub-solid {
   color: #0f2b48 !important;
 }
+
 .border-hub-solid {
   border-color: #0f2b48 !important;
 }
+
 .bg-hub-solid {
   background-color: #0f2b48 !important;
   color: #ffffff !important;
 }
+
 [data-bs-theme="dark"] .text-hub-solid {
   color: #5c93c4 !important;
 }
@@ -445,3 +505,555 @@ footer {
   border-color: var(--tema-borda) !important;
 }
 
+
+/* ===== LOGIN FOKUS (ESTILO SPLIT-CARD) ===== */
+
+.fokus-login-body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: #f3effb;
+}
+
+.fokus-login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  padding: 28px 16px;
+  background: radial-gradient(circle at 15% 20%, rgba(168, 85, 247, 0.16), transparent 45%),
+              radial-gradient(circle at 85% 80%, rgba(124, 58, 237, 0.14), transparent 45%),
+              linear-gradient(135deg, #f5f0ff 0%, #ede5ff 50%, #f8f5ff 100%);
+}
+
+.fokus-login-container {
+  display: grid;
+  grid-template-columns: 1.04fr 0.96fr;
+  width: 100%;
+  max-width: 1020px;
+  min-height: 590px;
+  background: #ffffff;
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(45, 12, 89, 0.16);
+}
+
+/* ==========================================
+   LADO ESQUERDO: LOGO NEON CENTRAL + MARKETPLACES
+   ========================================== */
+
+.fokus-login-brand {
+  background:
+    radial-gradient(circle at 50% 35%, rgba(0, 140, 255, 0.25) 0%, rgba(0, 28, 68, 0.5) 45%, rgba(1, 10, 27, 0.98) 100%),
+    linear-gradient(160deg, #020b1f 0%, #051638 50%, #010817 100%);
+  color: #ffffff;
+  padding: 44px 32px 38px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  gap: 24px;
+}
+
+.fokus-login-brand::before {
+  content: "";
+  position: absolute;
+  bottom: -40px;
+  left: 15%;
+  right: 15%;
+  height: 80px;
+  background: radial-gradient(ellipse at center, rgba(0, 174, 255, 0.45) 0%, transparent 75%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+/* Círculo Neon Central com Logo FOKUS */
+.fokus-neon-circle {
+  width: 246px;
+  height: 246px;
+  border-radius: 50%;
+  border: 3px solid #00c8ff;
+  background: radial-gradient(circle at 50% 45%, rgba(0, 110, 255, 0.24) 0%, rgba(1, 12, 34, 0.92) 72%);
+  box-shadow:
+    0 0 28px rgba(0, 200, 255, 0.65),
+    inset 0 0 26px rgba(0, 174, 255, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.fokus-neon-logo-img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+  display: block;
+  margin-bottom: 6px;
+  filter: drop-shadow(0 0 12px rgba(0, 212, 255, 0.55));
+}
+
+.fokus-neon-brand-word {
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #ffffff;
+  line-height: 1.05;
+  margin-bottom: 6px;
+}
+
+.fokus-neon-brand-word .fokus-k-cyan {
+  color: #00d4ff;
+}
+
+.fokus-neon-subtitle {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #38bdf8;
+  line-height: 1.35;
+  margin: 0;
+}
+
+/* Descrição Centralizada */
+.fokus-brand-tagline {
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.42;
+  color: #f1f5f9;
+  max-width: 410px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.fokus-brand-tagline .text-highlight-purple {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+/* Showcase de Marketplaces Organizados em 2 Fileiras */
+.fokus-mp-showcase {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  margin-top: 4px;
+  position: relative;
+  z-index: 2;
+}
+
+.fokus-mp-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.fokus-mp-row-bottom {
+  gap: 12px;
+}
+
+.fokus-mp-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #ffffff;
+}
+
+.fokus-mp-sep {
+  width: 1px;
+  height: 24px;
+  background: rgba(56, 189, 248, 0.32);
+  display: inline-block;
+}
+
+/* Tipografia fiel às marcas dos Marketplaces */
+.mp-logo-meli {
+  width: 40px;
+  height: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+}
+
+.mp-text-meli {
+  font-family: 'Poppins', sans-serif;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: #ffffff;
+  text-align: left;
+}
+
+.mp-text-shopee {
+  font-family: 'Poppins', sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+}
+
+.mp-text-amazon-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.mp-text-amazon {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+.mp-amazon-smile {
+  margin-top: -2px;
+}
+
+.mp-magalu-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  line-height: 1.1;
+}
+
+.mp-text-magalu {
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+}
+
+.mp-magalu-bar {
+  height: 3px;
+  width: 100%;
+  margin-top: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #ff2e93 0%, #ff8a00 33%, #ffe600 66%, #00e676 100%);
+}
+
+.mp-text-shein {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: #ffffff;
+}
+
+.mp-enjoei-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1;
+}
+
+.mp-text-enjoei {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.4px;
+}
+
+.mp-enjoei-smile {
+  width: 14px;
+  height: 6px;
+  border-bottom: 3px solid #ff3b6b;
+  border-radius: 0 0 12px 12px;
+  margin-left: 4px;
+  margin-top: 1px;
+}
+
+.mp-text-aliexpress {
+  font-family: 'Poppins', sans-serif;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.mp-text-aliexpress .ali-orange {
+  color: #ff6a00;
+  font-weight: 800;
+}
+
+.mp-text-netshoes {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13.5px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: 0.4px;
+  color: #ffffff;
+}
+
+/* ==========================================
+   LADO DIREITO: FORMULÁRIO DE LOGIN
+   ========================================== */
+
+.fokus-login-form-area {
+  padding: 52px 54px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #ffffff;
+}
+
+.fokus-login-form-header h2 {
+  font-size: 30px;
+  font-weight: 800;
+  color: #170d35;
+  margin: 0 0 6px;
+  letter-spacing: -0.02em;
+}
+
+.fokus-login-form-header h2 span {
+  color: #6b11b4;
+}
+
+.fokus-login-form-header p {
+  color: #475569;
+  font-size: 15px;
+  margin-bottom: 28px;
+}
+
+/* Campos de Entrada */
+.fokus-form-group {
+  margin-bottom: 16px;
+}
+
+.fokus-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0 16px;
+  height: 52px;
+  background: #ffffff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.fokus-input-wrapper:focus-within {
+  border-color: #6b11b4;
+  box-shadow: 0 0 0 3px rgba(107, 17, 180, 0.12);
+}
+
+.fokus-input-wrapper > i {
+  font-size: 18px;
+  color: #64748b;
+  margin-right: 12px;
+}
+
+.fokus-input-wrapper input {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 14.5px;
+  color: #1e293b;
+}
+
+.fokus-input-wrapper input::placeholder {
+  color: #94a3b8;
+}
+
+.fokus-password-toggle {
+  border: none;
+  background: transparent;
+  color: #64748b;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.fokus-password-toggle:hover {
+  color: #6b11b4;
+}
+
+/* Opções: Lembrar-me & Esqueceu sua senha? */
+.fokus-login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 22px;
+  font-size: 13.5px;
+}
+
+.fokus-remember-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #334155;
+  cursor: pointer;
+  user-select: none;
+  margin: 0;
+}
+
+.fokus-remember-check input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: #6b11b4;
+  cursor: pointer;
+}
+
+.fokus-login-options a {
+  color: #6b11b4;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.fokus-login-options a:hover {
+  color: #4c1d95;
+}
+
+/* Botão Principal: Entrar */
+.fokus-login-button {
+  width: 100%;
+  height: 52px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(95deg, #580ca1 0%, #7812c6 100%);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(104, 18, 184, 0.25);
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.fokus-login-button i {
+  font-size: 19px;
+}
+
+.fokus-login-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(104, 18, 184, 0.34);
+}
+
+/* Divisor "ou" */
+.fokus-login-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 20px 0;
+  color: #64748b;
+  font-size: 13.5px;
+}
+
+.fokus-login-divider::before,
+.fokus-login-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+/* Botão Entrar com Mercado Livre */
+.fokus-meli-login-btn {
+  width: 100%;
+  height: 50px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 14.5px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-decoration: none;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.fokus-meli-login-btn:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.meli-circle-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ffe600;
+  color: #1e293b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* Rodapé: Ainda não tem uma conta? Cadastre-se */
+.fokus-login-signup {
+  margin-top: 24px;
+  text-align: center;
+  font-size: 13.5px;
+  color: #475569;
+}
+
+.fokus-login-signup a {
+  color: #6b11b4;
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 4px;
+}
+
+.fokus-login-signup a:hover {
+  text-decoration: underline;
+}
+
+/* Responsividade */
+@media (max-width: 900px) {
+  .fokus-login-container {
+    grid-template-columns: 1fr;
+    max-width: 500px;
+  }
+
+  .fokus-login-brand {
+    padding: 36px 28px;
+  }
+
+  .fokus-laptop-wrapper {
+    width: 100%;
+    max-width: 290px;
+    transform: none;
+  }
+
+  .fokus-floating-control-card {
+    right: 8px;
+    bottom: 20px;
+    padding: 10px 14px;
+  }
+
+  .fokus-login-form-area {
+    padding: 40px 28px;
+  }
+}
+
+@media (max-width: 420px) {
+  .fokus-login-options {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

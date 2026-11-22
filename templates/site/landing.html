@@ -1,104 +1,527 @@
 <!-- Os códigos foram gerados com auxilio de I.A. -->
-{% extends "base.html" %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
 
-{% block title %}Hub Central de Marketplaces — Plataforma de Integração Multicanal{% endblock %}
-{% block page_title %}Plataforma Multicanal{% endblock %}
-{% block page_subtitle %}Centralize seus produtos, conectores, pedidos e finanças em um único local{% endblock %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fokus | Hub de Marketplaces</title>
+    <link rel="icon" href="{% static 'images/fokus-logo.png' %}" type="image/png">
 
-{% block content %}
-<div class="row align-items-center py-5">
-    <div class="col-lg-7">
-        <span class="badge bg-primary px-3 py-2 rounded-pill mb-3">Fonte Única da Verdade</span>
-        <h1 class="display-4 fw-bold mb-3">Conecte seus produtos a múltiplos marketplaces com segurança total</h1>
-        <p class="lead text-muted mb-4">
-            Gerencie catálogo, preços dinâmicos, estoques atômicos e conciliação de repasses com isolamento multi-tenant e governança RBAC de ponta a ponta.
-        </p>
-        <div class="d-flex gap-3">
-            {% if user.is_authenticated %}
-                <a href="{% url 'home' %}" class="btn btn-primary btn-lg px-4 py-2">
-                    <i class="bi bi-speedometer2 me-1"></i> Ir para o Painel
+    <!-- Google Fonts: Poppins & Inter -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/landing.css' %}?v=20261031b">
+</head>
+
+<body>
+
+    <!-- ============================================== -->
+    <!-- WIDGET FLUTUANTE DO WHATSAPP                   -->
+    <!-- ============================================== -->
+    <div class="wpp-button">
+        <button type="button" class="wpp-btn" id="wppOpen" aria-label="Abrir WhatsApp" aria-expanded="false"
+            aria-controls="wppToggle">
+            <img src="{% static 'images/wpp.png' %}" alt="WhatsApp">
+        </button>
+
+        <div class="wpp-toggle" id="wppToggle" hidden>
+            <div class="wpp-box">
+                <button type="button" class="wpp-close" id="wppClose" aria-label="Fechar janela">×</button>
+
+                <h3>Entre em Contato!</h3>
+                <p>Para iniciar a conversa, preencha os campos abaixo:</p>
+
+                <form id="wppForm">
+                    <input id="nome" name="nome" type="text" placeholder="Seu nome *" autocomplete="name" required>
+
+                    <input id="email" name="email" type="email" placeholder="Seu e-mail *" autocomplete="email"
+                        required>
+
+                    <input id="telefone" name="telefone" type="tel" placeholder="(17) 99999-9999 *" maxlength="15"
+                        autocomplete="tel" required>
+
+                    <input id="empresa" name="empresa" type="text" placeholder="Nome da sua empresa *"
+                        autocomplete="organization" required>
+
+                    <button type="submit" class="wpp-send">
+                        Iniciar conversa
+                    </button>
+
+                    <p id="wppFeedback" role="status" aria-live="polite"></p>
+                </form>
+            </div>
+
+            <div class="wpp-toggle-content">
+                <p>Para dúvidas ou suporte, fale conosco pelo WhatsApp:</p>
+
+                <a href="https://wa.me/5517981507301" target="_blank" rel="noopener noreferrer" class="wpp-toggle-link">
+                    <i class="bi bi-whatsapp"></i>
+                    Conversar no WhatsApp
                 </a>
-            {% else %}
-                <a href="{% url 'login' %}" class="btn btn-primary btn-lg px-4 py-2">
-                    <i class="bi bi-box-arrow-in-right me-1"></i> Entrar no Sistema
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/app.js' %}" defer></script>
+
+    <!-- ============================================== -->
+    <!-- HEADER FLUTUANTE PÍLULA (ESTILO fokus)         -->
+    <!-- ============================================== -->
+    <header class="fokus-header sticky-top">
+        <div class="container">
+            <nav class="fokus-navbar navbar navbar-expand-lg">
+                <!-- Logo -->
+                <a class="navbar-brand fokus-brand d-flex align-items-center gap-2 text-decoration-none" href="#inicio"
+                    aria-label="Fokus - Página inicial">
+                    <img src="{% static 'images/fokus-logo.png' %}" alt="Fokus" class="fokus-logo-img" width="38"
+                        height="38" style="width: 38px; height: 38px; max-width: 38px; object-fit: contain;">
+                    <span class="fokus-brand-name">Fokus</span>
                 </a>
-            {% endif %}
-            <a href="#recursos" class="btn btn-outline-secondary btn-lg px-4 py-2">
-                <i class="bi bi-info-circle me-1"></i> Saiba Mais
-            </a>
+
+                <!-- Mobile Toggler -->
+                <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Abrir menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Links Centralizados & Botões Pílula -->
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mx-auto align-items-lg-center gap-lg-3 my-3 my-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link active-nav" href="#marketplaces">Marketplaces</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#funcionalidades">Funcionalidades</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#suporte">Fokus</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#contato" data-open-wpp="true">Contato</a>
+                        </li>
+                    </ul>
+
+                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                        <a href="{% url 'login' %}" class="btn-fokus-solid-sm">
+                            <i class="bi bi-box-arrow-in-right me-1"></i> Login
+                        </a>
+                    </div>
+                </div>
+            </nav>
         </div>
-    </div>
-    <div class="col-lg-5 text-center mt-5 mt-lg-0">
-        <div class="card p-4 shadow-sm border-0 bg-body-tertiary">
-            <div class="d-flex justify-content-around py-3">
-                <div class="text-center">
-                    <i class="bi bi-diagram-3 fs-1 text-primary"></i>
-                    <h5 class="fw-bold mt-2">Canais</h5>
-                    <small class="text-muted">ML, Shopee, Magalu</small>
+    </header>
+
+    <!-- ============================================== -->
+    <!-- 1. HERO SECTION (ESPELHADA NA fokus)           -->
+    <!-- ============================================== -->
+    <section class="fokus-hero" id="inicio">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <!-- Coluna Esquerda: Textos e CTAs -->
+                <div class="col-lg-6">
+                    <div class="fokus-eyebrow mb-2">
+                        <i class="bi bi-globe2 me-1 text-purple"></i>HUB DE MARKETPLACE
+                    </div>
+
+                    <h1 class="fokus-hero-title mb-3">
+                        Vender mais não significa lucrar mais.
+                    </h1>
+
+                    <p class="fokus-hero-desc mb-4">
+                        Muito além da gestão de marketplaces!
+                        <br>Centralize informações, acompanhe sua precificação e utilize inteligência
+                        financeira para avaliar campanhas promocionais. Tenha mais controle operacional
+                        e decisões orientadas por dados.
+                    </p>
+
+                    <div class="d-flex flex-wrap align-items-center gap-3">
+                        <a href="#contato" class="btn-fokus-solid-lg" data-open-wpp="true">
+                            Solicitar Demonstração
+                        </a>
+                        <a href="{% url 'login' %}" class="btn-fokus-outline-lg">
+                            Teste Grátis <i class="bi bi-arrow-up-right ms-1"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="text-center">
-                    <i class="bi bi-shield-check fs-1 text-success"></i>
-                    <h5 class="fw-bold mt-2">Segurança</h5>
-                    <small class="text-muted">RBAC & Fernet</small>
-                </div>
-                <div class="text-center">
-                    <i class="bi bi-cash-stack fs-1 text-warning"></i>
-                    <h5 class="fw-bold mt-2">Finanças</h5>
-                    <small class="text-muted">Margens e Tarifas</small>
+
+                <!-- Coluna Direita: Composição Visual da Imagem + Elementos Flutuantes -->
+                <div class="col-lg-6">
+                    <div class="fokus-hero-visual">
+                        <!-- Imagem principal de ramificação dos marketplaces -->
+                        <div class="fokus-visual-frame">
+                            <img src="{% static 'images/Foku-ramificacao.jpeg' %}"
+                                alt="Fokus - Integração com todos os Marketplaces" class="img-fluid fokus-network-img">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
+    </section>
 
-<section id="recursos" class="pt-5 border-top">
-    <div class="text-center mb-5">
-        <h2 class="fw-bold">Arquitetura Desacoplada e Modular</h2>
-        <p class="text-muted">Projetado com os mais rigorosos padrões do ecossistema Django</p>
-    </div>
-
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body p-4">
-                    <div class="d-inline-flex p-3 rounded-3 bg-primary-subtle text-primary mb-3">
-                        <i class="bi bi-boxes fs-3"></i>
+    <!-- ============================================== -->
+    <!-- 2. FAIXA DE MÉTRICAS DE PERFORMANCE            -->
+    <!-- ============================================== -->
+    <section class="fokus-metrics-section">
+        <div class="container">
+            <div class="fokus-metrics-card">
+                <div class="row g-4 text-center align-items-center">
+                    <div class="col-6 col-lg-3">
+                        <div class="fokus-metric-item">
+                            <span class="fokus-metric-number">100%</span>
+                            <p class="fokus-metric-label">Integrado com o Mercado Livre</p>
+                        </div>
                     </div>
-                    <h4 class="card-title fw-bold">Catálogo Mestre</h4>
-                    <p class="card-text text-muted">
-                        Cadastro centralizado de produtos e estoque interno. Todas as alterações são sincronizadas automaticamente com os canais parceiros.
+                    <div class="col-6 col-lg-3">
+                        <div class="fokus-metric-item">
+                            <span class="fokus-metric-number">100%</span>
+                            <p class="fokus-metric-label">Foco na rentabilidade</p>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="fokus-metric-item">
+                            <span class="fokus-metric-number">1 painel</span>
+                            <p class="fokus-metric-label">Gestão centralizada</p>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="fokus-metric-item">
+                            <span class="fokus-metric-number">Multi-tenant</span>
+                            <p class="fokus-metric-label">Isolamento de dados</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 3. SEÇÃO MARKETPLACES                          -->
+    <!-- ============================================== -->
+    <section class="fokus-section" id="marketplaces">
+        <div class="container">
+            <div class="text-center max-w-700 mx-auto mb-5">
+                <span class="fokus-eyebrow">MARKETPLACES</span>
+                <h2 class="fokus-section-title mt-2">
+                    Atualize um estoque e todos os seus <span class="text-purple">marketplaces atualizam
+                        automaticamente</span>
+                </h2>
+                <p class="fokus-section-subtitle">
+                    Conecte Mercado Livre, Shopee, Amazon, Magalu, Shein, TikTok Shop, AliExpress, Netshoes e muito mais
+                    sem retrabalho manual.
+                </p>
+            </div>
+
+            <!-- Logos / Pills dos Marketplaces -->
+            <div class="fokus-mp-badges mb-5">
+                <span class="fokus-mp-pill"><i class="bi bi-bag-check-fill text-warning me-2"></i>Mercado Livre</span>
+                <span class="fokus-mp-pill"><i class="bi bi-shop text-danger me-2"></i>Shopee</span>
+                <span class="fokus-mp-pill"><i class="bi bi-cart-check-fill text-primary me-2"></i>Magalu</span>
+                <span class="fokus-mp-pill"><i class="bi bi-box-seam-fill text-dark me-2"></i>Amazon</span>
+                <span class="fokus-mp-pill"><i class="bi bi-stars text-purple me-2"></i>Shein</span>
+                <span class="fokus-mp-pill"><i class="bi bi-tiktok text-dark me-2"></i>TikTok Shop</span>
+                <span class="fokus-mp-pill"><i class="bi bi-globe-americas text-danger me-2"></i>AliExpress</span>
+                <span class="fokus-mp-pill"><i class="bi bi-lightning-charge-fill text-info me-2"></i>Netshoes</span>
+                <span class="fokus-mp-pill"><i class="bi bi-heart-fill text-danger me-2"></i>Enjoei</span>
+            </div>
+
+            <!-- 4 Pilares de Marketplaces (Igual à fokus) -->
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="fokus-feature-card h-100">
+                        <div class="fokus-icon-box">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                        <h3 class="fokus-card-title">Catálogo de Produtos</h3>
+                        <p class="fokus-card-text">
+                            Cadastre e organize seus produtos, centralizando informações importantes para sua operação
+                            nos marketplaces.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="fokus-feature-card h-100">
+                        <div class="fokus-icon-box">
+                            <i class="bi bi-calculator"></i>
+                        </div>
+                        <h3 class="fokus-card-title">Inteligência de Preços</h3>
+                        <p class="fokus-card-text">
+                            Analise comissões, taxas e fretes para entender os custos envolvidos e definir preços com
+                            mais segurança.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="fokus-feature-card h-100">
+                        <div class="fokus-icon-box">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <h3 class="fokus-card-title">Simulador Promocional</h3>
+                        <p class="fokus-card-text">
+                            Avalie o impacto de descontos e campanhas na sua margem de lucro antes de participar de uma
+                            promoção.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="fokus-feature-card h-100">
+                        <div class="fokus-icon-box">
+                            <i class="bi bi-boxes"></i>
+                        </div>
+                        <h3 class="fokus-card-title">Estoque</h3>
+                        <p class="fokus-card-text">
+                            Unifique seu estoque em tempo real para não perder vendas nem sofrer punições por furo.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center mt-5">
+                <a href="#funcionalidades" class="btn-fokus-outline-lg">
+                    Conheça os Marketplaces <i class="bi bi-arrow-up-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 4. SEÇÃO FUNCIONALIDADES                       -->
+    <!-- ============================================== -->
+    <section class="fokus-section fokus-section-alt" id="funcionalidades">
+        <div class="container">
+            <div class="row align-items-end mb-5 g-4">
+                <div class="col-lg-8">
+                    <span class="fokus-eyebrow">FUNCIONALIDADES</span>
+                    <h2 class="fokus-section-title mt-2 mb-2">
+                        Simplifique a Sua Rotina de Vendas nos Marketplaces
+                    </h2>
+                    <p class="fokus-section-subtitle mb-0">
+                        Tudo o que você precisa para escalar suas vendas sem comprometer seu dia a dia operacional.
                     </p>
                 </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="{% url 'login' %}" class="btn-fokus-solid-lg">
+                        Conheça Todas Funcionalidades
+                    </a>
+                </div>
             </div>
-        </div>
 
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body p-4">
-                    <div class="d-inline-flex p-3 rounded-3 bg-success-subtle text-success mb-3">
-                        <i class="bi bi-arrow-repeat fs-3"></i>
+            <div class="row g-4">
+                <!-- Card 1 -->
+                <div class="col-md-6 col-lg-6">
+                    <div class="fokus-bento-card h-100">
+                        <div class="fokus-bento-badge">Logística</div>
+                        <div class="fokus-icon-box mb-3">
+                            <i class="bi bi-box2-heart"></i>
+                        </div>
+                        <h3 class="fokus-card-title">Inteligência de Margem</h3>
+                        <p class="fokus-card-text">
+                            Analise custos, comissões e fretes antes de participar de campanhas. Identifique
+                            oportunidades e riscos para proteger sua margem de lucro.
+                        </p>
                     </div>
-                    <h4 class="card-title fw-bold">Sincronização em Tempo Real</h4>
-                    <p class="card-text text-muted">
-                        Fila de sincronização resiliente e idempotente, prevenindo divergências de inventário e vendas sem estoque físico.
-                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="col-md-6 col-lg-6">
+                    <div class="fokus-bento-card h-100">
+                        <div class="fokus-bento-badge">Segurança</div>
+                        <div class="fokus-icon-box mb-3">
+                            <i class="bi bi-shield-lock"></i>
+                        </div>
+                        <h3 class="fokus-card-title">Multi-tenat</h3>
+                        <p class="fokus-card-text">
+                            Controle os níveis de acesso da equipe e mantenha os dados de cada empresa isolados com uma
+                            estrutura multi-tenant.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="col-md-6 col-lg-6">
+                    <div class="fokus-bento-card h-100">
+                        <div class="fokus-bento-badge">Tempo Real</div>
+                        <div class="fokus-icon-box mb-3">
+                            <i class="bi bi-activity"></i>
+                        </div>
+                        <h3 class="fokus-card-title">Sincronização de Estoque</h3>
+                        <p class="fokus-card-text">
+                            Centralize o controle de estoque e mantenha as informações dos produtos organizadas para
+                            reduzir inconsistências e cancelamentos.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="col-md-6 col-lg-6">
+                    <div class="fokus-bento-card h-100">
+                        <div class="fokus-bento-badge">Catálogo</div>
+                        <div class="fokus-icon-box mb-3">
+                            <i class="bi bi-collection"></i>
+                        </div>
+                        <h3 class="fokus-card-title">Gestão de Kits e Combos</h3>
+                        <p class="fokus-card-text">
+                            Organize produtos individuais e combinações, facilitando o controle da disponibilidade e a
+                            gestão do estoque.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
+    </section>
 
-        <div class="col-md-4">
-            <div class="card h-100 shadow-sm border-0">
-                <div class="card-body p-4">
-                    <div class="d-inline-flex p-3 rounded-3 bg-warning-subtle text-warning mb-3">
-                        <i class="bi bi-palette fs-3"></i>
+    <!-- ============================================== -->
+    <!-- 5. SEÇÃO SUPORTE HUMANIZADO                    -->
+    <!-- ============================================== -->
+    <section class="fokus-section" id="suporte">
+        <div class="container">
+            <div class="fokus-support-banner">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6">
+                        <span class="fokus-eyebrow text-purple-light">SUPORTE</span>
+                        <h2 class="fokus-support-title mt-2 mb-3">
+                            Atendimento Real, Rápido e Focado em Resultado
+                        </h2>
+                        <p class="fokus-support-desc mb-4">
+                            Seja atendido por uma pessoa real e tire todas as suas dúvidas rapidamente. Nossa equipe
+                            acompanha sua operação em todas as etapas para você vender mais.
+                        </p>
+                        <a href="#contato" class="btn-fokus-yellow-lg" data-open-wpp="true">
+                            Fale Com Nossos Especialistas <i class="bi bi-whatsapp ms-2"></i>
+                        </a>
                     </div>
-                    <h4 class="card-title fw-bold">Temas Acessíveis WCAG 2.1</h4>
-                    <p class="card-text text-muted">
-                        Sistema visual de temas desacoplados com validação automática de luminância e contraste para inclusão e usabilidade exemplar.
-                    </p>
+
+                    <div class="col-lg-6">
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <div class="fokus-support-mini-card">
+                                    <i class="bi bi-person-check-fill"></i>
+                                    <h4>Suporte Humanizado</h4>
+                                    <p>Atendimento próximo e ágil sem robôs prendendo sua operação.</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="fokus-support-mini-card">
+                                    <i class="bi bi-award-fill"></i>
+                                    <h4>Especialistas em Marketplace</h4>
+                                    <p>Converse com quem realmente entende as regras de cada canal.</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="fokus-support-mini-card">
+                                    <i class="bi bi-compass-fill"></i>
+                                    <h4>Acompanhamento Direcionado</h4>
+                                    <p>Auxílio estratégico durante o onboarding e crescimento.</p>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="fokus-support-mini-card">
+                                    <i class="bi bi-chat-dots-fill"></i>
+                                    <h4>Múltiplos Canais</h4>
+                                    <p>Escolha como prefere ser atendido: WhatsApp, Meet ou E-mail.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-{% endblock %}
+    </section>
+
+    <!-- ============================================== -->
+    <!-- 6. RODAPÉ COMPLETO (ESTILO fokus)              -->
+    <!-- ============================================== -->
+    <footer class="fokus-footer">
+        <div class="container">
+            <!-- Faixa de Destaque no Topo do Footer -->
+            <div class="row g-4 pb-5 mb-5 border-bottom border-secondary border-opacity-25">
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="fokus-footer-badge-icon"><i class="bi bi-Rocket-takeoff bi-rocket-takeoff"></i>
+                        </div>
+                        <p class="mb-0 text-white fw-medium">Venda em vários marketplaces com menos trabalho manual</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="fokus-footer-badge-icon"><i class="bi bi-grid-1x2-fill"></i></div>
+                        <p class="mb-0 text-white fw-medium">Gerencie todas as suas vendas em apenas 1 painel</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="fokus-footer-badge-icon"><i class="bi bi-lightning-charge-fill"></i></div>
+                        <p class="mb-0 text-white fw-medium">O Hub de Integração com o Melhor Diferencial</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Links e Colunas -->
+            <div class="row g-4 pb-5">
+                <div class="col-lg-5">
+                    <a class="d-inline-flex align-items-center gap-2 text-decoration-none mb-3" href="#inicio">
+                        <img src="{% static 'images/fokus-logo.png' %}" alt="Fokus" width="38" height="38">
+                        <span class="fs-3 fw-bold text-white">Fokus</span>
+                    </a>
+                    <p class="text-white-50 small pe-lg-4">
+                        Hub Central de Integração e Inteligência Financeira para Marketplaces. Escale sua operação
+                        multicanal com segurança e margem blindada.
+                    </p>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <h5 class="fokus-footer-heading">Navegação</h5>
+                    <ul class="fokus-footer-links">
+                        <li><a href="#inicio">Início</a></li>
+                        <li><a href="#marketplaces">Marketplaces</a></li>
+                        <li><a href="#funcionalidades">Funcionalidades</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-6 col-lg-2">
+                    <h5 class="fokus-footer-heading">A Fokus</h5>
+                    <ul class="fokus-footer-links">
+                        <li><a href="#suporte">Nosso Suporte</a></li>
+                        <li><a href="{% url 'login' %}">Área do Cliente</a></li>
+                        <li><a href="{% url 'login' %}">Teste Grátis</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-6 col-lg-3">
+                    <h5 class="fokus-footer-heading">Suporte</h5>
+                    <ul class="fokus-footer-links">
+                        <li><a href="#contato" data-open-wpp="true">Fale no WhatsApp</a></li>
+                        <li><a href="{% url 'login' %}">Central de Ajuda</a></li>
+                        <li><a href="#inicio">Políticas de Privacidade</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            <div
+                class="pt-4 border-top border-secondary border-opacity-25 d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 text-white-50 small">
+                <span>&copy; 2026 Fokus Hub de Marketplaces — Gestão e Inteligência para E-commerce. Todos os direitos
+                    reservados.</span>
+                <span>Desenvolvido com arquitetura de alta disponibilidade.</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
