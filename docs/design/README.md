@@ -39,6 +39,10 @@ Nosso Caderno de Design reúne as decisões estruturantes implementadas ao longo
 | **ADR 014b** | Governança de Código e Integridade Acadêmica (IA Nível 2) | Diretrizes FATEC / Autoria Híbrida | `7aa267f` | [ADR-014-governanca-codigo-e-conformidade-ia.md](ADR-014-governanca-codigo-e-conformidade-ia.md) |
 | **ADR 015** | Extrair um Service da view AnuncioToggleIgnorarView | **Domain Service Pattern** / Separação de Camadas | `5511bdd` | [ADR-015-extrair-service-da-view-anuncio-toggle-ignorar.md](ADR-015-extrair-service-da-view-anuncio-toggle-ignorar.md) |
 | **ADR 015b** | Arquitetura de Apresentação, Temas e Ergonomia Operacional | Client-Side Storage / Grid Responsivo | `5dedfaa` | [ADR-015-ergonomia-operacional-temas-e-grid.md](ADR-015-ergonomia-operacional-temas-e-grid.md) |
+| **ADR 016** | Decisão de Não Adoção do Padrão MVVM (Uso Nativo de Django MVT) | **MVVM** (Não aplicado — MVT/HTMX) | `Sprint 3` | [ADR-016-nao-adocao-padrao-mvvm-django-mvt.md](ADR-016-nao-adocao-padrao-mvvm-django-mvt.md) |
+| **ADR 017** | Formalização do Padrão Adapter nos Conectores Externos e MongoDB | **Adapter Pattern** (Semi-implantado) | `Sprint 3` | [ADR-017-adocao-padrao-adapter-conectores-e-mongodb.md](ADR-017-adocao-padrao-adapter-conectores-e-mongodb.md) |
+| **ADR 018** | Formalização do Padrão Facade sobre a Camada de Serviços | **Facade Pattern** (Semi-implantado) | `Sprint 3` | [ADR-018-adocao-padrao-facade-orquestracao-servicos.md](ADR-018-adocao-padrao-facade-orquestracao-servicos.md) |
+| **ADR 019** | Decisão de Não Adoção do Padrão Decorator (GoF) e Delimitação em Python | **Decorator GoF** (Não aplicado — Python/Django) | `Sprint 3` | [ADR-019-nao-adocao-padrao-decorator-gof-python.md](ADR-019-nao-adocao-padrao-decorator-gof-python.md) |
 
 Consulte o mapeamento exaustivo de todas as 35 branches em:  
 👉 [HISTORICO_GIT_MARCO1.md](file:///z:/home/oscar/projetos/django/hub_integracao_marketplaces/docs/design/HISTORICO_GIT_MARCO1.md)
