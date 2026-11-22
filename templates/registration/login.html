@@ -125,6 +125,7 @@
         <div class="fokus-login-form-area">
 
             <div class="fokus-login-form-header">
+                <p class="text-uppercase small fw-semibold mb-1 opacity-75">Acesso ao Sistema</p>
                 <h2>Bem-vindo ao <span>FOKUS!</span></h2>
                 <p>Faça login para acessar sua conta</p>
             </div>
@@ -132,7 +133,7 @@
             {% if login_debug %}
             <div class="alert alert-warning py-2 px-3 small mb-3 rounded-3">
                 <i class="bi bi-exclamation-triangle me-1"></i>
-                Modo Debug: Credenciais de teste preenchidas automaticamente.
+                Modo Debug: Credenciais de teste injetadas automaticamente (LoginDebug=True)
             </div>
             {% endif %}
 
@@ -173,16 +174,12 @@
                     </div>
                 </div>
 
-                <!-- Lembrar-me & Esqueceu sua senha? -->
+                <!-- Lembrar-me -->
                 <div class="fokus-login-options">
                     <label class="fokus-remember-check">
                         <input type="checkbox" name="remember_me" checked>
                         <span>Lembrar-me</span>
                     </label>
-
-                    <a href="{% url 'password_reset' %}">
-                        Esqueceu sua senha?
-                    </a>
                 </div>
 
                 <!-- Botão Principal Entrar -->
@@ -190,6 +187,13 @@
                     <i class="bi bi-box-arrow-in-right"></i>
                     <span>Entrar</span>
                 </button>
+
+                <!-- Link Esqueci minha senha (abaixo do botão Entrar no DOM) -->
+                <div class="text-center mt-3">
+                    <a href="{% url 'password_reset' %}" class="small text-decoration-none">
+                        Esqueci minha senha
+                    </a>
+                </div>
             </form>
 
         </div>

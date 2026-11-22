@@ -43,15 +43,20 @@ def tema_css_view(request):
 class RaizView(View):
     """
     Controla o fluxo de entrada na raiz '/':
-      - Se visibilidade pública ativa: exibe sempre a Landing Page (site/landing.html) como porta de entrada.
-      - Se visibilidade pública desativada: redireciona logados ao Dashboard (/dashboard/) ou exibe Login.
+      - Usuário autenticado: acessa diretamente o Dashboard principal (tenancy/home.html).
+      - Se visibilidade pública ativa: exibe a Landing Page (site/landing.html).
+      - Se visibilidade pública desativada: exibe Login.
     """
     def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            try:
+                from apps.tenancy.views import DashboardHomeView
+                return DashboardHomeView.as_view()(request, *args, **kwargs)
+            except Exception:
+                return redirect('produto_list')
+
         if ConfigSite.is_visibilidade_publica_ativa():
             return render(request, 'site/landing.html', {'visibilidade_ativa': True})
-
-        if request.user.is_authenticated:
-            return redirect('home')
 
         from django.contrib.auth.views import LoginView
         return LoginView.as_view(template_name='registration/login.html')(request, *args, **kwargs)

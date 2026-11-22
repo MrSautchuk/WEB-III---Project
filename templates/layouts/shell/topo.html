@@ -772,10 +772,11 @@
             </button>
 
             <div class="fokus-sidebar-header">
-                <a href="{% url 'home' %}" class="fokus-sidebar-brand" data-fokus-nav="true">
+                <a href="{% url 'home' %}" class="fokus-sidebar-brand" data-fokus-nav="true" aria-label="Hub Marketplaces">
                     <img src="{% static 'images/fokus-logo.png' %}" alt="FOKUS" class="fokus-sidebar-logo">
                     <div class="fokus-sidebar-brand-text">
                         <span class="fokus-sidebar-brand-title">FO<span>K</span>US</span>
+                        <span class="visually-hidden">Hub Marketplaces</span>
                         <span class="fokus-sidebar-brand-sub">Gestão e Inteligência<br>para Marketplaces</span>
                     </div>
                 </a>
@@ -904,8 +905,8 @@
                 </li>
                 {% endif %}
 
-                <!-- Gestão de Identidade -->
                 {% if is_dev or user.perfil.is_admin or user.perfil.is_supervisor or user.is_superuser %}
+                <!-- Gestão de Identidade -->
                 <li>
                     <a class="fokus-nav-link {% if 'usuario' in request.resolver_match.url_name or 'matriz' in request.resolver_match.url_name %}active{% endif %}"
                        data-bs-toggle="collapse" href="#subIdentidade" role="button" aria-expanded="false">
@@ -953,7 +954,7 @@
                     {% if is_dev or user.perfil.is_dev or user.is_superuser %}
                     <li>
                         <a class="dropdown-item small" href="{% url 'mockar_dados_dashboard' %}" data-fokus-nav="true">
-                            <i class="bi bi-database-fill-gear me-2 text-warning"></i>Mockar Dados
+                            <i class="bi bi-database-fill-gear me-2 text-warning"></i>Mockar dados
                         </a>
                     </li>
                     {% endif %}
@@ -999,7 +1000,7 @@
                             <span id="fokus-theme-label">Tema: Escuro</span>
                             <i class="bi bi-chevron-down small opacity-75"></i>
                         </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow p-2" style="min-width: 220px;">
+                        <ul class="dropdown-menu dropdown-menu-end shadow p-2" style="min-width: 280px;">
                             <li class="px-2 py-1 small text-uppercase text-muted fw-bold">Modo de Iluminação</li>
                             <li class="d-flex gap-1 px-2 py-1">
                                 <button type="button" class="btn btn-sm btn-outline-primary flex-fill" data-bs-theme-value="dark">
@@ -1007,6 +1008,97 @@
                                 </button>
                                 <button type="button" class="btn btn-sm btn-outline-primary flex-fill" data-bs-theme-value="light">
                                     <i class="bi bi-sun-fill me-1"></i>Claro
+                                </button>
+                            </li>
+                            <li><hr class="dropdown-divider my-2"></li>
+                            <li class="px-2 py-1 small text-uppercase text-muted fw-bold">Modelos Canônicos (T01–T10)</li>
+                            <li>
+                                <form method="post" action="{% url 'site:tema_alternar' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="modelo" value="T01">
+                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T01' %}active fw-bold{% endif %}">
+                                        <span>T01 — Alegre</span>
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="post" action="{% url 'site:tema_alternar' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="modelo" value="T02">
+                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T02' %}active fw-bold{% endif %}">
+                                        <span>T02 — Sofisticado</span>
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="post" action="{% url 'site:tema_alternar' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="modelo" value="T03">
+                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T03' %}active fw-bold{% endif %}">
+                                        <span>T03 — Sóbrio</span>
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="post" action="{% url 'site:tema_alternar' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="modelo" value="T04">
+                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T04' %}active fw-bold{% endif %}">
+                                        <span>T04 — Animado</span>
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="post" action="{% url 'site:tema_alternar' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="modelo" value="T05">
+                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T05' %}active fw-bold{% endif %}">
+                                        <span>T05 — Profissional</span>
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="post" action="{% url 'site:tema_alternar' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="modelo" value="T06">
+                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T06' %}active fw-bold{% endif %}">
+                                        <span>T06 — Luxuoso</span>
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="post" action="{% url 'site:tema_alternar' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="modelo" value="T07">
+                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T07' %}active fw-bold{% endif %}">
+                                        <span>T07 — SoftClean</span>
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="post" action="{% url 'site:tema_alternar' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="modelo" value="T08">
+                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T08' %}active fw-bold{% endif %}">
+                                        <span>T08 — Noturno</span>
+                                    </button>
+                                </form>
+                            </li>
+                            <li>
+                                <form method="post" action="{% url 'site:tema_alternar' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="modelo" value="T09">
+                                    <button type="submit" class="dropdown-item d-flex align-items-center justify-content-between py-1 rounded {% if tema.modelo == 'T09' %}active fw-bold{% endif %}">
+                                        <span>T09 — Acessível (7:1)</span>
+                                    </button>
+                                </form>
+                            </li>
+                            <li><hr class="dropdown-divider my-2"></li>
+                            <li>
+                                <button type="button" class="dropdown-item d-flex align-items-center justify-content-between py-2 text-primary fw-semibold rounded"
+                                        data-bs-toggle="modal" data-bs-target="#modalTemaPersonalizado">
+                                    <span>T10 — Personalizado (3 Cores)</span>
+                                    <i class="bi bi-sliders"></i>
                                 </button>
                             </li>
                         </ul>
@@ -1061,7 +1153,7 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow">
                             <li class="dropdown-header small">
-                                Papel: {% if is_dev or user.is_superuser %}Dev / Superuser{% else %}{{ user.perfil.get_papel_display }}{% endif %}
+                                Papel: {% if user.is_superuser %}Superusuário{% elif is_dev %}Dev{% else %}{{ user.perfil.get_papel_display }}{% endif %}
                             </li>
                             {% if is_dev or user.perfil.is_dev or user.is_superuser %}
                             <li>
@@ -1100,7 +1192,7 @@
                 {% block toolbar %}
                 <div class="fokus-page-toolbar">
                     <div>
-                        <h1>{% block page_title %}Visão Geral{% endblock %}</h1>
+                        <h1>{% block page_title %}Visão geral{% endblock %}</h1>
                         <small>{% block page_subtitle %}{% endblock %}</small>
                     </div>
                     <div class="d-flex gap-2">{% block toolbar_actions %}{% endblock %}</div>
@@ -1114,6 +1206,49 @@
 
         </div>
     </div>
+
+    <!-- MODAL DE PERSONALIZAÇÃO DE TEMA (T10 — 3 CORES DA PALETA) -->
+    {% if user.is_authenticated %}
+    <div class="modal fade" id="modalTemaPersonalizado" tabindex="-1" aria-labelledby="modalTemaPersonalizadoLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow border-0">
+                <form method="post" action="{% url 'site:tema_alternar' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="modelo" value="T10">
+                    <div class="modal-header bg-dark text-white">
+                        <h5 class="modal-title d-flex align-items-center gap-2" id="modalTemaPersonalizadoLabel">
+                            <i class="bi bi-palette2"></i> Personalizar Tema (Modelo T10 — 3 Cores)
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small">1. Cor de Fundos</label>
+                                <input type="text" class="form-control font-monospace text-uppercase" id="cor_fundos"
+                                       name="cor_fundos" value="{{ tema.fundos|default:'#F8FAFC' }}" maxlength="7" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small">2. Cor de Destaques</label>
+                                <input type="text" class="form-control font-monospace text-uppercase" id="cor_destaques"
+                                       name="cor_destaques" value="{{ tema.destaques|default:'#1E3A8A' }}" maxlength="7" required>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold small">3. Cor de Escritas</label>
+                                <input type="text" class="form-control font-monospace text-uppercase" id="cor_escritas"
+                                       name="cor_escritas" value="{{ tema.escritas|default:'#0F172A' }}" maxlength="7" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary fw-bold px-4">Salvar e Aplicar Tema</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Bootstrap 5.3.3 JS com SRI oficial -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
